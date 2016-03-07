@@ -1,0 +1,6 @@
+h:\visual studio 2015\Projects\Schach\Schach\bin\Debug\Schach.exe.config
+h:\visual studio 2015\Projects\Schach\Schach\bin\Debug\Schach.exe
+h:\visual studio 2015\Projects\Schach\Schach\bin\Debug\Schach.pdb
+h:\visual studio 2015\Projects\Schach\Schach\obj\Debug\Schach.csprojResolveAssemblyReference.cache
+h:\visual studio 2015\Projects\Schach\Schach\obj\Debug\Schach.exe
+h:\visual studio 2015\Projects\Schach\Schach\obj\Debug\Schach.pdb
