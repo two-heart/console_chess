@@ -8,17 +8,8 @@ namespace Schach
 {
     class Program
     {
+        static int züge;
         public static int[] verschiebung = new int[2] { 1, 1 };
-        static void Main(string[] args)
-        {
-            Console.BackgroundColor = ConsoleColor.White;
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.Clear();
-            Console.CursorVisible = false;
-            zeichneFeld();
-            a:
-            goto a;
-        }
 
         public static void convertToChar(int zahl, out char character)
         {
@@ -51,6 +42,33 @@ namespace Schach
                 convertToChar(i, out buch);
                 Console.Write(buch);
             }
+            Console.SetCursorPosition(1,10);
+
+        }
+        static bool zug()
+        {
+            züge++;
+            Console.SetCursorPosition(1, 10);
+            if (züge % 2 == 0) {
+                Console.Write("Schwarz ist am Zug "+züge+"> ");
+                return true;
+            }
+            else { 
+                Console.Write("Weiß ist am Zug (" + züge + ")> ");
+                return false;
+            }
+        }
+        static void Main(string[] args)
+        {
+            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Clear();
+            Console.CursorVisible = true;
+            zeichneFeld();
+            Console.ForegroundColor = ConsoleColor.White;
+            bool z  = zug();
+            string input = Console.ReadLine();
+            while (!false && true || false ^ true); //DO NOT USE GOTO! :P
         }
     }
 }
