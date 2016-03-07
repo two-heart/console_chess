@@ -11,6 +11,7 @@ namespace Schach
     {
 
         public static int züge;
+        public static bool weiß;
         public static int[] verschiebung = new int[2] { 1, 1 };
         /*
         Weiß:
@@ -52,8 +53,10 @@ namespace Schach
             zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
             string input;
-            while (true) { //I told you not to
+            while (true)
+            { //I told you not to
                 bool z = zug();
+                Console.SetCursorPosition(1, 12);
                 input = Console.ReadLine();
                 verarbeite(input);
             }
@@ -72,15 +75,22 @@ namespace Schach
 
             char[] eins = splitted[0].ToCharArray();
             char[] zwei = splitted[1].ToCharArray();
-            int[] peins = new int[2] { convertToInt(eins[0]) - 1, Convert.ToInt32(eins[1] - '0') - 1};
-            int[] pzwei = new int[2] { convertToInt(zwei[0]) - 1, Convert.ToInt32(zwei[1] - '0') - 1};
-            if (Feld[pzwei[1], pzwei[0]] == 0)
+            int[] peins = new int[2] { convertToInt(eins[0]) - 1, Convert.ToInt32(eins[1] - '0') - 1 };
+            int[] pzwei = new int[2] { convertToInt(zwei[0]) - 1, Convert.ToInt32(zwei[1] - '0') - 1 };
+            int previous;
+            previous = Feld[peins[1], peins[0]];
+            if (Feld[pzwei[1], pzwei[0]] == 0 && (weiß && previous < 7 || !weiß && previous >= 7) && previous != 0 && (previous != 2 && previous != 8 || (pzwei[0] == peins[0] ||pzwei[1] == peins[1])))
             {
-                int previous;
-                previous = Feld[peins[1], peins[0]];
+                Feld[peins[1], peins[0]] = 0;
                 zeichnesymbol(' ', peins[0], peins[1]);
+                Console.ForegroundColor = ConsoleColor.Black;
+                if (previous < 7) Console.ForegroundColor = ConsoleColor.White;
+                Feld[pzwei[1], pzwei[0]] = previous;
                 zeichnesymbol(symbols[previous], pzwei[0], pzwei[1]);
+                Console.ForegroundColor = ConsoleColor.Black;
             }
+            Console.SetCursorPosition(1, 12);
+            Console.Write("                        ");
         }
 
         public static void zeichnesymbol(char Symbol, int x, int y)
@@ -152,19 +162,21 @@ namespace Schach
             }
         }
 
-       public  static bool zug()
+        public static bool zug()
         {
             Console.SetCursorPosition(1, 10);
             if (züge % 2 == 0)
             {
                 Console.Write("Schwarz ist am Zug " + züge + "> ");
                 züge++;
+                weiß = false;
                 return true;
             }
             else
             {
                 Console.Write("Weiß ist am Zug (" + züge + ")> ");
                 züge++;
+                weiß = true;
                 return false;
             }
         }
