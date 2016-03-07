@@ -51,12 +51,12 @@ namespace Schach
             zeichneFeld();
             zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
-            bool z = zug();
             string input;
-            a:
-            input = Console.ReadLine();
-            verarbeite(input);
-            goto a;
+            while (true) { //I told you not to
+                bool z = zug();
+                input = Console.ReadLine();
+                verarbeite(input);
+            }
         }
 
         public static void verarbeite(string input)
@@ -69,6 +69,7 @@ namespace Schach
                 Console.ReadKey();
                 return;
             }
+
             char[] eins = splitted[0].ToCharArray();
             char[] zwei = splitted[1].ToCharArray();
             int[] peins = new int[2] { convertToInt(eins[0]) - 1, Convert.ToInt32(eins[1] - '0') - 1};
@@ -153,16 +154,17 @@ namespace Schach
 
        public  static bool zug()
         {
-            züge++;
             Console.SetCursorPosition(1, 10);
             if (züge % 2 == 0)
             {
                 Console.Write("Schwarz ist am Zug " + züge + "> ");
+                züge++;
                 return true;
             }
             else
             {
                 Console.Write("Weiß ist am Zug (" + züge + ")> ");
+                züge++;
                 return false;
             }
         }
