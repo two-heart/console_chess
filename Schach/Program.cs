@@ -42,7 +42,7 @@ namespace Schach
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
-            {' ','B','T','P','L','D','K','B','T','P','L','D','K'};
+            {' ','B','T','S','L','D','K','B','T','S','L','D','K'};
         static void Main(string[] args)
         {
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
@@ -53,12 +53,21 @@ namespace Schach
             zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
             string input;
-            a: //Wichtig
+            do
+            {
                 bool z = zug();
                 Console.SetCursorPosition(1, 12); //Der Spieler macht seine Eingabe
                 input = Console.ReadLine();
                 verarbeite(input);  //Die wiederum verarbeitet wird
-            goto a;
+            } while (true == !false);
+        }
+        public static bool allowed(int previous, int[] peins, int[] pzwei) //Überprüfung ob Zug erlaubt ist
+        {
+            if((previous == 8 || previous == 2) && (pzwei[0] == peins[0] || pzwei[1] == peins[1])) return true; //Überprüfung Turm
+            else if(previous == 8 || previous == 2) return false;
+            if (previous % 6 == 0) return true; //Überprüfung König
+            else if (previous % 6 == 0) return false;
+            return true;
         }
 
         public static void verarbeite(string input) //Und zwar hier
@@ -71,14 +80,15 @@ namespace Schach
                 Console.ReadKey();
                 return;
             }
-
-            char[] eins = splitted[0].ToCharArray();    //Diese zwei Felder werden dann wieder zu x und y gesplittet
+            
+            char[] eins = splitted[0].ToCharArray();//Diese zwei Felder werden dann wieder zu x und y gesplittet
             char[] zwei = splitted[1].ToCharArray();
             int[] peins = new int[2] { convertToInt(eins[0]) - 1, Convert.ToInt32(eins[1] - '0') - 1 }; //Und der Buchstabe wird in eine equivalente Zahl umgewandelt
             int[] pzwei = new int[2] { convertToInt(zwei[0]) - 1, Convert.ToInt32(zwei[1] - '0') - 1 };
             int previous; //Das ist die Figur, die bewegt wird
             previous = Feld[peins[1], peins[0]];
-            if (Feld[pzwei[1], pzwei[0]] == 0 && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && previous != 0 && (previous != 2 && previous != 8 || (pzwei[0] == peins[0] ||pzwei[1] == peins[1]))/*Die vorzeitige Turm-Regel, die noch in ein extra void verlegt werden muss*/)
+
+            if (Feld[pzwei[1], pzwei[0]] == 0 && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins, pzwei )/*Die vorzeitige Turm-Regel, die noch in ein extra void verlegt werden muss*/)
             {
                 Feld[peins[1], peins[0]] = 0; //Die vorige Position wird gelöscht
                 zeichnesymbol(' ', peins[0], peins[1]);
@@ -91,7 +101,6 @@ namespace Schach
             Console.SetCursorPosition(1, 12);
             Console.Write("                        "); //Und die Eingabe gelöscht
         }
-
         public static void zeichnesymbol(char Symbol, int x, int y)
         {
             Console.SetCursorPosition(x + verschiebung[0], y + verschiebung[1]);
@@ -173,7 +182,7 @@ namespace Schach
             }
             else
             {
-                Console.Write("Weiß ist am Zug (" + züge + ")> ");
+                Console.Write("Weiß ist am Zug " + züge + "> ");
                 züge++;
                 weiß = true;
                 return false;
