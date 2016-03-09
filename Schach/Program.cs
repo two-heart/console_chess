@@ -61,6 +61,70 @@ namespace Schach
                 verarbeite(input);  //Die wiederum verarbeitet wird
             } while (true == !false);
         }
+        public static bool nichtdazwischen(int previous, int xv, int xn, int yv, int yn)
+        {
+            int dx = delta(xv, xn);
+            int dy = delta(yv, yn);
+            if (Feld[yn, xn] != 0 || previous == 0 || dx == 0 || dy == 0) return false;
+            if (previous == 5 || previous == 11)
+            {
+                if (dx == 0 || dy == 0) previous = 2;
+                else if (dx == dy) previous = 3;
+                else return false;
+            }
+            if (previous == 2 || previous == 8)
+            {
+                if (dy == 0)
+                    for (int i = 0; i < dx; i++)
+                    {
+                        if (xn > xv) { if (Feld[yv, xv + i] != 0) return false; }
+                        else { if (Feld[yv, xv - i] != 0) return false; }
+                    }
+                else if (dx == 0)
+                    for (int i = 0; i < dy; i++)
+                    {
+                        if (yn > yv) { if (Feld[i, xv] != 0) return false; }
+                        else { if (Feld[i, xv] != 0) return false; }
+                    }
+            }
+            else if (previous == 3 || previous == 9)
+            {
+                for (int i = 0; i < dy; i++)
+                {
+                    if (yn > yv)
+                    {
+                        if (xn > xv)
+                        {
+                            if (Feld[yv + i, xv + i] != 0) return false;
+                        }
+                        else
+                        {
+                            if (Feld[yv + i, xv - i] != 0) return false;
+                        }
+                    }
+                    else
+                    {
+                        if (xn > xv)
+                        {
+                            if (Feld[yv - i, xv + i] != 0) return false;
+                        }
+                        else
+                        {
+                            if (Feld[yv - i, xv - i] != 0) return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static int delta(int a, int b)
+        {
+            int c = a - b;
+            if (c < 0) c = -c;
+            return c;
+        }
+
+
         public static bool allowed(int pre, int xv,int xn,int yv ,int yn) //Überprüfung ob Zug erlaubt ist
         {
             int dy = yv - yn;
@@ -126,7 +190,7 @@ namespace Schach
             int previous; //Das ist die Figur, die bewegt wird
             previous = Feld[peins[1], peins[0]];
 
-            if (Feld[pzwei[1], pzwei[0]] == 0 && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins, pzwei )/*Die vorzeitige Turm-Regel, die noch in ein extra void verlegt werden muss*/)
+            if (Feld[pzwei[1], pzwei[0]] == 0 && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[2]) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[2])/*Ist keine Figur dazwischen*/)
             {
                 Feld[peins[1], peins[0]] = 0; //Die vorige Position wird gelöscht
                 zeichnesymbol(' ', peins[0], peins[1]);
