@@ -61,13 +61,51 @@ namespace Schach
                 verarbeite(input);  //Die wiederum verarbeitet wird
             } while (true == !false);
         }
-        public static bool allowed(int previous, int[] peins, int[] pzwei) //Überprüfung ob Zug erlaubt ist
+        public static bool allowed(int pre, int xv,int xn,int yv ,int yn) //Überprüfung ob Zug erlaubt ist
         {
-            if((previous == 8 || previous == 2) && (pzwei[0] == peins[0] || pzwei[1] == peins[1])) return true; //Überprüfung Turm
-            else if(previous == 8 || previous == 2) return false;
-            if (previous % 6 == 0) return true; //Überprüfung König
-            else if (previous % 6 == 0) return false;
-            return true;
+            int dy = yv - yn;
+            int dx = xv - xn;
+            if (pre == 0) return false; //keine Figur
+            if (xv == xn && yv == yn) return false;  //Zielfeld = Endfeld
+
+            else if (pre == 1)//Bauer
+            {  
+                else if (yv == verschiebung[1] + 7 && yn == yv - 2) return true;
+                else return false;
+            }
+            else if (pre == 7) {
+                if (yn == yv + 1) return true;
+                else if (yv == verschiebung[1] + 2 && yn == yv + 2) return true;
+                else return false;
+            }
+            else if (pre == 2 || pre == 8)//Turm
+            {
+                if (xv == xn || yn == yv) return true;
+                else return false;
+            }
+            else if (pre == 3 || pre == 9)//Springer
+            {
+                if (dx < 0) dx = -dx;
+                if (dy < 0) dy = -dy;
+                if (dx == 2 && dy == 1 || dy == 2 && dx == 1) return true;
+                else return false;
+            }
+            else if (pre == 4 || pre == 10)//Läufer
+            {
+                if (dx == dy) return true;
+                else return false;
+            }
+            else if (pre == 5 || pre == 11) //Dame
+            {
+                if (dx == dy || dx == 0 || dy == 0) return true;
+                else return false;
+            }
+            else if (pre % 6 == 0)//König
+            {
+                if (dx <= 1 && dy <= 1) return true;
+                else return false;
+            }
+            else return false;
         }
 
         public static void verarbeite(string input) //Und zwar hier
