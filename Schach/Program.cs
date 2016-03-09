@@ -87,7 +87,7 @@ namespace Schach
                         else { if (Feld[i, xv] != 0) return false; }
                     }
             }
-            else if (previous == 3 || previous == 9)
+            else if (previous == 4 || previous == 10)
             {
                 for (int i = 0; i < dy; i++)
                 {
