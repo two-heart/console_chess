@@ -53,19 +53,20 @@ namespace Schach
             zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
             string input;
+            zug();
             do
             {
-                bool z = zug();
+                bool z;
                 Console.SetCursorPosition(1, 12); //Der Spieler macht seine Eingabe
                 input = Console.ReadLine();
-                verarbeite(input);  //Die wiederum verarbeitet wird
+                if (verarbeite(input)) z = zug();   //Die wiederum verarbeitet wird
             } while (true == !false);
         }
         public static bool nichtdazwischen(int previous, int xv, int xn, int yv, int yn)
         {
             int dx = delta(xv, xn);
             int dy = delta(yv, yn);
-            if (Feld[yn, xn] != 0 || previous == 0 || dx == 0 && dy == 0) return false;
+            if (previous == 0 || dx == 0 && dy == 0) return false;
             if (previous == 5 || previous == 11)
             {
                 if (dx == 0 || dy == 0) previous = 2;
@@ -127,22 +128,33 @@ namespace Schach
         }
 
 
-        public static bool allowed(int pre, int xv, int xn, int yv, int yn) //Überprüfung ob Zug erlaubt ist
+        public static bool allowed(int pre, int xv, int xn, int yv, int yn, bool schlagen) //Überprüfung ob Zug erlaubt ist
         {
             int dy = yv - yn;
             int dx = xv - xn;
             if (pre == 0) return false; //keine Figur
             if (xv == xn && yv == yn) return false;  //Zielfeld = Endfeld
 
-            else if (pre == 1)//Bauer
+            else if (pre == 1 && !schlagen)//Bauer
             {
                 if (yn == yv - 1) return true;
                 else if (yv == 6 && yn == yv - 2) return true;
                 else return false;
             }
-            else if (pre == 7) {
+            else if(pre == 1 && schlagen)
+            {
+                if (yn == yv - 1 && dx == 1) return true;
+                else return false;
+            }
+            else if (pre == 7 && !schlagen)
+            {
                 if (yn == yv + 1) return true;
                 else if (yv == 1 && yn == yv + 2) return true;
+                else return false;
+            }
+            else if (pre == 7 && schlagen)
+            {
+                if (yn == yv - 1 && dx == 1) return true;
                 else return false;
             }
             else if (pre == 2 || pre == 8)//Turm
@@ -175,15 +187,19 @@ namespace Schach
             else return false;
         }
 
-        public static void verarbeite(string input) //Und zwar hier
+        public static bool verarbeite(string input) //Und zwar hier
         {
+            bool schlagen = false;
+            if (input.ToUpper().Contains("X"))
+            {
+                schlagen = true;
+                input.Remove(5, 1);
+            }
             string[] splitted = input.Split(' '); //Die Eingabe sollte in der Form A1 B3 sein, wobei der erste Teil das Start- und der zweite Teil das Endfeld ist. Die Eingabe wird demenstsprechend nach Start- und Endfeld aufgesplitted1t
             if (splitted.Length != 2) //Es sollten natürlich nur zwei Felder sein
             {
-                Console.Clear();
-                Console.Write("ERROR");
-                Console.ReadKey();
-                return;
+                Error();
+                return false;
             }
 
             char[] eins = splitted[0].ToCharArray();//Diese zwei Felder werden dann wieder zu x und y gesplittet
@@ -193,7 +209,7 @@ namespace Schach
             int previous; //Das ist die Figur, die bewegt wird
             previous = Feld[peins[1], peins[0]];
 
-            if (Feld[pzwei[1], pzwei[0]] == 0 && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1]) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
+            if ((Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
             {
                 Feld[peins[1], peins[0]] = 0; //Die vorige Position wird gelöscht
                 zeichnesymbol(' ', peins[0], peins[1]);
@@ -203,8 +219,25 @@ namespace Schach
                 zeichnesymbol(symbols[previous], pzwei[0], pzwei[1]);
                 Console.ForegroundColor = ConsoleColor.Black;
             }
+            else
+            {
+                Error();
+                return false;
+            }
             Console.SetCursorPosition(1, 12);
             Console.Write("                        "); //Und die Eingabe gelöscht
+            return true;
+        }
+
+        public static void Error()
+        {
+            Console.SetCursorPosition(1, 14);
+            Console.Write("Error");
+            Console.ReadKey();
+            Console.SetCursorPosition(1, 14);
+            Console.Write("          ");
+            Console.SetCursorPosition(1, 12);
+            Console.Write("                        ");
         }
         public static void zeichnesymbol(char Symbol, int x, int y)
         {
