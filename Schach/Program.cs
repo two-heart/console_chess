@@ -9,7 +9,7 @@ namespace Schach
 {
     class Program
     {
-
+        public static bool[] rochadem = new bool[4] { true, true, true, true }; //Kurze Rochade weiß, lange Rochade weiß, kurze Rochade schwarz, lange Rochade schwarz
         public static int züge;
         public static bool weiß; //Ist weiß am Zug?
         public static int[] verschiebung = new int[2] { 1, 1 }; //Um wie viel ist das Spielfeld nach rechts / unten verschoben?
@@ -130,8 +130,8 @@ namespace Schach
 
         public static bool allowed(int pre, int xv, int xn, int yv, int yn, bool schlagen) //Überprüfung ob Zug erlaubt ist
         {
-            int dy = yv - yn;
-            int dx = xv - xn;
+            int dy = delta(yv, yn);
+            int dx = delta(xv, xn);
             if (pre == 0) return false; //keine Figur
             if (xv == xn && yv == yn) return false;  //Zielfeld = Endfeld
 
@@ -189,45 +189,114 @@ namespace Schach
 
         public static bool verarbeite(string input) //Und zwar hier
         {
+            ushort rochade = 0; //weiß klein, weiß groß, schwarz klein, schwarz groß
             bool schlagen = false;
             if (input.ToUpper().Contains("X"))
             {
                 schlagen = true;
                 input.Remove(5, 1);
             }
-            string[] splitted = input.Split(' '); //Die Eingabe sollte in der Form A1 B3 sein, wobei der erste Teil das Start- und der zweite Teil das Endfeld ist. Die Eingabe wird demenstsprechend nach Start- und Endfeld aufgesplitted1t
-            if (splitted.Length != 2) //Es sollten natürlich nur zwei Felder sein
+            if (input == "0-0" && weiß)
             {
-                Error();
-                return false;
+                rochade = 1;
             }
-            char[] eins = splitted[0].ToCharArray();//Diese zwei Felder werden dann wieder zu x und y gesplittet
-            char[] zwei = splitted[1].ToCharArray();
-            int[] peins = new int[2] { convertToInt(eins[0]) - 1, Convert.ToInt32(eins[1] - '0') - 1 }; //Und der Buchstabe wird in eine equivalente Zahl umgewandelt
-            int[] pzwei = new int[2] { convertToInt(zwei[0]) - 1, Convert.ToInt32(zwei[1] - '0') - 1 };
-            int previous; //Das ist die Figur, die bewegt wird
-            previous = Feld[peins[1], peins[0]];
-
-            if ((Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
+            else if (input == "0-0-0" && weiß)
             {
-                Feld[peins[1], peins[0]] = 0; //Die vorige Position wird gelöscht
-                zeichnesymbol(' ', peins[0], peins[1]);
-                Console.ForegroundColor = ConsoleColor.Black;
-                if (previous < 7) Console.ForegroundColor = ConsoleColor.White; //Und die neue in der passenden Farbe gezeichnet
-                Feld[pzwei[1], pzwei[0]] = previous;
-                zeichnesymbol(symbols[previous], pzwei[0], pzwei[1]);
-                Console.ForegroundColor = ConsoleColor.Black;
+                rochade = 2;
+            }
+            else if (input == "0-0" && !weiß)
+            {
+                rochade = 3;
+            }
+            else if (input == "0-0-0" && !weiß)
+            {
+                rochade = 4;
+            }
+            if (rochade == 0)
+            {
+                string[] splitted = input.Split(' '); //Die Eingabe sollte in der Form A1 B3 sein, wobei der erste Teil das Start- und der zweite Teil das Endfeld ist. Die Eingabe wird demenstsprechend nach Start- und Endfeld aufgesplitted1t
+                if (splitted.Length != 2) //Es sollten natürlich nur zwei Felder sein
+                {
+                    Error();
+                    return false;
+                }
+
+                char[] eins = splitted[0].ToCharArray();//Diese zwei Felder werden dann wieder zu x und y gesplittet
+                char[] zwei = splitted[1].ToCharArray();
+                int[] peins = new int[2] { convertToInt(eins[0]) - 1, Convert.ToInt32(eins[1] - '0') - 1 }; //Und der Buchstabe wird in eine equivalente Zahl umgewandelt
+                int[] pzwei = new int[2] { convertToInt(zwei[0]) - 1, Convert.ToInt32(zwei[1] - '0') - 1 };
+                int previous; //Das ist die Figur, die bewegt wird
+                previous = Feld[peins[1], peins[0]];
+
+                if ((Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
+                {
+                    rochadeaktualisieren(previous, peins[0]);
+                    Feld[peins[1], peins[0]] = 0; //Die vorige Position wird gelöscht
+                    zeichnesymbol(' ', peins[0], peins[1]);
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    if (previous < 7) Console.ForegroundColor = ConsoleColor.White; //Und die neue in der passenden Farbe gezeichnet
+                    Feld[pzwei[1], pzwei[0]] = previous;
+                    zeichnesymbol(symbols[previous], pzwei[0], pzwei[1]);
+                    Console.ForegroundColor = ConsoleColor.Black;
+                }
+                else
+                {
+                    Error();
+                    return false;
+                }
             }
             else
             {
-                Error();
-                return false;
+                if(!rochadem[rochade - 1] || rochade == 1 && (Feld[7, 5] != 0 || Feld[7, 6] != 0) || rochade == 3 && (Feld[0, 5] != 0 ||Feld[0, 6] != 0) || rochade == 2 && (Feld[7, 1] != 0 || Feld[7, 2] != 0 || Feld[7, 3] != 0) || rochade == 4 && (Feld[0, 1] != 0 || Feld[0, 2] != 0 || Feld[0, 3] != 0))
+                {
+                    Error();
+                    return false;
+                }
+                else
+                {
+                    if (rochade == 1) //4,7 -> 7,7
+                    {
+                        Feld[7, 4] = 2;
+                        Feld[7, 7] = 8;
+                        Console.ForegroundColor = ConsoleColor.White;
+                        zeichnesymbol('T', 4, 7);
+                        zeichnesymbol('K', 7, 7);
+                        Console.ForegroundColor = ConsoleColor.Black;
+                    }
+                    else if (rochade == 2) //4,7 -> 0,7
+                    {
+                        Feld[7, 4] = 2;
+                        Feld[7, 0] = 8;
+                        Console.ForegroundColor = ConsoleColor.White;
+                        zeichnesymbol('T', 4, 7);
+                        zeichnesymbol('K', 0, 7);
+                        Console.ForegroundColor = ConsoleColor.Black;
+                    }
+                    else if (rochade == 3) //4,0 -> 7,0
+                    {
+                        Feld[0, 4] = 2;
+                        Feld[0, 7] = 8;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        zeichnesymbol('T', 4, 0);
+                        zeichnesymbol('K', 7, 0);
+                    }
+                    else if (rochade == 4) //4,0 -> 0,0
+                    {
+                        Feld[0, 4] = 2;
+                        Feld[0, 0] = 8;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        zeichnesymbol('T', 4, 0);
+                        zeichnesymbol('K', 0, 0);
+                    }
+                    rochadem[rochade - 1] = false;
+                }
             }
             ereignisse(previous, peins[0], pzwei[0], peins[1], pzwei[1]);
             Console.SetCursorPosition(1, 12);
-            Console.Write("                                 "); //Und die Eingabe gelöscht
+            Console.Write("                        "); //Und die Eingabe gelöscht
             return true;
         }
+        
         static void ereignisse(int pre, int xv, int xn, int yv, int yn) //Besondere Ereignisse im Spiel
         {
             if (pre == 1 && xn == 1) //Bauer erreicht das Ende des Felds
@@ -257,6 +326,42 @@ namespace Schach
                 }
             }
             zeichneFeld();
+        }
+
+        public static void rochadeaktualisieren(int previous, int x)
+        {
+            if (previous == 6)
+            {
+                rochadem[0] = false;
+                rochadem[1] = false;
+            }
+            else if(previous == 12)
+            {
+                rochadem[2] = false;
+                rochadem[3] = false;
+            }
+            else if (previous == 2)
+            {
+                if (x == 0)
+                {
+                    rochadem[0] = false;
+                }
+                else if (x == 7)
+                {
+                    rochadem[1] = false;
+                }
+            }
+            else if (previous == 8)
+            {
+                if (x == 0)
+                {
+                    rochadem[2] = false;
+                }
+                else if (x == 7)
+                {
+                    rochadem[3] = false;
+                }
+            }
         }
 
         public static void Error()
@@ -337,7 +442,7 @@ namespace Schach
             }
         }
 
-        public static bool zug()
+        public static bool zug()//Das war nicht ich :D
         {
             Console.SetCursorPosition(1, 10);
             if (züge % 2 == 0)
