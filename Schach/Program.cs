@@ -201,7 +201,6 @@ namespace Schach
                 Error();
                 return false;
             }
-
             char[] eins = splitted[0].ToCharArray();//Diese zwei Felder werden dann wieder zu x und y gesplittet
             char[] zwei = splitted[1].ToCharArray();
             int[] peins = new int[2] { convertToInt(eins[0]) - 1, Convert.ToInt32(eins[1] - '0') - 1 }; //Und der Buchstabe wird in eine equivalente Zahl umgewandelt
@@ -224,9 +223,40 @@ namespace Schach
                 Error();
                 return false;
             }
+            ereignisse(previous, peins[0], pzwei[0], peins[1], pzwei[1]);
             Console.SetCursorPosition(1, 12);
-            Console.Write("                        "); //Und die Eingabe gelöscht
+            Console.Write("                                 "); //Und die Eingabe gelöscht
             return true;
+        }
+        static void ereignisse(int pre, int xv, int xn, int yv, int yn) //Besondere Ereignisse im Spiel
+        {
+            if (pre == 1 && xn == 1) //Bauer erreicht das Ende des Felds
+            {
+                Console.SetCursorPosition(1, 12); //Der Spieler wählt eine neue Figur
+                char finput = Convert.ToChar(Console.ReadLine());
+                for (int i = 1; i < 12; i++)
+                {
+                    if (symbols[i]  == finput)
+                    { 
+                        Feld[xn - 1, yn - 1] = i;
+                        break;
+                    }
+                }
+            }
+            if (pre == 7 && xn == 8)//Das gleiche nochmal für schwarz
+            {
+                Console.SetCursorPosition(1, 12);
+                char finput = Convert.ToChar(Console.ReadLine());
+                for (int i = 1; i < 12; i++)
+                {
+                    if (symbols[i] == finput)
+                    {
+                        Feld[xn - 1, yn - 1] = i+6;
+                        break;
+                    }
+                }
+            }
+            zeichneFeld();
         }
 
         public static void Error()
@@ -307,7 +337,7 @@ namespace Schach
             }
         }
 
-        public static bool zug()//Das war nicht ich :D
+        public static bool zug()
         {
             Console.SetCursorPosition(1, 10);
             if (züge % 2 == 0)
