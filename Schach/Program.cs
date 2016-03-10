@@ -72,16 +72,17 @@ namespace Schach
                 else if (dx == dy) previous = 3;
                 else return false;
             }
+            if (previous == 1 || previous == 7) previous = 2;
             if (previous == 2 || previous == 8)
             {
                 if (dy == 0)
-                    for (int i = 0; i < dx; i++)
+                    for (int i = 1; i < dx; i++)
                     {
                         if (xn > xv) { if (Feld[yv, xv + i] != 0) return false; }
                         else { if (Feld[yv, xv - i] != 0) return false; }
                     }
                 else if (dx == 0)
-                    for (int i = 0; i < dy; i++)
+                    for (int i = 1; i < dy; i++)
                     {
                         if (yn > yv) { if (Feld[yv + i, xv] != 0) return false; }
                         else { if (Feld[yv - i, xv] != 0) return false; }
@@ -89,7 +90,7 @@ namespace Schach
             }
             else if (previous == 4 || previous == 10)
             {
-                for (int i = 0; i < dy; i++)
+                for (int i = 1; i < dy; i++)
                 {
                     if (yn > yv)
                     {
