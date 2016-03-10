@@ -257,7 +257,7 @@ namespace Schach
                     if (rochade == 1) //4,7 -> 7,7
                     {
                         Feld[7, 4] = 2;
-                        Feld[7, 7] = 8;
+                        Feld[7, 7] = 6;
                         Console.ForegroundColor = ConsoleColor.White;
                         zeichnesymbol('T', 4, 7);
                         zeichnesymbol('K', 7, 7);
@@ -266,7 +266,7 @@ namespace Schach
                     else if (rochade == 2) //4,7 -> 0,7
                     {
                         Feld[7, 4] = 2;
-                        Feld[7, 0] = 8;
+                        Feld[7, 0] = 6;
                         Console.ForegroundColor = ConsoleColor.White;
                         zeichnesymbol('T', 4, 7);
                         zeichnesymbol('K', 0, 7);
@@ -274,16 +274,16 @@ namespace Schach
                     }
                     else if (rochade == 3) //4,0 -> 7,0
                     {
-                        Feld[0, 4] = 2;
-                        Feld[0, 7] = 8;
+                        Feld[0, 4] = 8;
+                        Feld[0, 7] = 12;
                         Console.ForegroundColor = ConsoleColor.Black;
                         zeichnesymbol('T', 4, 0);
                         zeichnesymbol('K', 7, 0);
                     }
                     else if (rochade == 4) //4,0 -> 0,0
                     {
-                        Feld[0, 4] = 2;
-                        Feld[0, 0] = 8;
+                        Feld[0, 4] = 8;
+                        Feld[0, 0] = 12;
                         Console.ForegroundColor = ConsoleColor.Black;
                         zeichnesymbol('T', 4, 0);
                         zeichnesymbol('K', 0, 0);
