@@ -38,8 +38,8 @@ namespace Schach
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
-            {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
+            {1 ,1 ,7 ,1 ,1 ,1 ,1 ,1 },
+            {2 ,3 ,0 ,5 ,6 ,4 ,3 ,2 },
         };
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
@@ -141,7 +141,7 @@ namespace Schach
                 else if (yv == 6 && yn == yv - 2) return true;
                 else return false;
             }
-            else if(pre == 1 && schlagen)
+            else if (pre == 1 && schlagen)
             {
                 if (yn == yv - 1 && dx == 1) return true;
                 else return false;
@@ -154,7 +154,7 @@ namespace Schach
             }
             else if (pre == 7 && schlagen)
             {
-                if (yn == yv - 1 && dx == 1) return true;
+                if (yn == yv + 1 && dx == 1) return true;
                 else return false;
             }
             else if (pre == 2 || pre == 8)//Turm
@@ -238,6 +238,7 @@ namespace Schach
                     Feld[pzwei[1], pzwei[0]] = previous;
                     zeichnesymbol(symbols[previous], pzwei[0], pzwei[1]);
                     Console.ForegroundColor = ConsoleColor.Black;
+                    ereignisse(previous, peins[0], pzwei[0], peins[1], pzwei[1]);
                 }
                 else
                 {
@@ -247,7 +248,7 @@ namespace Schach
             }
             else
             {
-                if(!rochadem[rochade - 1] || rochade == 1 && (Feld[7, 5] != 0 || Feld[7, 6] != 0) || rochade == 3 && (Feld[0, 5] != 0 ||Feld[0, 6] != 0) || rochade == 2 && (Feld[7, 1] != 0 || Feld[7, 2] != 0 || Feld[7, 3] != 0) || rochade == 4 && (Feld[0, 1] != 0 || Feld[0, 2] != 0 || Feld[0, 3] != 0))
+                if (!rochadem[rochade - 1] || rochade == 1 && (Feld[7, 5] != 0 || Feld[7, 6] != 0) || rochade == 3 && (Feld[0, 5] != 0 || Feld[0, 6] != 0) || rochade == 2 && (Feld[7, 1] != 0 || Feld[7, 2] != 0 || Feld[7, 3] != 0) || rochade == 4 && (Feld[0, 1] != 0 || Feld[0, 2] != 0 || Feld[0, 3] != 0))
                 {
                     Error();
                     return false;
@@ -291,41 +292,47 @@ namespace Schach
                     rochadem[rochade - 1] = false;
                 }
             }
-            ereignisse(previous, peins[0], pzwei[0], peins[1], pzwei[1]);
             Console.SetCursorPosition(1, 12);
             Console.Write("                        "); //Und die Eingabe gelöscht
             return true;
         }
-        
+
         static void ereignisse(int pre, int xv, int xn, int yv, int yn) //Besondere Ereignisse im Spiel
         {
-            if (pre == 1 && xn == 1) //Bauer erreicht das Ende des Felds
+            if (pre == 1 && yn == 0) //Bauer erreicht das Ende des Felds
             {
-                Console.SetCursorPosition(1, 12); //Der Spieler wählt eine neue Figur
-                char finput = Convert.ToChar(Console.ReadLine());
-                for (int i = 1; i < 12; i++)
-                {
-                    if (symbols[i]  == finput)
-                    { 
-                        Feld[xn - 1, yn - 1] = i;
-                        zeichneFeld();
-                        break;
-                    }
-                }
-            }
-            if (pre == 7 && xn == 8)//Das gleiche nochmal für schwarz
-            {
-                Console.SetCursorPosition(1, 12);
-                char finput = Convert.ToChar(Console.ReadLine());
+                Console.SetCursorPosition(1, 13); //Der Spieler wählt eine neue Figur
+                Console.Write("Neue Figur: ");
+                char finput = Convert.ToChar(Console.ReadKey().ToString().ToUpper());
                 for (int i = 1; i < 12; i++)
                 {
                     if (symbols[i] == finput)
                     {
-                        Feld[xn - 1, yn - 1] = i+6;
-                        zeichneFeld();
+                        Feld[yn, xn] = i;
+                        zeichneSpieler();
                         break;
                     }
                 }
+                Console.SetCursorPosition(1, 13);
+                Console.Write("                                ");
+            }
+            if (pre == 7 && yn == 7)//Das gleiche nochmal für schwarz
+            {
+                Console.SetCursorPosition(1, 13);
+                Console.Write("Neue Figur: ");
+                char[] a = Console.ReadKey().ToString().ToUpper().ToCharArray();
+                char finput = a[0];
+                for (int i = 1; i < 12; i++)
+                {
+                    if (symbols[i] == finput)
+                    {
+                        Feld[yn, xn] = i + 6;
+                        zeichneSpieler();
+                        break;
+                    }
+                }
+                Console.SetCursorPosition(1, 13);
+                Console.Write("                                ");
             }
         }
 
@@ -336,7 +343,7 @@ namespace Schach
                 rochadem[0] = false;
                 rochadem[1] = false;
             }
-            else if(previous == 12)
+            else if (previous == 12)
             {
                 rochadem[2] = false;
                 rochadem[3] = false;
