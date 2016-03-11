@@ -308,6 +308,7 @@ namespace Schach
                     if (symbols[i]  == finput)
                     { 
                         Feld[xn - 1, yn - 1] = i;
+                        zeichneFeld();
                         break;
                     }
                 }
@@ -321,11 +322,11 @@ namespace Schach
                     if (symbols[i] == finput)
                     {
                         Feld[xn - 1, yn - 1] = i+6;
+                        zeichneFeld();
                         break;
                     }
                 }
             }
-            zeichneFeld();
         }
 
         public static void rochadeaktualisieren(int previous, int x)
