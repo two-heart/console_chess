@@ -303,13 +303,15 @@ namespace Schach
             {
                 Console.SetCursorPosition(1, 13); //Der Spieler wählt eine neue Figur
                 Console.Write("Neue Figur: ");
-                char finput = Convert.ToChar(Console.ReadKey().ToString().ToUpper());
+                char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
+                char finput = a[0];
                 for (int i = 1; i < 12; i++)
                 {
                     if (symbols[i] == finput)
                     {
                         Feld[yn, xn] = i;
                         zeichneSpieler();
+                        Console.ForegroundColor = ConsoleColor.Black;
                         break;
                     }
                 }
@@ -320,7 +322,7 @@ namespace Schach
             {
                 Console.SetCursorPosition(1, 13);
                 Console.Write("Neue Figur: ");
-                char[] a = Console.ReadKey().ToString().ToUpper().ToCharArray();
+                char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
                 char finput = a[0];
                 for (int i = 1; i < 12; i++)
                 {
@@ -328,6 +330,7 @@ namespace Schach
                     {
                         Feld[yn, xn] = i + 6;
                         zeichneSpieler();
+                        Console.ForegroundColor = ConsoleColor.Black;
                         break;
                     }
                 }
