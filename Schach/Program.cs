@@ -14,13 +14,13 @@ namespace Schach
         public static bool weiß; //Ist weiß am Zug?
         public static int[] verschiebung = new int[2] { 1, 1 }; //Um wie viel ist das Spielfeld nach rechts / unten verschoben?
         /*
-        Weiß:
-        Bauern  -> 1
-        Türme   -> 2
-        Pferd   -> 3
-        Läufer  -> 4
-        Dame    -> 5
-        König   -> 6
+        Weiß:           Punkte:
+        Bauern  -> 1    1
+        Türme   -> 2    5
+        Pferd   -> 3    3
+        Läufer  -> 4    3
+        Dame    -> 5    9
+        König   -> 6    unedlich
 
         Schwarz:
         Bauern  -> 7
@@ -43,6 +43,9 @@ namespace Schach
         };
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
+
+        public static short[,,] möglichkeiten = new short[2000000,8,8];
+
         static void Main(string[] args)
         {
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
@@ -61,6 +64,39 @@ namespace Schach
                 input = Console.ReadLine();
                 if (verarbeite(input)) z = zug();   //Die wiederum verarbeitet wird
             } while (true == !false);
+        }
+
+
+        public static void möglicheZüge()
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    if (Feld[k, l] > 6)
+                    {
+                        for (int k = 0; k < 8; k++)
+                        {
+                            for (int l = 0; l < 8; l++)
+                            {
+                                if (Feld[k,l] > 7)
+                                {
+                                    if(allowed(Feld[j,i], j+1, i+1, k+1, l + 1))
+                                    {
+                                        if(nichtdazwischen(Feld[j, i], j + 1, i + 1, k + 1, l + 1))
+                                        {
+                                            for (int m = 0; m < 3; m++)
+                                            {
+                                                möglichkeiten[l,k,i] = j;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         public static bool nichtdazwischen(int previous, int xv, int xn, int yv, int yn)
         {
