@@ -14,13 +14,13 @@ namespace Schach
         public static bool weiß; //Ist weiß am Zug?
         public static int[] verschiebung = new int[2] { 1, 1 }; //Um wie viel ist das Spielfeld nach rechts / unten verschoben?
         /*
-        Weiß:           Punkte:
-        Bauern  -> 1    1
-        Türme   -> 2    5
-        Pferd   -> 3    3
-        Läufer  -> 4    3
-        Dame    -> 5    9
-        König   -> 6    unedlich
+        Weiß:
+        Bauern  -> 1
+        Türme   -> 2
+        Pferd   -> 3
+        Läufer  -> 4
+        Dame    -> 5
+        König   -> 6
 
         Schwarz:
         Bauern  -> 7
@@ -38,14 +38,13 @@ namespace Schach
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {1 ,1 ,7 ,1 ,1 ,1 ,1 ,1 },
-            {2 ,3 ,0 ,5 ,6 ,4 ,3 ,2 },
+            {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
+            {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
+        public static int[,,] possis = new int[2000000,8,8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
-
-        public static short[,,] möglichkeiten = new short[2000000,8,8];
-
+        public static bool z;
         static void Main(string[] args)
         {
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
@@ -56,48 +55,126 @@ namespace Schach
             zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
             string input;
-            zug();
+            z = zug();
             do
             {
-                bool z;
-                Console.SetCursorPosition(1, 12); //Der Spieler macht seine Eingabe
-                input = Console.ReadLine();
-                if (verarbeite(input)) z = zug();   //Die wiederum verarbeitet wird
+                if (!z)
+                {
+                    Console.SetCursorPosition(1, 12); //Der Spieler macht seine Eingabe
+                    input = Console.ReadLine();
+                    if (verarbeite(input)) z = zug();   //Die wiederum verarbeitet wird
+                }
+                else
+                {
+                    possis = possibilities();
+                    testfeld(possis);
+                }
             } while (true == !false);
         }
 
-
-        public static void möglicheZüge()
+        public static void testfeld(int[,,] possis)
         {
-            for (int j = 0; j < 8; j++)
+            Console.Clear();
+            int line = 0;
+            for (int i = 0; i < 150; i++)
             {
-                for (int i = 0; i < length; i++)
+                for (int u = 0; u < 8; u++)
                 {
-                    if (Feld[k, l] > 6)
+                    for (int z = 0; z < 8; z++)
                     {
-                        for (int k = 0; k < 8; k++)
+                        int x = 0;
+                        int y = 0;
+                        x = i * 9 + u - line * (Console.BufferWidth - 1);
+                        y = z + line * 9;
+                        if (x > Console.BufferWidth)
                         {
-                            for (int l = 0; l < 8; l++)
-                            {
-                                if (Feld[k,l] > 7)
-                                {
-                                    if(allowed(Feld[j,i], j+1, i+1, k+1, l + 1))
-                                    {
-                                        if(nichtdazwischen(Feld[j, i], j + 1, i + 1, k + 1, l + 1))
-                                        {
-                                            for (int m = 0; m < 3; m++)
-                                            {
-                                                möglichkeiten[l,k,i] = j;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            x = 0;
+                            line += 1;
+                            y = z + line * 9;
+                        }
+                        if (y < Console.BufferHeight && x < Console.BufferWidth)
+                        {
+                            Console.SetCursorPosition(x, y);
+                            char symbol = symbols[possis[i, z, u]];
+                            if (symbol == ' ') symbol = '█';
+                            Console.Write(symbol);
                         }
                     }
                 }
             }
+            Console.ReadLine();
         }
+
+
+        public static int[,,] possibilities()
+        {
+            int[,] now = Feld;
+            int[,,] eins = new int[150,8,8];
+            int[,,] zwei = new int[20000,8,8];
+            int[,,] drei = new int[2000000,8,8];
+            int[,,] temp;
+            int pos = 0;
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    if(Feld[y,x] > 6)
+                    {
+                        temp = getpossisofthis(Feld[y, x], x, y);
+                        for (int i = pos; i < temp.GetLength(0); i++)
+                        {
+                            for (int u = 0; u < 8; u++)
+                            {
+                                for (int s = 0; s < 8; s++)
+                                {
+                                    eins[i, s, u] = temp[i, s, u];
+                                }
+                            }
+                            pos++;
+                        }
+                    }
+                }
+            }
+            return eins;
+        }
+
+        public static int[,,] getpossisofthis(int pre, int x, int y)
+        {
+            int[,,] dat = new int[100,8,8];
+            int pos = 0;
+            for (int i = 0; i < 8; i++)
+            {
+                for (int u = 0; u < 8; u++)
+                {
+                    if((allowed(pre, x, y, i, u, false) || allowed(pre, x, y, i, u, true) && nichtdazwischen(pre, x, y, i, u)))
+                    {
+                        for (int q = 0; q < 8; q++)
+                        {
+                            for (int w = 0; w < 8; w++)
+                            {
+                                dat[pos, w, q] = Feld[w, q];
+                            }
+                        }
+                        dat[pos, u, i] = pre;
+                        dat[pos, y, x] = 0;
+                        pos++;
+                    }
+                }
+            }
+            int[,,] temp = new int[pos, 8, 8];
+            for (int i = 0; i < pos; i++)
+            {
+                for (int u = 0; u < 8; u++)
+                {
+                    for (int s = 0; s < 8; s++)
+                    {
+                        temp[i, s, u] = dat[i, s, u];
+                    }
+                }
+            }
+            return temp;
+        }
+
         public static bool nichtdazwischen(int previous, int xv, int xn, int yv, int yn)
         {
             int dx = delta(xv, xn);
@@ -443,8 +520,9 @@ namespace Schach
             else return 8;
         }
 
-        public static void convertToChar(int zahl, out char character)
+        public static char convertToChar(int zahl)
         { //Jeder Zahl wird ein Buchstabe zugeordnet
+            char character;
             if (zahl == 1) character = 'A';
             else if (zahl == 2) character = 'B';
             else if (zahl == 3) character = 'C';
@@ -453,6 +531,7 @@ namespace Schach
             else if (zahl == 6) character = 'F';
             else if (zahl == 7) character = 'G';
             else character = 'H';
+            return character;
         }
 
         public static void zeichneFeld()
@@ -469,8 +548,7 @@ namespace Schach
                 Console.SetCursorPosition(0, verschiebung[0] + i - 1);
                 Console.Write(i); //Die Zahlen am Spielfeldrand
                 Console.SetCursorPosition(verschiebung[1] + i - 1, 0);
-                char buch;
-                convertToChar(i, out buch);
+                char buch = convertToChar(i);               
                 Console.Write(buch); //Die Buchstaben am Spielfeldrand
             }
         }
