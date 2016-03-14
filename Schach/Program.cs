@@ -41,7 +41,7 @@ namespace Schach
             {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
-        public static int[,,] possis = new int[2000000,8,8];
+        public static int[,,] possis = new int[2000000, 8, 8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
         public static bool z;
@@ -109,16 +109,16 @@ namespace Schach
         public static int[,,] possibilities()
         {
             int[,] now = Feld;
-            int[,,] eins = new int[150,8,8];
-            int[,,] zwei = new int[20000,8,8];
-            int[,,] drei = new int[2000000,8,8];
+            int[,,] eins = new int[150, 8, 8];
+            int[,,] zwei = new int[20000, 8, 8];
+            int[,,] drei = new int[2000000, 8, 8];
             int[,,] temp;
             int pos = 0;
             for (int x = 0; x < 8; x++)
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    if(Feld[y,x] > 6)
+                    if (Feld[y, x] > 6)
                     {
                         temp = getpossisofthis(Feld[y, x], x, y);
                         for (int i = pos; i < temp.GetLength(0); i++)
@@ -140,13 +140,13 @@ namespace Schach
 
         public static int[,,] getpossisofthis(int pre, int x, int y)
         {
-            int[,,] dat = new int[100,8,8];
+            int[,,] dat = new int[100, 8, 8];
             int pos = 0;
             for (int i = 0; i < 8; i++)
             {
                 for (int u = 0; u < 8; u++)
                 {
-                    if((allowed(pre, x, y, i, u, false) || allowed(pre, x, y, i, u, true) && nichtdazwischen(pre, x, y, i, u)))
+                    if ((allowed(pre, x, i, y, u, false) || allowed(pre, x, i, y, u, true) && nichtdazwischen(pre, x, i, y, u)))
                     {
                         for (int q = 0; q < 8; q++)
                         {
@@ -548,7 +548,7 @@ namespace Schach
                 Console.SetCursorPosition(0, verschiebung[0] + i - 1);
                 Console.Write(i); //Die Zahlen am Spielfeldrand
                 Console.SetCursorPosition(verschiebung[1] + i - 1, 0);
-                char buch = convertToChar(i);               
+                char buch = convertToChar(i);
                 Console.Write(buch); //Die Buchstaben am Spielfeldrand
             }
         }
