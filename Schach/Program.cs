@@ -120,7 +120,6 @@ namespace Schach
                 {
                     if (Feld[y, x] > 6)
                     {
-                        int uri = 0;
                         temp = getpossisofthis(Feld[y, x], x, y);
                         for (int i = 0; i < temp.GetLength(0); i++)
                         {
@@ -131,9 +130,8 @@ namespace Schach
                                     eins[i+pos, s, u] = temp[i, s, u];
                                 }
                             }
-                            uri = i;
                         }
-                        pos += uri;
+                        pos += temp.GetLength(0);
                     }
                 }
             }
