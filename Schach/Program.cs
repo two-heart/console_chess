@@ -76,7 +76,7 @@ namespace Schach
         {
             Console.Clear();
             int line = 0;
-            for (int i = 0; i < 150; i++)
+            for (int i = 0; i < 2000000; i++)
             {
                 for (int u = 0; u < 8; u++)
                 {
@@ -101,9 +101,11 @@ namespace Schach
                         }
                     }
                 }
+                Console.ReadKey();
             }
             Console.ReadLine();
         }
+        
 
 
         public static int[,,] possibilities()
@@ -127,7 +129,7 @@ namespace Schach
                             {
                                 for (int s = 0; s < 8; s++)
                                 {
-                                    eins[i+pos, s, u] = temp[i, s, u];
+                                    eins[i + pos, s, u] = temp[i, s, u];
                                 }
                             }
                         }
@@ -135,7 +137,71 @@ namespace Schach
                     }
                 }
             }
-            return eins;
+            pos = 0;
+            for (int h = 0; h < eins.GetLength(0); h++)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int u = 0; u < 8; u++)
+                    {
+                        Feld[u, i] = eins[h, u, i];
+                    }
+                }
+                for (int x = 0; x < 8; x++)
+                {
+                    for (int y = 0; y < 8; y++)
+                    {
+                        if (Feld[y, x] > 6)
+                        {
+                            temp = getpossisofthis(Feld[y, x], x, y);
+                            for (int i = 0; i < temp.GetLength(0); i++)
+                            {
+                                for (int u = 0; u < 8; u++)
+                                {
+                                    for (int s = 0; s < 8; s++)
+                                    {
+                                        zwei[i + pos, s, u] = temp[i, s, u];
+                                    }
+                                }
+                            }
+                            pos += temp.GetLength(0);
+                        }
+                    }
+                }
+            }
+            pos = 0;
+            for (int h = 0; h < zwei.GetLength(0); h++)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int u = 0; u < 8; u++)
+                    {
+                        Feld[u, i] = zwei[h, u, i];
+                    }
+                }
+                for (int x = 0; x < 8; x++)
+                {
+                    for (int y = 0; y < 8; y++)
+                    {
+                        if (Feld[y, x] > 6)
+                        {
+                            temp = getpossisofthis(Feld[y, x], x, y);
+                            for (int i = 0; i < temp.GetLength(0); i++)
+                            {
+                                for (int u = 0; u < 8; u++)
+                                {
+                                    for (int s = 0; s < 8; s++)
+                                    {
+                                        drei[i + pos, s, u] = temp[i, s, u];
+                                    }
+                                }
+                            }
+                            pos += temp.GetLength(0);
+                        }
+                    }
+                }
+            }
+            return drei;
         }
 
         public static int[,,] getpossisofthis(int pre, int x, int y)
