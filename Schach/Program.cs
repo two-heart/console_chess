@@ -106,7 +106,10 @@ namespace Schach
             Console.ReadLine();
         }
         
-
+        public static int bewerte(int [,] dasFeld)
+        {
+            return 0;
+        }
 
         public static int[,,] possibilities()
         {
@@ -201,6 +204,7 @@ namespace Schach
                     }
                 }
             }
+            Feld = now;
             return drei;
         }
 
