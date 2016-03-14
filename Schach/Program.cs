@@ -146,7 +146,7 @@ namespace Schach
             {
                 for (int u = 0; u < 8; u++)
                 {
-                    if ((allowed(pre, x, i, y, u, false) || allowed(pre, x, i, y, u, true) && nichtdazwischen(pre, x, i, y, u)))
+                    if ((allowed(pre, x, i, y, u, false) || allowed(pre, x, i, y, u, true)) && nichtdazwischen(pre, x, i, y, u))
                     {
                         for (int q = 0; q < 8; q++)
                         {
@@ -243,6 +243,8 @@ namespace Schach
 
         public static bool allowed(int pre, int xv, int xn, int yv, int yn, bool schlagen) //Überprüfung ob Zug erlaubt ist
         {
+            if (schlagen && Feld[yn, xn] == 0) return false;
+            if (!z && Feld[yn, xn] < 7 || z && Feld[yn, xn] > 6) return false;
             int dy = delta(yv, yn);
             int dx = delta(xv, xn);
             if (pre == 0) return false; //keine Figur
@@ -250,8 +252,8 @@ namespace Schach
 
             else if (pre == 1 && !schlagen)//Bauer
             {
-                if (yn == yv - 1) return true;
-                else if (yv == 6 && yn == yv - 2) return true;
+                if (yn == yv - 1 && dx == 0) return true;
+                else if (yv == 6 && yn == yv - 2 && dx == 0) return true;
                 else return false;
             }
             else if (pre == 1 && schlagen)
@@ -261,8 +263,8 @@ namespace Schach
             }
             else if (pre == 7 && !schlagen)
             {
-                if (yn == yv + 1) return true;
-                else if (yv == 1 && yn == yv + 2) return true;
+                if (yn == yv + 1 && dx == 0) return true;
+                else if (yv == 1 && yn == yv + 2 && dx == 0) return true;
                 else return false;
             }
             else if (pre == 7 && schlagen)
