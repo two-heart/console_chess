@@ -59,7 +59,7 @@ namespace Schach
             do
             {
                 if (!z)
-                {
+                { 
                     Console.SetCursorPosition(1, 12); //Der Spieler macht seine Eingabe
                     input = Console.ReadLine();
                     if (verarbeite(input)) z = zug();   //Die wiederum verarbeitet wird
@@ -120,18 +120,20 @@ namespace Schach
                 {
                     if (Feld[y, x] > 6)
                     {
+                        int uri = 0;
                         temp = getpossisofthis(Feld[y, x], x, y);
-                        for (int i = pos; i < temp.GetLength(0); i++)
+                        for (int i = 0; i < temp.GetLength(0); i++)
                         {
                             for (int u = 0; u < 8; u++)
                             {
                                 for (int s = 0; s < 8; s++)
                                 {
-                                    eins[i, s, u] = temp[i, s, u];
+                                    eins[i+pos, s, u] = temp[i, s, u];
                                 }
                             }
-                            pos++;
+                            uri = i;
                         }
+                        pos += uri;
                     }
                 }
             }
@@ -183,7 +185,7 @@ namespace Schach
             if (previous == 5 || previous == 11)
             {
                 if (dx == 0 || dy == 0) previous = 2;
-                else if (dx == dy) previous = 3;
+                else if (dx == dy) previous = 4;
                 else return false;
             }
             if (previous == 1 || previous == 7) previous = 2;
