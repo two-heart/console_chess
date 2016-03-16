@@ -41,7 +41,7 @@ namespace Schach
             {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
-        public static int[,,] possis = new int[2000000,8,8];
+        public static int[,,] possis = new int[2000000, 8, 8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
         public static bool z;
@@ -58,7 +58,7 @@ namespace Schach
             z = zug();
             do
             {
-                if (!z || false)
+                if (!z)
                 {
                     Console.SetCursorPosition(1, 12); //Der Spieler macht seine Eingabe
                     input = Console.ReadLine();
@@ -72,11 +72,11 @@ namespace Schach
             } while (true == !false);
         }
 
-        public static void testfeld(int[,,] possis) //nur zur Visualisierung zum debuggen
+        public static void testfeld(int[,,] possis)
         {
             Console.Clear();
             int line = 0;
-            for (int i = 0; i < 150; i++)
+            for (int i = 0; i < 2000000; i++)
             {
                 for (int u = 0; u < 8; u++)
                 {
@@ -101,104 +101,169 @@ namespace Schach
                         }
                     }
                 }
+                Console.ReadKey();
             }
             Console.ReadLine();
         }
-
-
+        
         public static int[,,] possibilities()
         {
-            int[,] now = Feld; //Das Feld im Moment
-            int[,,] eins = new int[150,8,8]; //Die Möglichkeiten nach dem 1. Zug
-            int[,,] zwei = new int[20000,8,8]; //Und nach dem 2.
-            int[,,] drei = new int[2000000,8,8]; //Und nach dem 3.
+            int[,] now = Feld;
+            int[,,] eins = new int[150, 8, 8];
+            int[,,] zwei = new int[20000, 8, 8];
+            int[,,] drei = new int[2000000, 8, 8];
             int[,,] temp;
             int pos = 0;
-            for (int x = 0; x < 8; x++) //Das Feld wird in x-Richtung...
+            for (int x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++) //Und in y-Richtung abgerastert
+                for (int y = 0; y < 8; y++)
                 {
-                    if(Feld[y,x] > 6) //Wenns ein schwarzer Spieler ist...
+                    if (Feld[y, x] > 6)
                     {
-                        temp = getpossisofthis(Feld[y, x], x, y); //Nehmen wir die Möglichkeiten dieses Spielers...
-                        for (int i = pos; i < temp.GetLength(0); i++)
+                        temp = getpossisofthis(Feld[y, x], x, y);
+                        for (int i = 0; i < temp.GetLength(0); i++)
                         {
                             for (int u = 0; u < 8; u++)
                             {
                                 for (int s = 0; s < 8; s++)
                                 {
-                                    eins[i, s, u] = temp[i, s, u]; //Und speichern sie in eins
+                                    eins[i + pos, s, u] = temp[i, s, u];
                                 }
                             }
-                            pos++; //An der passenden Position
+                        }
+                        pos += temp.GetLength(0);
+                    }
+                }
+            }
+            pos = 0;
+            for (int h = 0; h < eins.GetLength(0); h++)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int u = 0; u < 8; u++)
+                    {
+                        Feld[u, i] = eins[h, u, i];
+                    }
+                }
+                for (int x = 0; x < 8; x++)
+                {
+                    for (int y = 0; y < 8; y++)
+                    {
+                        if (Feld[y, x] > 6)
+                        {
+                            temp = getpossisofthis(Feld[y, x], x, y);
+                            for (int i = 0; i < temp.GetLength(0); i++)
+                            {
+                                for (int u = 0; u < 8; u++)
+                                {
+                                    for (int s = 0; s < 8; s++)
+                                    {
+                                        zwei[i + pos, s, u] = temp[i, s, u];
+                                    }
+                                }
+                            }
+                            pos += temp.GetLength(0);
                         }
                     }
                 }
             }
-            return eins; //Und im Moment wird noch eins zurckgegeben
+            pos = 0;
+            for (int h = 0; h < zwei.GetLength(0); h++)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int u = 0; u < 8; u++)
+                    {
+                        Feld[u, i] = zwei[h, u, i];
+                    }
+                }
+                for (int x = 0; x < 8; x++)
+                {
+                    for (int y = 0; y < 8; y++)
+                    {
+                        if (Feld[y, x] > 6)
+                        {
+                            temp = getpossisofthis(Feld[y, x], x, y);
+                            for (int i = 0; i < temp.GetLength(0); i++)
+                            {
+                                for (int u = 0; u < 8; u++)
+                                {
+                                    for (int s = 0; s < 8; s++)
+                                    {
+                                        drei[i + pos, s, u] = temp[i, s, u];
+                                    }
+                                }
+                            }
+                            pos += temp.GetLength(0);
+                        }
+                    }
+                }
+            }
+            Feld = now;
+            return drei;
         }
 
         public static int[,,] getpossisofthis(int pre, int x, int y)
         {
-            int[,,] dat = new int[100,8,8]; //Die späteren Möglichkeiten dieser Figur
-            int pos = 0; //Die Position in diesem Array
-            for (int i = 0; i < 8; i++) //Und das Spielfeld wird wieder in x-Richtung...
+            int[,,] dat = new int[100, 8, 8];
+            int pos = 0;
+            for (int i = 0; i < 8; i++)
             {
-                for (int u = 0; u < 8; u++) //Und in Y-Richtung abgerastert
+                for (int u = 0; u < 8; u++)
                 {
-                    if((allowed(pre, x, i, y, u, false) || allowed(pre, x, i, y, u, true) && nichtdazwischen(pre, x, i, y, u))) //Hier wird überprüft, ob die Figur berechtigt ist, zu diesem Punkt auf dem Feld zu gehen
+                    if ((allowed(pre, x, i, y, u, false) || allowed(pre, x, i, y, u, true)) && nichtdazwischen(pre, x, i, y, u))
                     {
-                        for (int q = 0; q < 8; q++) 
+                        for (int q = 0; q < 8; q++)
                         {
                             for (int w = 0; w < 8; w++)
                             {
-                                dat[pos, w, q] = Feld[w, q]; //Und wenn sie es ist, wird erst das derzeitige Feld in dat geschrieben
+                                dat[pos, w, q] = Feld[w, q];
                             }
                         }
-                        dat[pos, u, i] = pre; //Dann die neue Position reingehauen
-                        dat[pos, y, x] = 0; //Und die alte gelöscht
-                        pos++; //Und die Position im Array (Also das ausgewählte Feld) wird erhöht, sodass das nächste Feld darin gespeichert werden kann
+                        dat[pos, u, i] = pre;
+                        dat[pos, y, x] = 0;
+                        pos++;
                     }
                 }
             }
-            int[,,] temp = new int[pos, 8, 8]; //Das was am Ende zurückgegeben wird - wäre ja doof, wenn ein Array mit 100 Stellen zrückgegeben werden würde
+            int[,,] temp = new int[pos, 8, 8];
             for (int i = 0; i < pos; i++)
             {
                 for (int u = 0; u < 8; u++)
                 {
                     for (int s = 0; s < 8; s++)
                     {
-                        temp[i, s, u] = dat[i, s, u]; //Und das wird dann eben überschrieben
+                        temp[i, s, u] = dat[i, s, u];
                     }
                 }
             }
-            return temp; //Und zurückgegeben
+            return temp;
         }
 
-        public static bool nichtdazwischen(int previous, int xv, int xn, int yv, int yn) //Hier wird abgeprüft, ob zwischen dem Start und dem Endfeld eine andere Figur steht(auf dem Weg der ursprünglichen Figur)
+        public static bool nichtdazwischen(int previous, int xv, int xn, int yv, int yn)
         {
-            int dx = delta(xv, xn); //Die Differenz
+            int dx = delta(xv, xn);
             int dy = delta(yv, yn);
-            if (previous == 0 || dx == 0 && dy == 0) return false; //Ist ja nix ;D
-            if (previous == 5 || previous == 11) 
+            if (previous == 0 || dx == 0 && dy == 0) return false;
+            if (previous == 5 || previous == 11)
             {
-                if (dx == 0 || dy == 0) previous = 2; //Die Dame verhält sich entweder wie ein Turm...
-                else if (dx == dy) previous = 3; //Oder wie ein Läufer
-                else return false; //Oder irgendwas ist falsch
+                if (dx == 0 || dy == 0) previous = 2;
+                else if (dx == dy) previous = 4;
+                else return false;
             }
-            if (previous == 1 || previous == 7) previous = 2; //Der Bauer verhält sich (in diesem Fall) gleich wie ein Turm
+            if (previous == 1 || previous == 7) previous = 2;
             if (previous == 2 || previous == 8)
             {
                 if (dy == 0)
                     for (int i = 1; i < dx; i++)
                     {
-                        if (xn > xv) { if (Feld[yv, xv + i] != 0) return false; } //Für den Turm wird alles in x-Richtung abgeprüft...
+                        if (xn > xv) { if (Feld[yv, xv + i] != 0) return false; }
                         else { if (Feld[yv, xv - i] != 0) return false; }
                     }
                 else if (dx == 0)
                     for (int i = 1; i < dy; i++)
                     {
-                        if (yn > yv) { if (Feld[yv + i, xv] != 0) return false; } //Oder in y-Richtung
+                        if (yn > yv) { if (Feld[yv + i, xv] != 0) return false; }
                         else { if (Feld[yv - i, xv] != 0) return false; }
                     }
             }
@@ -210,7 +275,7 @@ namespace Schach
                     {
                         if (xn > xv)
                         {
-                            if (Feld[yv + i, xv + i] != 0) return false; //Und für den Läufer wirds eben für die entsprechende Richtung abgeprüft
+                            if (Feld[yv + i, xv + i] != 0) return false;
                         }
                         else
                         {
@@ -233,7 +298,7 @@ namespace Schach
             return true;
         }
 
-        public static int delta(int a, int b) //Die DIFERENZ
+        public static int delta(int a, int b)
         {
             int c = a - b;
             if (c < 0) c = -c;
@@ -243,6 +308,8 @@ namespace Schach
 
         public static bool allowed(int pre, int xv, int xn, int yv, int yn, bool schlagen) //Überprüfung ob Zug erlaubt ist
         {
+            if (schlagen && Feld[yn, xn] == 0) return false;
+            if (!z && Feld[yn, xn] < 7 || z && Feld[yn, xn] > 6) return false;
             int dy = delta(yv, yn);
             int dx = delta(xv, xn);
             if (pre == 0) return false; //keine Figur
@@ -250,8 +317,8 @@ namespace Schach
 
             else if (pre == 1 && !schlagen)//Bauer
             {
-                if (yn == yv - 1) return true;
-                else if (yv == 6 && yn == yv - 2) return true;
+                if (yn == yv - 1 && dx == 0) return true;
+                else if (yv == 6 && yn == yv - 2 && dx == 0) return true;
                 else return false;
             }
             else if (pre == 1 && schlagen)
@@ -261,8 +328,8 @@ namespace Schach
             }
             else if (pre == 7 && !schlagen)
             {
-                if (yn == yv + 1) return true;
-                else if (yv == 1 && yn == yv + 2) return true;
+                if (yn == yv + 1 && dx == 0) return true;
+                else if (yv == 1 && yn == yv + 2 && dx == 0) return true;
                 else return false;
             }
             else if (pre == 7 && schlagen)
@@ -452,7 +519,7 @@ namespace Schach
             }
         }
 
-        public static void rochadeaktualisieren(int previous, int x) //Die Rochademöglichkeit wird ggf. aktualisiert
+        public static void rochadeaktualisieren(int previous, int x)
         {
             if (previous == 6)
             {
@@ -548,7 +615,7 @@ namespace Schach
                 Console.SetCursorPosition(0, verschiebung[0] + i - 1);
                 Console.Write(i); //Die Zahlen am Spielfeldrand
                 Console.SetCursorPosition(verschiebung[1] + i - 1, 0);
-                char buch = convertToChar(i);               
+                char buch = convertToChar(i);
                 Console.Write(buch); //Die Buchstaben am Spielfeldrand
             }
         }
@@ -585,6 +652,7 @@ namespace Schach
                 return false;
             }
         }
+
 
         public static int bewerte(int[,] dasFeld)
         {
@@ -665,7 +733,7 @@ namespace Schach
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    if(schwarz && dasFeld[y,x] == 12 ||!schwarz && dasFeld[y,x] == 6)
+                    if (schwarz && dasFeld[y, x] == 12 || !schwarz && dasFeld[y, x] == 6)
                     {
                         pos[0] = x;
                         pos[1] = y;
@@ -692,15 +760,15 @@ namespace Schach
 
         public static int[,] getBauernpos(int[,] dasFeld, bool schwarz)
         {
-            int[,] pos = new int[8, 2] 
-            { 
-                { 10, 10 }, 
-                { 10, 10 }, 
-                { 10, 10 }, 
-                { 10, 10 }, 
-                { 10, 10 }, 
-                { 10, 10 }, 
-                { 10, 10 }, 
+            int[,] pos = new int[8, 2]
+            {
+                { 10, 10 },
+                { 10, 10 },
+                { 10, 10 },
+                { 10, 10 },
+                { 10, 10 },
+                { 10, 10 },
+                { 10, 10 },
                 { 10, 10 },
             };
             int apos = 0;
@@ -708,7 +776,7 @@ namespace Schach
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    if(schwarz && dasFeld[y,x] == 7 || !schwarz && dasFeld[y,x] == 1)
+                    if (schwarz && dasFeld[y, x] == 7 || !schwarz && dasFeld[y, x] == 1)
                     {
                         pos[apos, 0] = x;
                         pos[apos, 1] = y;
@@ -720,4 +788,5 @@ namespace Schach
         }
     }
 }
+
 
