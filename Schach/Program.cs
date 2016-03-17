@@ -41,7 +41,7 @@ namespace Schach
             {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
-        public static int[, ,] possis = new int[2000000, 8, 8];
+        public static int[, , ,] possis = new int[2, 1000000, 8, 8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
         public static bool z;
@@ -66,30 +66,50 @@ namespace Schach
                 }
                 else
                 {
-                    int[,] temp = new int[8,8];
+                    int[,] temp = new int[8, 8];
                     possis = possibilities();
-                    for (int i = 0; i < 2000000; i++)
-                    {
-                        for (int a = 0; a < 8; a++)
-                        {
-                            for (int s = 0; s < 8; s++)
-                            {
-                                temp[s, a] = possis[i, s, a];
-                            }
-                        }
-                        Console.ReadKey(true);
-                        Console.WriteLine(bewerte(temp));
-                    }
-                    testfeld(possis);
+                    botzug();
+                    z = zug();
                 }
             } while (true == !false);
+        }
+        static void botzug()
+        {
+            int[,] temp = new int[8, 8];
+            possis = possibilities();
+            int besterzug = 0;
+            int q = 0;
+            for (int i = 0; i < 1000000; i++)
+            {
+                for (int a = 0; a < 8; a++)
+                {
+                    for (int s = 0; s < 8; s++)
+                    {
+                        temp[s, a] = possis[0, i, s, a];
+                    }
+                }
+                int bew = bewerte(temp);
+                if (bew > besterzug)
+                {
+                    besterzug = bew;
+                    q = i;
+                }
+            }
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    Feld[y,x] = possis[1, 0, y, x];
+                }
+            }
+            zeichneSpieler();
         }
 
         public static void testfeld(int[, ,] possis)
         {
             Console.Clear();
             int line = 0;
-            for (int i = 0; i < 2000000; i++)
+            for (int i = 0; i < 1000000; i++)
             {
                 for (int u = 0; u < 8; u++)
                 {
@@ -119,12 +139,12 @@ namespace Schach
             Console.ReadLine();
         }
 
-        public static int[, ,] possibilities()
+        public static int[, , ,] possibilities()
         {
             int[,] now = Feld;
             int[, ,] eins = new int[150, 8, 8];
-            int[, ,] zwei = new int[20000, 8, 8];
-            int[, ,] drei = new int[2000000, 8, 8];
+            int[, , ,] zwei = new int[2, 20000, 8, 8];
+            int[, , ,] drei = new int[2, 1000000, 8, 8];
             int[, ,] temp;
             int pos = 0;
             for (int x = 0; x < 8; x++)
@@ -171,7 +191,14 @@ namespace Schach
                                 {
                                     for (int s = 0; s < 8; s++)
                                     {
-                                        zwei[i + pos, s, u] = temp[i, s, u];
+                                        zwei[0, i + pos, s, u] = temp[i, s, u];
+                                        for (int b = 0; b < 8; b++)
+                                        {
+                                            for (int n = 0; n < 8; n++)
+                                            {
+                                                zwei[1, i + pos, n, b] = Feld[n, b];
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -187,7 +214,7 @@ namespace Schach
                 {
                     for (int u = 0; u < 8; u++)
                     {
-                        Feld[u, i] = zwei[h, u, i];
+                        Feld[u, i] = zwei[0, h, u, i];
                     }
                 }
                 for (int x = 0; x < 8; x++)
@@ -203,7 +230,14 @@ namespace Schach
                                 {
                                     for (int s = 0; s < 8; s++)
                                     {
-                                        drei[i + pos, s, u] = temp[i, s, u];
+                                        drei[0, i + pos, s, u] = temp[i, s, u];
+                                        for (int b = 0; b < 8; b++)
+                                        {
+                                            for (int n = 0; n < 8; n++)
+                                            {
+                                                drei[1, i + pos, n, b] = Feld[n, b];
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -809,6 +843,7 @@ namespace Schach
         }
     }
 }
+
 
 
 
