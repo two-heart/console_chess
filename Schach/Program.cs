@@ -41,7 +41,7 @@ namespace Schach
             {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
-        public static int[,,] possis = new int[2000000, 8, 8];
+        public static int[, ,] possis = new int[2000000, 8, 8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
         public static bool z;
@@ -66,13 +66,26 @@ namespace Schach
                 }
                 else
                 {
+                    int[,] temp = new int[8,8];
                     possis = possibilities();
+                    for (int i = 0; i < 2000000; i++)
+                    {
+                        for (int a = 0; a < 8; a++)
+                        {
+                            for (int s = 0; s < 8; s++)
+                            {
+                                temp[s, a] = possis[i, s, a];
+                            }
+                        }
+                        Console.ReadKey(true);
+                        Console.WriteLine(bewerte(temp));
+                    }
                     testfeld(possis);
                 }
             } while (true == !false);
         }
 
-        public static void testfeld(int[,,] possis)
+        public static void testfeld(int[, ,] possis)
         {
             Console.Clear();
             int line = 0;
@@ -105,14 +118,14 @@ namespace Schach
             }
             Console.ReadLine();
         }
-        
-        public static int[,,] possibilities()
+
+        public static int[, ,] possibilities()
         {
             int[,] now = Feld;
-            int[,,] eins = new int[150, 8, 8];
-            int[,,] zwei = new int[20000, 8, 8];
-            int[,,] drei = new int[2000000, 8, 8];
-            int[,,] temp;
+            int[, ,] eins = new int[150, 8, 8];
+            int[, ,] zwei = new int[20000, 8, 8];
+            int[, ,] drei = new int[2000000, 8, 8];
+            int[, ,] temp;
             int pos = 0;
             for (int x = 0; x < 8; x++)
             {
@@ -203,9 +216,9 @@ namespace Schach
             return drei;
         }
 
-        public static int[,,] getpossisofthis(int pre, int x, int y)
+        public static int[, ,] getpossisofthis(int pre, int x, int y)
         {
-            int[,,] dat = new int[100, 8, 8];
+            int[, ,] dat = new int[100, 8, 8];
             int pos = 0;
             for (int i = 0; i < 8; i++)
             {
@@ -226,7 +239,7 @@ namespace Schach
                     }
                 }
             }
-            int[,,] temp = new int[pos, 8, 8];
+            int[, ,] temp = new int[pos, 8, 8];
             for (int i = 0; i < pos; i++)
             {
                 for (int u = 0; u < 8; u++)
@@ -671,10 +684,10 @@ namespace Schach
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    if (!z && dasFeld[y, x] == 12 || z && dasFeld[y, x] == 6) return true;
+                    if (!z && dasFeld[y, x] == 12 || z && dasFeld[y, x] == 6) return false;
                 }
             }
-            return false;
+            return true;
         }
 
         public static int myScore(int[,] dasFeld)
@@ -717,11 +730,19 @@ namespace Schach
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    if (Feld[kingpos[1] - 1, kingpos[0] - 1 + i] > 6) safety++;
-                    if (Feld[kingpos[1] + 1, kingpos[0] - 1 + i] > 6) safety++;
+                    try
+                    {
+                        if (Feld[kingpos[1] - 1, kingpos[0] - 1 + i] > 6) safety++;
+                        if (Feld[kingpos[1] + 1, kingpos[0] - 1 + i] > 6) safety++;
+                    }
+                    catch { }
                 }
-                if (Feld[kingpos[1], kingpos[0] - 1] > 6) safety++;
-                if (Feld[kingpos[1], kingpos[0] + 1] > 6) safety++;
+                try
+                {
+                    if (Feld[kingpos[1], kingpos[0] - 1] > 6) safety++;
+                    if (Feld[kingpos[1], kingpos[0] + 1] > 6) safety++;
+                }
+                catch { }
             }
             return safety * 7;
         }
@@ -788,5 +809,6 @@ namespace Schach
         }
     }
 }
+
 
 
