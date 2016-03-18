@@ -41,7 +41,7 @@ namespace Schach
             {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
-        public static int[, , ,] possis = new int[2, 1000000, 8, 8];
+        public static int[,,,] possis = new int[2, 1000000, 8, 8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
         public static bool z;
@@ -58,6 +58,7 @@ namespace Schach
             z = zug();
             do
             {
+                Console.ForegroundColor = ConsoleColor.Black;
                 if (!z)
                 {
                     Console.SetCursorPosition(1, 12); //Der Spieler macht seine Eingabe
@@ -99,13 +100,13 @@ namespace Schach
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    Feld[y,x] = possis[1, 0, y, x];
+                    Feld[y, x] = possis[1, 0, y, x];
                 }
             }
             zeichneSpieler();
         }
 
-        public static void testfeld(int[, ,] possis)
+        public static void testfeld(int[,,] possis)
         {
             Console.Clear();
             int line = 0;
@@ -139,13 +140,13 @@ namespace Schach
             Console.ReadLine();
         }
 
-        public static int[, , ,] possibilities()
+        public static int[,,,] possibilities()
         {
             int[,] now = Feld;
-            int[, ,] eins = new int[150, 8, 8];
-            int[, , ,] zwei = new int[2, 20000, 8, 8];
-            int[, , ,] drei = new int[2, 1000000, 8, 8];
-            int[, ,] temp;
+            int[,,] eins = new int[150, 8, 8];
+            int[,,,] zwei = new int[2, 20000, 8, 8];
+            int[,,,] drei = new int[2, 1000000, 8, 8];
+            int[,,] temp;
             int pos = 0;
             for (int x = 0; x < 8; x++)
             {
@@ -154,7 +155,7 @@ namespace Schach
                     if (Feld[y, x] > 6)
                     {
                         temp = getpossisofthis(Feld[y, x], x, y);
-                        for (int i = 0; i < temp.GetLength(0); i++)
+                        for (int i = 0; i < temp.GetLength(0) && i + pos < eins.GetLength(0); i++)
                         {
                             for (int u = 0; u < 8; u++)
                             {
@@ -185,7 +186,7 @@ namespace Schach
                         if (Feld[y, x] > 6)
                         {
                             temp = getpossisofthis(Feld[y, x], x, y);
-                            for (int i = 0; i < temp.GetLength(0); i++)
+                            for (int i = 0; i < temp.GetLength(0) && i + pos < zwei.GetLength(0); i++)
                             {
                                 for (int u = 0; u < 8; u++)
                                 {
@@ -250,9 +251,9 @@ namespace Schach
             return drei;
         }
 
-        public static int[, ,] getpossisofthis(int pre, int x, int y)
+        public static int[,,] getpossisofthis(int pre, int x, int y)
         {
-            int[, ,] dat = new int[100, 8, 8];
+            int[,,] dat = new int[100, 8, 8];
             int pos = 0;
             for (int i = 0; i < 8; i++)
             {
@@ -273,7 +274,7 @@ namespace Schach
                     }
                 }
             }
-            int[, ,] temp = new int[pos, 8, 8];
+            int[,,] temp = new int[pos, 8, 8];
             for (int i = 0; i < pos; i++)
             {
                 for (int u = 0; u < 8; u++)
@@ -356,13 +357,13 @@ namespace Schach
         public static bool allowed(int pre, int xv, int xn, int yv, int yn, bool schlagen) //Überprüfung ob Zug erlaubt ist
         {
             if (schlagen && Feld[yn, xn] == 0) return false;
-            if (!z && Feld[yn, xn] < 7 || z && Feld[yn, xn] > 6) return false;
+            if (!z && Feld[yn, xn] < 7 && Feld[yn, xn] > 0 || z && Feld[yn, xn] > 6) return false;
             int dy = delta(yv, yn);
             int dx = delta(xv, xn);
             if (pre == 0) return false; //keine Figur
             if (xv == xn && yv == yn) return false;  //Zielfeld = Endfeld
 
-            else if (pre == 1 && !schlagen)//Bauer
+            if (pre == 1 && !schlagen)//Bauer
             {
                 if (yn == yv - 1 && dx == 0) return true;
                 else if (yv == 6 && yn == yv - 2 && dx == 0) return true;
@@ -412,6 +413,7 @@ namespace Schach
                 else return false;
             }
             else return false;
+            return true;
         }
 
         public static bool verarbeite(string input) //Und zwar hier
@@ -604,6 +606,7 @@ namespace Schach
 
         public static void Error()
         {
+            Console.ForegroundColor = ConsoleColor.Black;
             Console.SetCursorPosition(1, 14);
             Console.Write("Error");
             Console.ReadKey();
@@ -683,6 +686,7 @@ namespace Schach
 
         public static bool zug()//Das war nicht ich :D
         {
+            Console.ForegroundColor = ConsoleColor.Black;
             Console.SetCursorPosition(1, 10);
             if (züge % 2 == 0)
             {
