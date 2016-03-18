@@ -74,9 +74,24 @@ namespace Schach
                 }
             } while (true == !false);
         }
+
+        public static List<int> tolist(int[,] array)
+        {
+            List<int> Liste = new List<int>();
+            for (int u = 0; u < array.GetLength(1); u++)
+            {
+                for (int i = 0; i < array.GetLength(0); i++)
+                {
+                    Liste.Add(array[i, u]);
+                }
+            }
+            return Liste;
+        }
+
         static void botzug()
         {
             int[,] temp = new int[8, 8];
+            int bew = 0;
             possis = possibilities();
             int besterzug = 0;
             int q = 0;
@@ -89,7 +104,14 @@ namespace Schach
                         temp[s, a] = possis[0, i, s, a];
                     }
                 }
-                int bew = bewerte(temp);
+                List<int> liste = tolist(temp);
+                bool erlaubt = false;
+                for (int t = 1; t < liste.LastIndexOf(liste.Last()); t++)
+                {
+                    if (liste.Contains(t)) erlaubt = true;
+                }
+                if (!erlaubt) break;
+                bew = bewerte(temp);
                 if (bew > besterzug)
                 {
                     besterzug = bew;
@@ -104,6 +126,16 @@ namespace Schach
                 }
             }
             zeichneSpieler();
+            Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());
+            for (int i = 0; i < 8; i++)
+            {
+                for (int u = 0; u < 8; u++)
+                {
+                    Console.SetCursorPosition(i + 10, u);
+                    Console.Write(possis[0, q, u, i]);
+                }
+            }
+            Console.ReadKey(true);
         }
 
         public static void testfeld(int[,,] possis)
@@ -418,112 +450,120 @@ namespace Schach
 
         public static bool verarbeite(string input) //Und zwar hier
         {
-            ushort rochade = 0; //weiß klein, weiß groß, schwarz klein, schwarz groß
-            bool schlagen = false;
-            if (input.ToUpper().Contains("X"))
+            try
             {
-                schlagen = true;
-                input.Remove(5, 1);
-            }
-            if (input == "0-0" && weiß)
-            {
-                rochade = 1;
-            }
-            else if (input == "0-0-0" && weiß)
-            {
-                rochade = 2;
-            }
-            else if (input == "0-0" && !weiß)
-            {
-                rochade = 3;
-            }
-            else if (input == "0-0-0" && !weiß)
-            {
-                rochade = 4;
-            }
-            if (rochade == 0)
-            {
-                string[] splitted = input.Split(' '); //Die Eingabe sollte in der Form A1 B3 sein, wobei der erste Teil das Start- und der zweite Teil das Endfeld ist. Die Eingabe wird demenstsprechend nach Start- und Endfeld aufgesplitted1t
-                if (splitted.Length != 2) //Es sollten natürlich nur zwei Felder sein
+                ushort rochade = 0; //weiß klein, weiß groß, schwarz klein, schwarz groß
+                bool schlagen = false;
+                if (input.ToUpper().Contains("X"))
                 {
-                    Error();
-                    return false;
+                    schlagen = true;
+                    input.Remove(5, 1);
                 }
-
-                char[] eins = splitted[0].ToCharArray();//Diese zwei Felder werden dann wieder zu x und y gesplittet
-                char[] zwei = splitted[1].ToCharArray();
-                int[] peins = new int[2] { convertToInt(eins[0]) - 1, Convert.ToInt32(eins[1] - '0') - 1 }; //Und der Buchstabe wird in eine equivalente Zahl umgewandelt
-                int[] pzwei = new int[2] { convertToInt(zwei[0]) - 1, Convert.ToInt32(zwei[1] - '0') - 1 };
-                int previous; //Das ist die Figur, die bewegt wird
-                previous = Feld[peins[1], peins[0]];
-
-                if ((Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
+                if (input == "0-0" && weiß)
                 {
-                    rochadeaktualisieren(previous, peins[0]);
-                    Feld[peins[1], peins[0]] = 0; //Die vorige Position wird gelöscht
-                    zeichnesymbol(' ', peins[0], peins[1]);
-                    Console.ForegroundColor = ConsoleColor.Black;
-                    if (previous < 7) Console.ForegroundColor = ConsoleColor.White; //Und die neue in der passenden Farbe gezeichnet
-                    Feld[pzwei[1], pzwei[0]] = previous;
-                    zeichnesymbol(symbols[previous], pzwei[0], pzwei[1]);
-                    Console.ForegroundColor = ConsoleColor.Black;
-                    ereignisse(previous, peins[0], pzwei[0], peins[1], pzwei[1]);
+                    rochade = 1;
+                }
+                else if (input == "0-0-0" && weiß)
+                {
+                    rochade = 2;
+                }
+                else if (input == "0-0" && !weiß)
+                {
+                    rochade = 3;
+                }
+                else if (input == "0-0-0" && !weiß)
+                {
+                    rochade = 4;
+                }
+                if (rochade == 0)
+                {
+                    string[] splitted = input.Split(' '); //Die Eingabe sollte in der Form A1 B3 sein, wobei der erste Teil das Start- und der zweite Teil das Endfeld ist. Die Eingabe wird demenstsprechend nach Start- und Endfeld aufgesplitted1t
+                    if (splitted.Length != 2) //Es sollten natürlich nur zwei Felder sein
+                    {
+                        Error();
+                        return false;
+                    }
+
+                    char[] eins = splitted[0].ToCharArray();//Diese zwei Felder werden dann wieder zu x und y gesplittet
+                    char[] zwei = splitted[1].ToCharArray();
+                    int[] peins = new int[2] { convertToInt(eins[0]) - 1, Convert.ToInt32(eins[1] - '0') - 1 }; //Und der Buchstabe wird in eine equivalente Zahl umgewandelt
+                    int[] pzwei = new int[2] { convertToInt(zwei[0]) - 1, Convert.ToInt32(zwei[1] - '0') - 1 };
+                    int previous; //Das ist die Figur, die bewegt wird
+                    previous = Feld[peins[1], peins[0]];
+
+                    if ((Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
+                    {
+                        rochadeaktualisieren(previous, peins[0]);
+                        Feld[peins[1], peins[0]] = 0; //Die vorige Position wird gelöscht
+                        zeichnesymbol(' ', peins[0], peins[1]);
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        if (previous < 7) Console.ForegroundColor = ConsoleColor.White; //Und die neue in der passenden Farbe gezeichnet
+                        Feld[pzwei[1], pzwei[0]] = previous;
+                        zeichnesymbol(symbols[previous], pzwei[0], pzwei[1]);
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        ereignisse(previous, peins[0], pzwei[0], peins[1], pzwei[1]);
+                    }
+                    else
+                    {
+                        Error();
+                        return false;
+                    }
                 }
                 else
                 {
-                    Error();
-                    return false;
+                    if (!rochadem[rochade - 1] || rochade == 1 && (Feld[7, 5] != 0 || Feld[7, 6] != 0) || rochade == 3 && (Feld[0, 5] != 0 || Feld[0, 6] != 0) || rochade == 2 && (Feld[7, 1] != 0 || Feld[7, 2] != 0 || Feld[7, 3] != 0) || rochade == 4 && (Feld[0, 1] != 0 || Feld[0, 2] != 0 || Feld[0, 3] != 0))
+                    {
+                        Error();
+                        return false;
+                    }
+                    else
+                    {
+                        if (rochade == 1) //4,7 -> 7,7
+                        {
+                            Feld[7, 4] = 2;
+                            Feld[7, 7] = 6;
+                            Console.ForegroundColor = ConsoleColor.White;
+                            zeichnesymbol('T', 4, 7);
+                            zeichnesymbol('K', 7, 7);
+                            Console.ForegroundColor = ConsoleColor.Black;
+                        }
+                        else if (rochade == 2) //4,7 -> 0,7
+                        {
+                            Feld[7, 4] = 2;
+                            Feld[7, 0] = 6;
+                            Console.ForegroundColor = ConsoleColor.White;
+                            zeichnesymbol('T', 4, 7);
+                            zeichnesymbol('K', 0, 7);
+                            Console.ForegroundColor = ConsoleColor.Black;
+                        }
+                        else if (rochade == 3) //4,0 -> 7,0
+                        {
+                            Feld[0, 4] = 8;
+                            Feld[0, 7] = 12;
+                            Console.ForegroundColor = ConsoleColor.Black;
+                            zeichnesymbol('T', 4, 0);
+                            zeichnesymbol('K', 7, 0);
+                        }
+                        else if (rochade == 4) //4,0 -> 0,0
+                        {
+                            Feld[0, 4] = 8;
+                            Feld[0, 0] = 12;
+                            Console.ForegroundColor = ConsoleColor.Black;
+                            zeichnesymbol('T', 4, 0);
+                            zeichnesymbol('K', 0, 0);
+                        }
+                        rochadem[rochade - 1] = false;
+                    }
                 }
+                Console.SetCursorPosition(1, 12);
+                Console.Write("                        "); //Und die Eingabe gelöscht
+                return true;
             }
-            else
+            catch
             {
-                if (!rochadem[rochade - 1] || rochade == 1 && (Feld[7, 5] != 0 || Feld[7, 6] != 0) || rochade == 3 && (Feld[0, 5] != 0 || Feld[0, 6] != 0) || rochade == 2 && (Feld[7, 1] != 0 || Feld[7, 2] != 0 || Feld[7, 3] != 0) || rochade == 4 && (Feld[0, 1] != 0 || Feld[0, 2] != 0 || Feld[0, 3] != 0))
-                {
-                    Error();
-                    return false;
-                }
-                else
-                {
-                    if (rochade == 1) //4,7 -> 7,7
-                    {
-                        Feld[7, 4] = 2;
-                        Feld[7, 7] = 6;
-                        Console.ForegroundColor = ConsoleColor.White;
-                        zeichnesymbol('T', 4, 7);
-                        zeichnesymbol('K', 7, 7);
-                        Console.ForegroundColor = ConsoleColor.Black;
-                    }
-                    else if (rochade == 2) //4,7 -> 0,7
-                    {
-                        Feld[7, 4] = 2;
-                        Feld[7, 0] = 6;
-                        Console.ForegroundColor = ConsoleColor.White;
-                        zeichnesymbol('T', 4, 7);
-                        zeichnesymbol('K', 0, 7);
-                        Console.ForegroundColor = ConsoleColor.Black;
-                    }
-                    else if (rochade == 3) //4,0 -> 7,0
-                    {
-                        Feld[0, 4] = 8;
-                        Feld[0, 7] = 12;
-                        Console.ForegroundColor = ConsoleColor.Black;
-                        zeichnesymbol('T', 4, 0);
-                        zeichnesymbol('K', 7, 0);
-                    }
-                    else if (rochade == 4) //4,0 -> 0,0
-                    {
-                        Feld[0, 4] = 8;
-                        Feld[0, 0] = 12;
-                        Console.ForegroundColor = ConsoleColor.Black;
-                        zeichnesymbol('T', 4, 0);
-                        zeichnesymbol('K', 0, 0);
-                    }
-                    rochadem[rochade - 1] = false;
-                }
+                Error();
+                return false;
             }
-            Console.SetCursorPosition(1, 12);
-            Console.Write("                        "); //Und die Eingabe gelöscht
-            return true;
         }
 
         static void ereignisse(int pre, int xv, int xn, int yv, int yn) //Besondere Ereignisse im Spiel
