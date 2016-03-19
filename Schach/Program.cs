@@ -75,7 +75,7 @@ namespace Schach
             } while (true == !false);
         }
 
-        public static List<int> tolist(int[,] array)
+        public static List<int> tolist(int[,] array)//konvertiert ein Feld Array in eine entsprechende liste
         {
             List<int> Liste = new List<int>();
             for (int u = 0; u < array.GetLength(1); u++)
@@ -108,7 +108,7 @@ namespace Schach
                 bool erlaubt = false;
                 for (int t = 1; t < liste.LastIndexOf(liste.Last()); t++)
                 {
-                    if (liste.Contains(t)) erlaubt = true;
+                    if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
                 bew = bewerte(temp);
@@ -126,7 +126,7 @@ namespace Schach
                 }
             }
             zeichneSpieler();
-            Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());
+            Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());//Das ist nur zum Bugfixing
             for (int i = 0; i < 8; i++)
             {
                 for (int u = 0; u < 8; u++)
@@ -180,7 +180,7 @@ namespace Schach
             int[,,,] drei = new int[2, 1000000, 8, 8];
             int[,,] temp;
             int pos = 0;
-            for (int x = 0; x < 8; x++)
+            for (int x = 0; x < 8; x++)//erster zug
             {
                 for (int y = 0; y < 8; y++)
                 {
@@ -201,7 +201,7 @@ namespace Schach
                     }
                 }
             }
-            pos = 0;
+            pos = 0;//zweiter Zug
             for (int h = 0; h < eins.GetLength(0); h++)
             {
                 for (int i = 0; i < 8; i++)
@@ -240,7 +240,7 @@ namespace Schach
                     }
                 }
             }
-            pos = 0;
+            pos = 0;//Dritter zug
             for (int h = 0; h < zwei.GetLength(0); h++)
             {
                 for (int i = 0; i < 8; i++)
@@ -748,7 +748,7 @@ namespace Schach
         public static int bewerte(int[,] dasFeld)
         {
             int Bewertung = 0;
-            if (checkWon(dasFeld)) Bewertung += 1000;
+            if (checkWon(dasFeld)) Bewertung += 1000;//gewonnen
             Bewertung += myScore(dasFeld);
             Bewertung -= enScore(dasFeld);
             Bewertung += Safety(dasFeld);
