@@ -41,7 +41,7 @@ namespace Schach
             {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
-        //public static int[,,,] possis = new int[2, 1000000, 8, 8];
+        public static int[,,,] possis = new int[2, 1000000, 8, 8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
         public static bool z;
@@ -68,15 +68,13 @@ namespace Schach
                 else
                 {
                     int[,] temp = new int[8, 8];
-                    int[,,] eins; int[,,,] zwei, drei;
-                    possibilities(out eins, out zwei, out drei);
-                    botzug();
+                    possis = possibilities();
                     z = zug();
                 }
             } while (true == !false);
         }
 
-        public static List<int> tolist(int[,] array)//konvertiert ein Feld Array in eine entsprechende liste
+        public static List<int> tolist(int[,] array)
         {
             List<int> Liste = new List<int>();
             for (int u = 0; u < array.GetLength(1); u++)
@@ -91,121 +89,57 @@ namespace Schach
 
         static void botzug()
         {
-            int[,] temp = new int[8, 8]; //Das zu untersuchende Feld
-            int bew = 0; //Der Zug
-            int[,,] eins;
-            int[,,,] zwei, drei;
-            possibilities(out eins, out zwei, out drei); //Die Möglichkeiten(Nach dem dritten Zug)
-            int besterzug = 0; //Der beste Zug
-            int q = 0; //Nur da, um i zu speichern
-            int welcherzug = 0;
-
-
-            for (int i = 0; i < eins.GetLength(1); i++)
+            int[,] temp = new int[8, 8];
+            int bew = 0;
+            possis = possibilities();
+            int besterzug = 0;
+            int q = 0;
+            for (int i = 0; i < 1000000; i++)
             {
                 for (int a = 0; a < 8; a++)
                 {
                     for (int s = 0; s < 8; s++)
                     {
-                        temp[s, a] = eins[i, s, a]; //Das zu untersuchende Feld wird definiert
+                        temp[s, a] = possis[0, i, s, a];
                     }
                 }
-                List<int> liste = tolist(temp); //Und zur Liste konvertiert
+                List<int> liste = tolist(temp);
                 bool erlaubt = false;
                 for (int t = 1; t < liste.LastIndexOf(liste.Last()); t++)
                 {
-                    if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
+                    if (liste.Contains(t)) erlaubt = true;
                 }
                 if (!erlaubt) break;
-                bew = bewerte(temp); //Wenn alles erlaubt ist, wird bew damit definiert
-                if (bew > besterzug && true)
-                {
-                    besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
-                    q = i; //Und i in q gespeichert
-                    welcherzug = 1;
-                }
-            }
-
-            for (int i = 0; i < zwei.GetLength(1); i++)
-            {
-                for (int a = 0; a < 8; a++)
-                {
-                    for (int s = 0; s < 8; s++)
-                    {
-                        temp[s, a] = zwei[0, i, s, a]; //Das zu untersuchende Feld wird definiert
-                    }
-                }
-                List<int> liste = tolist(temp); //Und zur Liste konvertiert
-                bool erlaubt = false;
-                for (int t = 1; t < liste.LastIndexOf(liste.Last()); t++)
-                {
-                    if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
-                }
-                if (!erlaubt) break;
-                bew = bewerte(temp); //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = bewerte(temp);
                 if (bew > besterzug)
                 {
-                    besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
-                    q = i; //Und i in q gespeichert
-                    welcherzug = 2;
+                    besterzug = bew;
+                    q = i;
                 }
             }
-
-
-            for (int i = 0; i < drei.GetLength(1); i++)
-            {
-                for (int a = 0; a < 8; a++)
-                {
-                    for (int s = 0; s < 8; s++)
-                    {
-                        temp[s, a] = drei[0, i, s, a]; //Das zu untersuchende Feld wird definiert
-                    }
-                }
-                List<int> liste = tolist(temp); //Und zur Liste konvertiert
-                bool erlaubt = false;
-                for (int t = 1; t < liste.LastIndexOf(liste.Last()); t++)
-                {
-                    if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
-                }
-                if (!erlaubt) break;
-                bew = bewerte(temp); //Wenn alles erlaubt ist, wird bew damit definiert
-                if (bew > besterzug)
-                {
-                    besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
-                    q = i; //Und i in q gespeichert
-                    welcherzug = 3;
-                }
-            }
-
-
             for (int x = 0; x < 8; x++)
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    if (welcherzug == 1)
-                        Feld[y, x] = eins[q, y, x]; //Wenn alle Möglichkeiten überprüft wurden, wird das Feld mit dem besten Zug aktualisiert
-                    /*else if (welcherzug == 2)
-                        Feld[y, x] = zwei[1, q, y, x];
-                    else if (welcherzug == 3)
-                        Feld[y, x] = drei[1, q, y, x];
-                    else Error();*/
-                }            
+                    Feld[y, x] = possis[1, q, y, x];
+                    Console.SetCursorPosition(13, 13);
+                    Console.WriteLine("zug" +y);
+                }
             }
-            zeichneSpieler(); //und in gezeichnet
-            Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());//Das ist nur zum Bugfixing
+            zeichneSpieler();
+            Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());
             for (int i = 0; i < 8; i++)
             {
                 for (int u = 0; u < 8; u++)
                 {
                     Console.SetCursorPosition(i + 10, u);
-                    Console.Write(eins[q, u, i]);
+                    Console.Write(possis[0, q, u, i]);
                 }
             }
-            Console.ReadKey(true);
-            
+            //Console.ReadKey(true);
         }
 
-        public static void testfeld(int[,,] possis) //nur zu Testzwecken - zeichnet alle Felder des Arrays
+        public static void testfeld(int[,,] possis)
         {
             Console.Clear();
             int line = 0;
@@ -239,36 +173,36 @@ namespace Schach
             Console.ReadLine();
         }
 
-        public static void possibilities(out int[,,] eins, out int[,,,] zwei, out int[,,,] drei)
+        public static int[,,,] possibilities()
         {
-            int[,] now = Feld; //Das derzeitige Feld
-            eins = new int[150, 8, 8]; //Nach dem ersten Zug
-            zwei = new int[2, 20000, 8, 8]; //Nach dem zweiten Zug
-            drei = new int[2, 1000000, 8, 8]; //Nach dem dritten Zug
-            int[,,] temp; //Ein Temporäres Feld - nur zur Vereinfachung
-            int pos = 0; //Die Position im derzeitigen Array
-            for (int x = 0; x < 8; x++)//erster zug
+            int[,] now = Feld;
+            int[,,] eins = new int[150, 8, 8];
+            int[,,,] zwei = new int[2, 20000, 8, 8];
+            int[,,,] drei = new int[2, 1000000, 8, 8];
+            int[,,] temp;
+            int pos = 0;
+            for (int x = 0; x < 8; x++)
             {
                 for (int y = 0; y < 8; y++)
                 {
                     if (Feld[y, x] > 6)
                     {
-                        temp = getpossisofthis(Feld[y, x], x, y); //Die derzeitige Möglichkeit
+                        temp = getpossisofthis(Feld[y, x], x, y);
                         for (int i = 0; i < temp.GetLength(0) && i + pos < eins.GetLength(0); i++)
                         {
                             for (int u = 0; u < 8; u++)
                             {
                                 for (int s = 0; s < 8; s++)
                                 {
-                                    eins[i + pos, s, u] = temp[i, s, u]; //Und ab ins ARRAY
+                                    eins[i + pos, s, u] = temp[i, s, u];
                                 }
                             }
                         }
-                        pos += temp.GetLength(0); //Und die Position im Array wird um eins erhöht
+                        pos += temp.GetLength(0);
                     }
                 }
             }
-            pos = 0;//zweiter Zug -> gleich wie bei eins
+            pos = 0;
             for (int h = 0; h < eins.GetLength(0); h++)
             {
                 for (int i = 0; i < 8; i++)
@@ -307,7 +241,7 @@ namespace Schach
                     }
                 }
             }
-            pos = 0;//Dritter zug
+            pos = 0;
             for (int h = 0; h < zwei.GetLength(0); h++)
             {
                 for (int i = 0; i < 8; i++)
@@ -347,23 +281,24 @@ namespace Schach
                 }
             }
             Feld = now;
+            return drei;
         }
 
         public static int[,,] getpossisofthis(int pre, int x, int y)
         {
-            int[,,] dat = new int[100, 8, 8]; //DatPossis
-            int pos = 0; //Wie immer die Position im Array
+            int[,,] dat = new int[100, 8, 8];
+            int pos = 0;
             for (int i = 0; i < 8; i++)
             {
                 for (int u = 0; u < 8; u++)
                 {
-                    if ((allowed(pre, x, i, y, u, false) || allowed(pre, x, i, y, u, true)) && nichtdazwischen(pre, x, i, y, u)) //Ist diese Möglichkeit erlaubt
+                    if ((allowed(pre, x, i, y, u, false) || allowed(pre, x, i, y, u, true)) && nichtdazwischen(pre, x, i, y, u))
                     {
                         for (int q = 0; q < 8; q++)
                         {
                             for (int w = 0; w < 8; w++)
                             {
-                                dat[pos, w, q] = Feld[w, q]; //Ich hoffe des untre hier ist selbsterklärend
+                                dat[pos, w, q] = Feld[w, q];
                             }
                         }
                         dat[pos, u, i] = pre;
@@ -386,7 +321,7 @@ namespace Schach
             return temp;
         }
 
-        public static bool nichtdazwischen(int previous, int xv, int xn, int yv, int yn)//Ist was dazwischen? Beinhaltet eben die ganzen Überprüfungen dafür
+        public static bool nichtdazwischen(int previous, int xv, int xn, int yv, int yn)
         {
             int dx = delta(xv, xn);
             int dy = delta(yv, yn);
@@ -444,7 +379,7 @@ namespace Schach
             return true;
         }
 
-        public static int delta(int a, int b) //Die DIFFERENZ
+        public static int delta(int a, int b)
         {
             int c = a - b;
             if (c < 0) c = -c;
@@ -674,7 +609,7 @@ namespace Schach
             }
         }
 
-        public static void rochadeaktualisieren(int previous, int x) //Es wird aktualisiert, ob der Player seine Rochade versaut hat
+        public static void rochadeaktualisieren(int previous, int x)
         {
             if (previous == 6)
             {
@@ -710,7 +645,7 @@ namespace Schach
             }
         }
 
-        public static void Error() //Oh nein
+        public static void Error()
         {
             Console.ForegroundColor = ConsoleColor.Black;
             Console.SetCursorPosition(1, 14);
@@ -797,6 +732,8 @@ namespace Schach
             if (züge % 2 == 0)
             {
                 Console.Write("Schwarz ist am Zug " + züge + "> ");
+                botzug();
+                zeichneSpieler();
                 züge++;
                 weiß = false;
                 return true;
@@ -814,11 +751,11 @@ namespace Schach
         public static int bewerte(int[,] dasFeld)
         {
             int Bewertung = 0;
-            if (checkWon(dasFeld)) Bewertung += 1000;//gewonnen
-            Bewertung += myScore(dasFeld); //Der Score (Bauern -> 1,...)
-            Bewertung -= enScore(dasFeld); //Auch für den Gegner
-            Bewertung += Safety(dasFeld); //Wie sicher ist der König?
-            Bewertung += Bauern(dasFeld); //Wie weit sind die Bauern?
+            if (checkWon(dasFeld)) Bewertung += 1000;
+            Bewertung += myScore(dasFeld);
+            Bewertung -= enScore(dasFeld);
+            Bewertung += Safety(dasFeld);
+            Bewertung += Bauern(dasFeld);
             return Bewertung;
         }
 
@@ -923,7 +860,7 @@ namespace Schach
             return bauernscore / 2;
         }
 
-        public static int[,] getBauernpos(int[,] dasFeld, bool schwarz) //Die Positionen der Bauern
+        public static int[,] getBauernpos(int[,] dasFeld, bool schwarz)
         {
             int[,] pos = new int[8, 2]
             {
@@ -953,7 +890,6 @@ namespace Schach
         }
     }
 }
-
 
 
 
