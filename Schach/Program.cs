@@ -67,9 +67,6 @@ namespace Schach
                 }
                 else
                 {
-                    int[,] temp = new int[8, 8];
-                    int[,,] eins; int[,,,] zwei, drei;
-                    possibilities(out eins, out zwei, out drei);
                     botzug();
                     z = zug();
                 }
@@ -125,7 +122,7 @@ namespace Schach
                     welcherzug = 1;
                 }
             }
-            
+
             for (int i = 0; i < zwei.GetLength(1); i++)
             {
                 for (int a = 0; a < 8; a++)
@@ -175,19 +172,18 @@ namespace Schach
                     welcherzug = 3;
                 }
             }
-
-
+            
             for (int x = 0; x < 8; x++)
             {
                 for (int y = 0; y < 8; y++)
                 {
                     if (welcherzug == 1)
                         Feld[y, x] = eins[q, y, x]; //Wenn alle Möglichkeiten überprüft wurden, wird das Feld mit dem besten Zug aktualisiert
-                    /*else if (welcherzug == 2)
+                    else if (welcherzug == 2)
                         Feld[y, x] = zwei[1, q, y, x];
                     else if (welcherzug == 3)
                         Feld[y, x] = drei[1, q, y, x];
-                    else Error();*/
+                    else Error();
                 }
             }
             zeichneSpieler(); //und in gezeichnet
@@ -196,12 +192,10 @@ namespace Schach
             {
                 for (int u = 0; u < 8; u++)
                 {
-                    Console.SetCursorPosition(i + 10, u);
+                    Console.SetCursorPosition(2 * i + 15, u);
                     Console.Write(eins[q, u, i]);
                 }
             }
-            Console.ReadKey(true);
-
         }
 
         public static void testfeld(int[,,] possis) //nur zu Testzwecken - zeichnet alle Felder des Arrays
@@ -243,8 +237,8 @@ namespace Schach
             int[,] now = Feld; //Das derzeitige Feld
             eins = new int[150, 8, 8]; //Nach dem ersten Zug
             zwei = new int[2, 20000, 8, 8]; //Nach dem zweiten Zug
-            drei = new int[2, 1000000, 8, 8]; //Nach dem dritten Zug
-            int[,,] temp; //Ein Temporäres Feld - nur zur Vereinfachung
+            drei = new int[2, 500000, 8, 8]; //Nach dem dritten Zug
+            int[,,] temp = null; //Ein Temporäres Feld - nur zur Vereinfachung
             int pos = 0; //Die Position im derzeitigen Array
             for (int x = 0; x < 8; x++)//erster zug
             {
@@ -253,17 +247,20 @@ namespace Schach
                     if (Feld[y, x] > 6)
                     {
                         temp = getpossisofthis(Feld[y, x], x, y); //Die derzeitige Möglichkeit
-                        for (int i = 0; i < temp.GetLength(0) && i + pos < eins.GetLength(0); i++)
+                        if (temp.GetLength(0) > 0)
                         {
-                            for (int u = 0; u < 8; u++)
+                            for (int i = 0; i < temp.GetLength(0) && i + pos < eins.GetLength(0); i++)
                             {
-                                for (int s = 0; s < 8; s++)
+                                for (int u = 0; u < 8; u++)
                                 {
-                                    eins[i + pos, s, u] = temp[i, s, u]; //Und ab ins ARRAY
+                                    for (int s = 0; s < 8; s++)
+                                    {
+                                        eins[i + pos, s, u] = temp[i, s, u]; //Und ab ins ARRAY
+                                    }
                                 }
                             }
+                            pos += temp.GetLength(0); //Und die Position im Array wird um eins erhöht
                         }
-                        pos += temp.GetLength(0); //Und die Position im Array wird um eins erhöht
                     }
                 }
             }
@@ -284,24 +281,27 @@ namespace Schach
                         if (Feld[y, x] > 6)
                         {
                             temp = getpossisofthis(Feld[y, x], x, y);
-                            for (int i = 0; i < temp.GetLength(0) && i + pos < zwei.GetLength(0); i++)
+                            if (temp.GetLength(0) > 0)
                             {
-                                for (int u = 0; u < 8; u++)
+                                for (int i = 0; i < temp.GetLength(0) && i + pos < zwei.GetLength(0); i++)
                                 {
-                                    for (int s = 0; s < 8; s++)
+                                    for (int u = 0; u < 8; u++)
                                     {
-                                        zwei[0, i + pos, s, u] = temp[i, s, u];
-                                        for (int b = 0; b < 8; b++)
+                                        for (int s = 0; s < 8; s++)
                                         {
-                                            for (int n = 0; n < 8; n++)
+                                            zwei[0, i + pos, s, u] = temp[i, s, u];
+                                            for (int b = 0; b < 8; b++)
                                             {
-                                                zwei[1, i + pos, n, b] = Feld[n, b];
+                                                for (int n = 0; n < 8; n++)
+                                                {
+                                                    zwei[1, i + pos, n, b] = Feld[n, b];
+                                                }
                                             }
                                         }
                                     }
                                 }
+                                pos += temp.GetLength(0);
                             }
-                            pos += temp.GetLength(0);
                         }
                     }
                 }
@@ -323,18 +323,21 @@ namespace Schach
                         if (Feld[y, x] > 6)
                         {
                             temp = getpossisofthis(Feld[y, x], x, y);
-                            for (int i = 0; i < temp.GetLength(0); i++)
+                            if (temp.GetLength(0) > 0)
                             {
-                                for (int u = 0; u < 8; u++)
+                                for (int i = 0; i < temp.GetLength(0); i++)
                                 {
-                                    for (int s = 0; s < 8; s++)
+                                    for (int u = 0; u < 8; u++)
                                     {
-                                        drei[0, i + pos, s, u] = temp[i, s, u];
-                                        for (int b = 0; b < 8; b++)
+                                        for (int s = 0; s < 8; s++)
                                         {
-                                            for (int n = 0; n < 8; n++)
+                                            drei[0, i + pos, s, u] = temp[i, s, u];
+                                            for (int b = 0; b < 8; b++)
                                             {
-                                                drei[1, i + pos, n, b] = Feld[n, b];
+                                                for (int n = 0; n < 8; n++)
+                                                {
+                                                    drei[1, i + pos, n, b] = Feld[n, b];
+                                                }
                                             }
                                         }
                                     }
