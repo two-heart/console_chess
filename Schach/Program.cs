@@ -99,7 +99,6 @@ namespace Schach
 
 
             for (int i = 0; i < eins.GetLength(1); i++)
-                
             {
                 for (int a = 0; a < 8; a++)
                 {
@@ -178,11 +177,20 @@ namespace Schach
                 for (int y = 0; y < 8; y++)
                 {
                     if (welcherzug == 1)
+                    {
                         Feld[y, x] = eins[q, y, x]; //Wenn alle Möglichkeiten überprüft wurden, wird das Feld mit dem besten Zug aktualisiert
+                        break;
+                    }
                     else if (welcherzug == 2)
+                    {
                         Feld[y, x] = zwei[1, q, y, x];
+                        break;
+                    }
                     else if (welcherzug == 3)
+                    {
                         Feld[y, x] = drei[1, q, y, x];
+                        break;
+                    }
                     else Error();
                 }
             }
@@ -234,7 +242,14 @@ namespace Schach
 
         public static void possibilities(out int[,,] eins, out int[,,,] zwei, out int[,,,] drei)
         {
-            int[,] now = Feld; //Das derzeitige Feld
+            int[,] now = new int[8, 8];
+            for (int i = 0; i < Feld.GetLength(0); i++)
+            {
+                for (int j = 0; j < Feld.GetLength(1); j++)
+                {
+                    now[i, j] = Feld[i, j];
+                }
+            }
             eins = new int[150, 8, 8]; //Nach dem ersten Zug
             zwei = new int[2, 20000, 8, 8]; //Nach dem zweiten Zug
             drei = new int[2, 500000, 8, 8]; //Nach dem dritten Zug
