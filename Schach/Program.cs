@@ -99,6 +99,7 @@ namespace Schach
 
 
             for (int i = 0; i < eins.GetLength(1); i++)
+                
             {
                 for (int a = 0; a < 8; a++)
                 {
@@ -172,7 +173,6 @@ namespace Schach
                     welcherzug = 3;
                 }
             }
-            
             for (int x = 0; x < 8; x++)
             {
                 for (int y = 0; y < 8; y++)
@@ -193,7 +193,7 @@ namespace Schach
                 for (int u = 0; u < 8; u++)
                 {
                     Console.SetCursorPosition(2 * i + 15, u);
-                    Console.Write(eins[q, u, i]);
+                    Console.Write(Feld[u,i]);
                 }
             }
         }
@@ -343,7 +343,10 @@ namespace Schach
                                     }
                                 }
                             }
-                            pos += temp.GetLength(0);
+                            if (pos < drei.GetLength(1) + temp.GetLength(0))
+                                pos += temp.GetLength(0);
+                            else
+                                break;
                         }
                     }
                 }
