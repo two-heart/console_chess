@@ -309,7 +309,7 @@ namespace Schach
                             temp = getpossisofthis(Feld[y, x], x, y);
                             if (temp.GetLength(0) > 0)
                             {
-                                for (int i = 0; i < temp.GetLength(0) && i + pos < zwei.GetLength(0); i++)
+                                for (int i = 0; i < temp.GetLength(0) && i + pos < zwei.GetLength(1); i++)
                                 {
                                     for (int u = 0; u < 8; u++)
                                     {
