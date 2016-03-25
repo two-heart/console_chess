@@ -30,7 +30,7 @@ namespace Schach
         Dame    -> 11
         König   -> 12
         */
-        public static int[,] Feld = new int[8, 8] //Das Feld mit den passenden Nummern (s.o.)
+        public static ushort[,] Feld = new ushort[8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
             {8 ,9 ,10,11,12,10,9 ,8 },
             {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
@@ -73,9 +73,9 @@ namespace Schach
             } while (true == !false);
         }
 
-        public static List<int> tolist(int[,] array)//konvertiert ein Feld Array in eine entsprechende liste
+        public static List<ushort> tolist(ushort[,] array)//konvertiert ein Feld Array in eine entsprechende liste
         {
-            List<int> Liste = new List<int>();
+            List<ushort> Liste = new List<ushort>();
             for (int u = 0; u < array.GetLength(1); u++)
             {
                 for (int i = 0; i < array.GetLength(0); i++)
@@ -88,10 +88,10 @@ namespace Schach
 
         static void botzug()
         {
-            int[,] temp = new int[8, 8]; //Das zu untersuchende Feld
+            ushort[,] temp = new ushort[8, 8]; //Das zu untersuchende Feld
             int bew = 0; //Der Zug
-            int[,,] eins;
-            int[,,,] zwei, drei;
+            ushort[,,] eins;
+            ushort[,,,] zwei, drei;
             possibilities(out eins, out zwei, out drei); //Die Möglichkeiten(Nach dem dritten Zug)
             int besterzug = 0; //Der beste Zug
             int q = 0; //Nur da, um i zu speichern
@@ -107,9 +107,9 @@ namespace Schach
                         temp[s, a] = eins[i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
-                List<int> liste = tolist(temp); //Und zur Liste konvertiert
+                List<ushort> liste = tolist(temp); //Und zur Liste konvertiert
                 bool erlaubt = false;
-                for (int t = 1; t < liste.LastIndexOf(liste.Last()); t++)
+                for (ushort t = 1; t < liste.LastIndexOf(liste.Last()); t++)
                 {
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
@@ -132,9 +132,9 @@ namespace Schach
                         temp[s, a] = zwei[0, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
-                List<int> liste = tolist(temp); //Und zur Liste konvertiert
+                List<ushort> liste = tolist(temp); //Und zur Liste konvertiert
                 bool erlaubt = false;
-                for (int t = 1; t < liste.LastIndexOf(liste.Last()); t++)
+                for (ushort t = 1; t < liste.LastIndexOf(liste.Last()); t++)
                 {
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
@@ -157,9 +157,9 @@ namespace Schach
                         temp[s, a] = drei[0, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
-                List<int> liste = tolist(temp); //Und zur Liste konvertiert
+                List<ushort> liste = tolist(temp); //Und zur Liste konvertiert
                 bool erlaubt = false;
-                for (int t = 1; t < liste.LastIndexOf(liste.Last()); t++)
+                for (ushort t = 1; t < liste.LastIndexOf(liste.Last()); t++)
                 {
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
@@ -238,9 +238,9 @@ namespace Schach
             Console.ReadLine();
         }
 
-        public static void possibilities(out int[,,] eins, out int[,,,] zwei, out int[,,,] drei)
+        public static void possibilities(out ushort[,,] eins, out ushort[,,,] zwei, out ushort[,,,] drei)
         {
-            int[,] now = new int[8, 8];
+            ushort[,] now = new ushort[8, 8];
             for (int i = 0; i < Feld.GetLength(0); i++)
             {
                 for (int j = 0; j < Feld.GetLength(1); j++)
@@ -248,10 +248,10 @@ namespace Schach
                     now[i, j] = Feld[i, j];
                 }
             }
-            eins = new int[150, 8, 8]; //Nach dem ersten Zug
-            zwei = new int[2, 20000, 8, 8]; //Nach dem zweiten Zug
-            drei = new int[2, 500000, 8, 8]; //Nach dem dritten Zug
-            int[,,] temp = null; //Ein Temporäres Feld - nur zur Vereinfachung
+            eins = new ushort[150, 8, 8]; //Nach dem ersten Zug
+            zwei = new ushort[2, 20000, 8, 8]; //Nach dem zweiten Zug
+            drei = new ushort[2, 2000000, 8, 8]; //Nach dem dritten Zug
+            ushort[,,] temp = null; //Ein Temporäres Feld - nur zur Vereinfachung
             int pos = 0; //Die Position im derzeitigen Array
             for (int x = 0; x < 8; x++)//erster zug
             {
@@ -356,10 +356,10 @@ namespace Schach
                                     }
                                 }
                             }
-                            if (pos < drei.GetLength(1) + temp.GetLength(0))
+                            //if (pos < drei.GetLength(1) + temp.GetLength(0))
                                 pos += temp.GetLength(0);
-                            else
-                                break;
+                            //else
+                              //  break;
                         }
                     }
                 }
@@ -373,9 +373,9 @@ namespace Schach
             }
         }
 
-        public static int[,,] getpossisofthis(int pre, int x, int y)
+        public static ushort[,,] getpossisofthis(ushort pre, int x, int y)
         {
-            int[,,] dat = new int[100, 8, 8]; //DatPossis
+            ushort[,,] dat = new ushort[100, 8, 8]; //DatPossis
             int pos = 0; //Wie immer die Position im Array
             for (int i = 0; i < 8; i++)
             {
@@ -396,7 +396,7 @@ namespace Schach
                     }
                 }
             }
-            int[,,] temp = new int[pos, 8, 8];
+            ushort[,,] temp = new ushort[pos, 8, 8];
             for (int i = 0; i < pos; i++)
             {
                 for (int u = 0; u < 8; u++)
@@ -577,7 +577,7 @@ namespace Schach
                     char[] zwei = splitted[1].ToCharArray();
                     int[] peins = new int[2] { convertToInt(eins[0]) - 1, Convert.ToInt32(eins[1] - '0') - 1 }; //Und der Buchstabe wird in eine equivalente Zahl umgewandelt
                     int[] pzwei = new int[2] { convertToInt(zwei[0]) - 1, Convert.ToInt32(zwei[1] - '0') - 1 };
-                    int previous; //Das ist die Figur, die bewegt wird
+                    ushort previous; //Das ist die Figur, die bewegt wird
                     previous = Feld[peins[1], peins[0]];
 
                     if ((Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
@@ -663,7 +663,7 @@ namespace Schach
                 Console.Write("Neue Figur: ");
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
                 char finput = a[0];
-                for (int i = 1; i < 12; i++)
+                for (ushort i = 1; i < 12; i++)
                 {
                     if (symbols[i] == finput)
                     {
@@ -682,11 +682,11 @@ namespace Schach
                 Console.Write("Neue Figur: ");
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
                 char finput = a[0];
-                for (int i = 1; i < 12; i++)
+                for (ushort i = 1; i < 12; i++)
                 {
                     if (symbols[i] == finput)
                     {
-                        Feld[yn, xn] = i + 6;
+                        Feld[yn, xn] = Convert.ToUInt16(i + 6);
                         zeichneSpieler();
                         Console.ForegroundColor = ConsoleColor.Black;
                         break;
@@ -834,7 +834,7 @@ namespace Schach
         }
 
 
-        public static int bewerte(int[,] dasFeld)
+        public static int bewerte(ushort[,] dasFeld)
         {
             int Bewertung = 0;
             if (checkWon(dasFeld)) Bewertung += 1000;//gewonnen
@@ -845,7 +845,7 @@ namespace Schach
             return Bewertung;
         }
 
-        public static bool checkWon(int[,] dasFeld)
+        public static bool checkWon(ushort[,] dasFeld)
         {
             for (int x = 0; x < 8; x++)
             {
@@ -857,7 +857,7 @@ namespace Schach
             return true;
         }
 
-        public static int myScore(int[,] dasFeld)
+        public static int myScore(ushort[,] dasFeld)
         {
             int Score = 0;
             for (int x = 0; x < 8; x++)
@@ -873,7 +873,7 @@ namespace Schach
             return Score;
         }
 
-        public static int enScore(int[,] dasFeld)
+        public static int enScore(ushort[,] dasFeld)
         {
             int Score = 0;
             for (int x = 0; x < 8; x++)
@@ -889,7 +889,7 @@ namespace Schach
             return Score;
         }
 
-        public static int Safety(int[,] dasFeld)
+        public static int Safety(ushort[,] dasFeld)
         {
             int[] kingpos = getKingpos(dasFeld, true);
             int safety = 0;
@@ -914,7 +914,7 @@ namespace Schach
             return safety * 7;
         }
 
-        public static int[] getKingpos(int[,] dasFeld, bool schwarz)
+        public static int[] getKingpos(ushort[,] dasFeld, bool schwarz)
         {
             int[] pos = new int[2] { 10, 10 };
             for (int x = 0; x < 8; x++)
@@ -931,7 +931,7 @@ namespace Schach
             return pos;
         }
 
-        public static int Bauern(int[,] dasFeld)
+        public static int Bauern(ushort[,] dasFeld)
         {
             int[,] bauernpos = getBauernpos(dasFeld, true);
             int bauernscore = 0;
@@ -946,7 +946,7 @@ namespace Schach
             return bauernscore / 2;
         }
 
-        public static int[,] getBauernpos(int[,] dasFeld, bool schwarz) //Die Positionen der Bauern
+        public static int[,] getBauernpos(ushort[,] dasFeld, bool schwarz) //Die Positionen der Bauern
         {
             int[,] pos = new int[8, 2]
             {
