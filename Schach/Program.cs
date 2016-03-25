@@ -70,7 +70,20 @@ namespace Schach
                     botzug();
                     z = zug();
                 }
-            } while (true == !false);
+            } while (!won());
+        }
+        static bool won()
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    if (Feld[i, j] == 6 || Feld[i, j] == 12)
+                        return false;
+                }
+            }
+            gewonnen();
+            return true;
         }
 
         public static List<ushort> tolist(ushort[,] array)//konvertiert ein Feld Array in eine entsprechende liste
@@ -357,9 +370,9 @@ namespace Schach
                                 }
                             }
                             //if (pos < drei.GetLength(1) + temp.GetLength(0))
-                                pos += temp.GetLength(0);
+                            pos += temp.GetLength(0);
                             //else
-                              //  break;
+                            //  break;
                         }
                     }
                 }
@@ -654,7 +667,12 @@ namespace Schach
                 return false;
             }
         }
-
+        static void gewonnen()
+        {
+            Console.Clear();
+            Console.WriteLine("SCHACH MATT!");
+            Console.ReadKey();
+        }
         static void ereignisse(int pre, int xv, int xn, int yv, int yn) //Besondere Ereignisse im Spiel
         {
             if (pre == 1 && yn == 0) //Bauer erreicht das Ende des Felds
@@ -976,8 +994,3 @@ namespace Schach
         }
     }
 }
-
-
-
-
-
