@@ -179,17 +179,14 @@ namespace Schach
                     if (welcherzug == 1)
                     {
                         Feld[y, x] = eins[q, y, x]; //Wenn alle Möglichkeiten überprüft wurden, wird das Feld mit dem besten Zug aktualisiert
-                        break;
                     }
                     else if (welcherzug == 2)
                     {
                         Feld[y, x] = zwei[1, q, y, x];
-                        break;
                     }
                     else if (welcherzug == 3)
                     {
                         Feld[y, x] = drei[1, q, y, x];
-                        break;
                     }
                     else Error();
                 }
@@ -201,9 +198,10 @@ namespace Schach
                 for (int u = 0; u < 8; u++)
                 {
                     Console.SetCursorPosition(2 * i + 15, u);
-                    Console.Write(Feld[u,i]);
+                    Console.Write(drei[1, 1, u, i]);
                 }
             }
+            Console.Write(" " + welcherzug + " " + q);
         }
 
         public static void testfeld(int[,,] possis) //nur zu Testzwecken - zeichnet alle Felder des Arrays
@@ -309,7 +307,7 @@ namespace Schach
                                             {
                                                 for (int n = 0; n < 8; n++)
                                                 {
-                                                    zwei[1, i + pos, n, b] = Feld[n, b];
+                                                    zwei[1, i + pos, n, b] = eins[h, n, b];
                                                 }
                                             }
                                         }
@@ -351,7 +349,7 @@ namespace Schach
                                             {
                                                 for (int n = 0; n < 8; n++)
                                                 {
-                                                    drei[1, i + pos, n, b] = Feld[n, b];
+                                                    drei[1, i + pos, n, b] = eins[h, n, b];
                                                 }
                                             }
                                         }
@@ -366,7 +364,13 @@ namespace Schach
                     }
                 }
             }
-            Feld = now;
+            for (int i = 0; i < now.GetLength(0); i++)
+            {
+                for (int j = 0; j < now.GetLength(1); j++)
+                {
+                    Feld[i, j] = now[i, j];
+                }
+            }
         }
 
         public static int[,,] getpossisofthis(int pre, int x, int y)
