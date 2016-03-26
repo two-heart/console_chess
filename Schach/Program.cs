@@ -72,16 +72,18 @@ namespace Schach
                 }
             } while (!won());
         }
-        static bool won()
+        static bool won()//checks if so
         {
+            byte könige = 0;
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
                 {
                     if (Feld[i, j] == 6 || Feld[i, j] == 12)
-                        return false;
+                        ++könige;
                 }
             }
+            if (könige == 2) return false;
             gewonnen();
             return true;
         }
@@ -129,7 +131,7 @@ namespace Schach
                 }
                 if (!erlaubt) break;
                 bew = bewerte(temp); //Wenn alles erlaubt ist, wird bew damit definiert
-                if (bew > besterzug || welcherzug <= 0 ||welcherzug > 3)
+                if (bew > besterzug || welcherzug <= 0 || welcherzug > 3)
                 {
                     besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
                     q = i; //Und i in q gespeichert
@@ -685,35 +687,65 @@ namespace Schach
         static void gewonnen()
         {
             Console.Clear();
+            bool schwarz = false;
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    if (Feld[i,j] == 12) {
+                        schwarz = true;
+                    }
+                }
+            }
             Console.WriteLine("SCHACH MATT!");
+            if (schwarz) Console.Write("Schwarz ");
+            else Console.Write("Weiß ");
+            Console.Write("gewinnt");
             Console.ReadKey();
         }
         static void ereignisse(int pre, int xv, int xn, int yv, int yn) //Besondere Ereignisse im Spiel
         {
             if (pre == 1 && yn == 0) //Bauer erreicht das Ende des Felds
             {
+            a:
                 Console.SetCursorPosition(1, 13); //Der Spieler wählt eine neue Figur
                 Console.Write("Neue Figur: ");
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
+                bool ersetzt = false;
+                string check;
+                check = Convert.ToString(a[0]);
+                if (check.Contains("K")) goto king;
                 char finput = a[0];
                 for (ushort i = 1; i < 12; i++)
                 {
                     if (symbols[i] == finput)
                     {
+                        ersetzt = true;
                         Feld[yn, xn] = i;
                         zeichneSpieler();
                         Console.ForegroundColor = ConsoleColor.Black;
                         break;
                     }
                 }
+            king:
                 Console.SetCursorPosition(1, 13);
                 Console.Write("                                ");
+                if (!ersetzt)
+                {
+                    Error();
+                    goto a;//ugly code needs to be fought with ugy code - goto hell!
+                }
             }
             if (pre == 7 && yn == 7)//Das gleiche nochmal für schwarz
             {
+                a:
                 Console.SetCursorPosition(1, 13);
                 Console.Write("Neue Figur: ");
+                bool ersetzt = false;
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
+                string check;
+                check = Convert.ToString(a[0]);
+                if (check.Contains("K")) goto king;
                 char finput = a[0];
                 for (ushort i = 1; i < 12; i++)
                 {
@@ -727,6 +759,12 @@ namespace Schach
                 }
                 Console.SetCursorPosition(1, 13);
                 Console.Write("                                ");
+                king:
+                if (!ersetzt)
+                {
+                    Error();
+                    goto a;//ugly code needs to be fought with ugy code - goto hell!
+                }
             }
         }
 
@@ -886,14 +924,14 @@ namespace Schach
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    if(Feld[y,x] < 7 && Feld[y,x] > 0)
+                    if (Feld[y, x] < 7 && Feld[y, x] > 0)
                     {
                         for (int x2 = 0; x2 < 8; x2++)
                         {
                             for (int y2 = 0; y2 < 8; y2++)
                             {
                                 z = false;
-                                if(allowed(Feld[y,x], x, y, x2, y2, true) && nichtdazwischen(Feld[y, x], x, y, x2, y2))
+                                if (allowed(Feld[y, x], x, y, x2, y2, true) && nichtdazwischen(Feld[y, x], x, y, x2, y2))
                                 {
                                     if (dasFeld[y2, x2] == 7) Wert++;
                                     else if (dasFeld[y2, x2] == 8 || dasFeld[y, x] == 10) Wert += 4;
