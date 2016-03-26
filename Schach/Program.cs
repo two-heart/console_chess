@@ -875,7 +875,7 @@ namespace Schach
             Bewertung -= enScore(dasFeld) * 3; //Auch für den Gegner
             Bewertung += Safety(dasFeld); //Wie sicher ist der König?
             Bewertung += Bauern(dasFeld) / 2; //Wie weit sind die Bauern?
-            Bewertung -= Gegnerpossis(dasFeld) * 2; //Was für Möglichkeiten hat der Gegner dann?
+            Bewertung -= Gegnerpossis(dasFeld) * 4; //Was für Möglichkeiten hat der Gegner dann?
             return Bewertung;
         }
 
@@ -899,7 +899,7 @@ namespace Schach
                                     else if (dasFeld[y2, x2] == 8 || dasFeld[y, x] == 10) Wert += 4;
                                     else if (dasFeld[y2, x2] == 9) Wert += 7;
                                     else if (dasFeld[y2, x2] == 11) Wert += 15;
-                                    else if (dasFeld[y2, x2] == 12) Wert += 1000;
+                                    else if (dasFeld[y2, x2] == 12) Wert += 10000;
                                 }
                                 z = true;
                             }
