@@ -128,7 +128,7 @@ namespace Schach
                 }
                 if (!erlaubt) break;
                 bew = bewerte(temp); //Wenn alles erlaubt ist, wird bew damit definiert
-                if (bew > besterzug && true)
+                if (bew > besterzug || welcherzug <= 0 ||welcherzug > 3)
                 {
                     besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
                     q = i; //Und i in q gespeichert
@@ -491,7 +491,7 @@ namespace Schach
 
         public static bool allowed(int pre, int xv, int xn, int yv, int yn, bool schlagen) //Überprüfung ob Zug erlaubt ist
         {
-            if (schlagen && Feld[yn, xn] == 0) return false;
+            if (schlagen && Feld[yn, xn] == 0 || !schlagen && Feld[yn, xn] != 0) return false;
             if (!z && Feld[yn, xn] < 7 && Feld[yn, xn] > 0 || z && Feld[yn, xn] > 6) return false;
             int dy = delta(yv, yn);
             int dx = delta(xv, xn);
@@ -857,10 +857,42 @@ namespace Schach
             int Bewertung = 0;
             if (checkWon(dasFeld)) Bewertung += 1000;//gewonnen
             Bewertung += myScore(dasFeld); //Der Score (Bauern -> 1,...)
-            Bewertung -= enScore(dasFeld); //Auch für den Gegner
+            Bewertung -= enScore(dasFeld) * 3; //Auch für den Gegner
             Bewertung += Safety(dasFeld); //Wie sicher ist der König?
-            Bewertung += Bauern(dasFeld); //Wie weit sind die Bauern?
+            Bewertung += Bauern(dasFeld) / 2; //Wie weit sind die Bauern?
+            Bewertung -= Gegnerpossis(dasFeld) * 2; //Was für Möglichkeiten hat der Gegner dann?
             return Bewertung;
+        }
+
+        public static int Gegnerpossis(ushort[,] dasFeld)
+        {
+            int Wert = 0;
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    if(Feld[y,x] < 7 && Feld[y,x] > 0)
+                    {
+                        for (int x2 = 0; x2 < 8; x2++)
+                        {
+                            for (int y2 = 0; y2 < 8; y2++)
+                            {
+                                z = false;
+                                if(allowed(Feld[y,x], x, y, x2, y2, true) && nichtdazwischen(Feld[y, x], x, y, x2, y2))
+                                {
+                                    if (dasFeld[y2, x2] == 7) Wert++;
+                                    else if (dasFeld[y2, x2] == 8 || dasFeld[y, x] == 10) Wert += 4;
+                                    else if (dasFeld[y2, x2] == 9) Wert += 7;
+                                    else if (dasFeld[y2, x2] == 11) Wert += 15;
+                                    else if (dasFeld[y2, x2] == 12) Wert += 1000;
+                                }
+                                z = true;
+                            }
+                        }
+                    }
+                }
+            }
+            return Wert;
         }
 
         public static bool checkWon(ushort[,] dasFeld)
@@ -929,7 +961,7 @@ namespace Schach
                 }
                 catch { }
             }
-            return safety * 7;
+            return safety;
         }
 
         public static int[] getKingpos(ushort[,] dasFeld, bool schwarz)
@@ -961,7 +993,7 @@ namespace Schach
                 }
                 else break;
             }
-            return bauernscore / 2;
+            return bauernscore;
         }
 
         public static int[,] getBauernpos(ushort[,] dasFeld, bool schwarz) //Die Positionen der Bauern
