@@ -102,6 +102,7 @@ namespace Schach
         static void botzug()
         {
             ushort[,] temp = new ushort[8, 8]; //Das zu untersuchende Feld
+            ushort[,] tempa = new ushort[8, 8]; //Der erste Zug (Wird auch untersucht)
             int bew = 0; //Der Zug
             ushort[,,] eins;
             ushort[,,,] zwei, drei;
@@ -145,6 +146,13 @@ namespace Schach
                         temp[s, a] = zwei[0, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
+                for (int a = 0; a < 8; a++)
+                {
+                    for (int s = 0; s < 8; s++)
+                    {
+                        tempa[s, a] = zwei[1, i, s, a]; //Das zu untersuchende Feld wird definiert
+                    }
+                }
                 List<ushort> liste = tolist(temp); //Und zur Liste konvertiert
                 bool erlaubt = false;
                 for (ushort t = 1; t < liste.LastIndexOf(liste.Last()); t++)
@@ -152,7 +160,7 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
-                bew = bewerte(temp); //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = (bewerte(temp) + bewerte(tempa)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
                 if (bew > besterzug)
                 {
                     besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
@@ -170,6 +178,13 @@ namespace Schach
                         temp[s, a] = drei[0, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
+                for (int a = 0; a < 8; a++)
+                {
+                    for (int s = 0; s < 8; s++)
+                    {
+                        tempa[s, a] = drei[1, i, s, a]; //Das zu untersuchende Feld wird definiert
+                    }
+                }
                 List<ushort> liste = tolist(temp); //Und zur Liste konvertiert
                 bool erlaubt = false;
                 for (ushort t = 1; t < liste.LastIndexOf(liste.Last()); t++)
@@ -177,7 +192,7 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
-                bew = bewerte(temp); //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = (bewerte(temp) + bewerte(tempa)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
                 if (bew > besterzug)
                 {
                     besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
@@ -263,7 +278,7 @@ namespace Schach
             }
             eins = new ushort[150, 8, 8]; //Nach dem ersten Zug
             zwei = new ushort[2, 20000, 8, 8]; //Nach dem zweiten Zug
-            drei = new ushort[2, 2000000, 8, 8]; //Nach dem dritten Zug
+            drei = new ushort[2, 1500000, 8, 8]; //Nach dem dritten Zug
             ushort[,,] temp = null; //Ein Temporäres Feld - nur zur Vereinfachung
             int pos = 0; //Die Position im derzeitigen Array
             for (int x = 0; x < 8; x++)//erster zug
