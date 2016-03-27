@@ -12,7 +12,7 @@ namespace Schach
         public static bool[] rochadem = new bool[4] { true, true, true, true }; //Kurze Rochade weiß, lange Rochade weiß, kurze Rochade schwarz, lange Rochade schwarz
         public static int züge;
         public static bool weiß; //Ist weiß am Zug?
-        public static int[] verschiebung = new int[2] { 1, 1 }; //Um wie viel ist das Spielfeld nach rechts / unten verschoben?
+        public static int[] verschiebung = new int[2] { 2, 2 }; //Um wie viel ist das Spielfeld nach rechts / unten verschoben?
         /*
         Weiß:
         Bauern  -> 1
@@ -50,7 +50,7 @@ namespace Schach
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
             Console.ForegroundColor = ConsoleColor.Black;
             Console.Clear();
-            Console.CursorVisible = false;
+            Console.CursorVisible = true;
             zeichneFeld();
             zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
@@ -61,7 +61,7 @@ namespace Schach
                 Console.ForegroundColor = ConsoleColor.Black;
                 if (!z)
                 {
-                    Console.SetCursorPosition(1, 12); //Der Spieler macht seine Eingabe
+                    Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 11); //Der Spieler macht seine Eingabe
                     input = Console.ReadLine();
                     if (verarbeite(input)) z = zug();   //Die wiederum verarbeitet wird
                 }
@@ -80,7 +80,7 @@ namespace Schach
                 for (int j = 0; j < 8; j++)
                 {
                     if (Feld[i, j] == 6 || Feld[i, j] == 12)
-                        ++könige;
+                        könige++;
                 }
             }
             if (könige == 2) return false;
@@ -222,6 +222,7 @@ namespace Schach
                 }
             }
             zeichneSpieler(); //und in gezeichnet
+
             Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());//Das ist nur zum Bugfixing
             for (int i = 0; i < 8; i++)
             {
@@ -674,7 +675,7 @@ namespace Schach
                         rochadem[rochade - 1] = false;
                     }
                 }
-                Console.SetCursorPosition(1, 12);
+                Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 11);
                 Console.Write("                        "); //Und die Eingabe gelöscht
                 return true;
             }
@@ -708,7 +709,7 @@ namespace Schach
             if (pre == 1 && yn == 0) //Bauer erreicht das Ende des Felds
             {
             a:
-                Console.SetCursorPosition(1, 13); //Der Spieler wählt eine neue Figur
+                Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13); //Der Spieler wählt eine neue Figur
                 Console.Write("Neue Figur: ");
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
                 bool ersetzt = false;
@@ -728,7 +729,7 @@ namespace Schach
                     }
                 }
             king:
-                Console.SetCursorPosition(1, 13);
+                Console.SetCursorPosition(verschiebung[1], verschiebung[0]+12);
                 Console.Write("                                ");
                 if (!ersetzt)
                 {
@@ -739,7 +740,7 @@ namespace Schach
             if (pre == 7 && yn == 7)//Das gleiche nochmal für schwarz
             {
                 a:
-                Console.SetCursorPosition(1, 13);
+                Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("Neue Figur: ");
                 bool ersetzt = false;
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
@@ -757,7 +758,7 @@ namespace Schach
                         break;
                     }
                 }
-                Console.SetCursorPosition(1, 13);
+                Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
                 king:
                 if (!ersetzt)
@@ -807,12 +808,12 @@ namespace Schach
         public static void Error() //Oh nein
         {
             Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(1, 14);
+            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
             Console.Write("Error");
             Console.ReadKey();
-            Console.SetCursorPosition(1, 14);
+            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
             Console.Write("          ");
-            Console.SetCursorPosition(1, 12);
+            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
             Console.Write("                        ");
         }
         public static void zeichnesymbol(char Symbol, int x, int y)
@@ -862,9 +863,9 @@ namespace Schach
             }
             for (int i = 1; i < 9; i++)
             {
-                Console.SetCursorPosition(0, verschiebung[0] + i - 1);
+                Console.SetCursorPosition(verschiebung[1]-1, verschiebung[0] + i - 1);
                 Console.Write(i); //Die Zahlen am Spielfeldrand
-                Console.SetCursorPosition(verschiebung[1] + i - 1, 0);
+                Console.SetCursorPosition(verschiebung[1] + i - 1, verschiebung[0]-1);
                 char buch = convertToChar(i);
                 Console.Write(buch); //Die Buchstaben am Spielfeldrand
             }
@@ -887,7 +888,7 @@ namespace Schach
         public static bool zug()//Das war nicht ich :D
         {
             Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(1, 10);
+            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 9);
             if (züge % 2 == 0)
             {
                 Console.Write("Schwarz ist am Zug " + züge + "> ");
