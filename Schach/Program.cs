@@ -221,6 +221,7 @@ namespace Schach
                     else Error();
                 }
             }
+            Console.SetCursorPosition(20, 20); Console.Write(bewerte(Feld));
             zeichneSpieler(); //und in gezeichnet
 
             Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());//Das ist nur zum Bugfixing
@@ -693,7 +694,8 @@ namespace Schach
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    if (Feld[i,j] == 12) {
+                    if (Feld[i, j] == 12)
+                    {
                         schwarz = true;
                     }
                 }
@@ -729,7 +731,7 @@ namespace Schach
                     }
                 }
             king:
-                Console.SetCursorPosition(verschiebung[1], verschiebung[0]+12);
+                Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
                 if (!ersetzt)
                 {
@@ -739,7 +741,7 @@ namespace Schach
             }
             if (pre == 7 && yn == 7)//Das gleiche nochmal für schwarz
             {
-                a:
+            a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("Neue Figur: ");
                 bool ersetzt = false;
@@ -760,7 +762,7 @@ namespace Schach
                 }
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
-                king:
+            king:
                 if (!ersetzt)
                 {
                     Error();
@@ -863,9 +865,9 @@ namespace Schach
             }
             for (int i = 1; i < 9; i++)
             {
-                Console.SetCursorPosition(verschiebung[1]-1, verschiebung[0] + i - 1);
+                Console.SetCursorPosition(verschiebung[1] - 1, verschiebung[0] + i - 1);
                 Console.Write(i); //Die Zahlen am Spielfeldrand
-                Console.SetCursorPosition(verschiebung[1] + i - 1, verschiebung[0]-1);
+                Console.SetCursorPosition(verschiebung[1] + i - 1, verschiebung[0] - 1);
                 char buch = convertToChar(i);
                 Console.Write(buch); //Die Buchstaben am Spielfeldrand
             }
@@ -932,13 +934,13 @@ namespace Schach
                             for (int y2 = 0; y2 < 8; y2++)
                             {
                                 z = false;
-                                if (allowed(Feld[y, x], x, y, x2, y2, true) && nichtdazwischen(Feld[y, x], x, y, x2, y2))
+                                if (allowed(Feld[y, x], x, x2, y, y2, true) && nichtdazwischen(Feld[y, x], x, x2, y, y2))
                                 {
                                     if (dasFeld[y2, x2] == 7) Wert++;
                                     else if (dasFeld[y2, x2] == 8 || dasFeld[y, x] == 10) Wert += 4;
                                     else if (dasFeld[y2, x2] == 9) Wert += 7;
                                     else if (dasFeld[y2, x2] == 11) Wert += 15;
-                                    else if (dasFeld[y2, x2] == 12) Wert += 10000;
+                                    else if (dasFeld[y2, x2] == 12) Wert += 1000000;
                                 }
                                 z = true;
                             }
