@@ -6,6 +6,15 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
+/*
+TODO:
+KI Rochade
+KI Austausch
+Oberfläche
+KI nicht lebensmüde
+Verbesserte Auswahl
+*/
+
 namespace Schach
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)] //Dieses struct ConsoleFont, die class ConsoleHelper und das structLayout dingens hab ich kopiert, ich hab es benutzt, um die Schriftart zu verändern, da es nur auf 8x8 richtig funktioniert
