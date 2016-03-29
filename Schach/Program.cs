@@ -102,7 +102,7 @@ namespace Schach
         public static bool z;
         static void Main(string[] args)
         {
-            ConsoleHelper.SetConsoleFont(2);
+            ConsoleHelper.SetConsoleFont(8);
             Console.CursorSize = 1;
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
             Console.ForegroundColor = ConsoleColor.Black;
@@ -876,7 +876,7 @@ namespace Schach
             Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
             Console.Write("Error");
             Console.ReadKey();
-            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
+            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 11);
             Console.Write("          ");
             Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
             Console.Write("                        ");
