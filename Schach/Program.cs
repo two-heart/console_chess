@@ -2,11 +2,66 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Schach
 {
+    [StructLayout(LayoutKind.Sequential, Pack = 1)] //Dieses struct ConsoleFont, die class ConsoleHelper und das structLayout dingens hab ich kopiert, ich hab es benutzt, um die Schriftart zu verändern, da es nur auf 8x8 richtig funktioniert
+    public struct ConsoleFont
+    {
+        public uint Index;
+        public short SizeX, SizeY;
+    }
+    public static class ConsoleHelper
+    {
+        [DllImport("kernel32")]
+        public static extern bool SetConsoleIcon(IntPtr hIcon);
+
+        [DllImport("kernel32")]
+        private extern static bool SetConsoleFont(IntPtr hOutput, uint index);
+
+        private enum StdHandle
+        {
+            OutputHandle = -11
+        }
+
+        [DllImport("kernel32")]
+        private static extern IntPtr GetStdHandle(StdHandle index);
+
+        public static bool SetConsoleFont(uint index)
+        {
+            return SetConsoleFont(GetStdHandle(StdHandle.OutputHandle), index);
+        }
+
+        [DllImport("kernel32")]
+        private static extern bool GetConsoleFontInfo(IntPtr hOutput, [MarshalAs(UnmanagedType.Bool)]bool bMaximize,
+            uint count, [MarshalAs(UnmanagedType.LPArray), Out] ConsoleFont[] fonts);
+
+        [DllImport("kernel32")]
+        private static extern uint GetNumberOfConsoleFonts();
+
+        public static uint ConsoleFontsCount
+        {
+            get
+            {
+                return GetNumberOfConsoleFonts();
+            }
+        }
+
+        public static ConsoleFont[] ConsoleFonts
+        {
+            get
+            {
+                ConsoleFont[] fonts = new ConsoleFont[GetNumberOfConsoleFonts()];
+                if (fonts.Length > 0)
+                    GetConsoleFontInfo(GetStdHandle(StdHandle.OutputHandle), false, (uint)fonts.Length, fonts);
+                return fonts;
+            }
+        }
+
+    }
     class Program
     {
         public static bool[] rochadem = new bool[4] { true, true, true, true }; //Kurze Rochade weiß, lange Rochade weiß, kurze Rochade schwarz, lange Rochade schwarz
@@ -33,10 +88,10 @@ namespace Schach
         public static byte[,] Feld = new byte[8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
             {8 ,9 ,10,11,12,10,9 ,8 },
-            {7 ,7 ,7 ,0 ,7 ,7 ,7 ,7 },
+            {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {5 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
@@ -47,6 +102,8 @@ namespace Schach
         public static bool z;
         static void Main(string[] args)
         {
+            ConsoleHelper.SetConsoleFont(2);
+            Console.CursorSize = 1;
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
             Console.ForegroundColor = ConsoleColor.Black;
             Console.Clear();
