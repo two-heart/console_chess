@@ -30,7 +30,7 @@ namespace Schach
         Dame    -> 11
         König   -> 12
         */
-        public static ushort[,] Feld = new ushort[8, 8] //Das Feld mit den passenden Nummern (s.o.)
+        public static byte[,] Feld = new byte[8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
             {8 ,9 ,10,11,12,10,9 ,8 },
             {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
@@ -88,9 +88,9 @@ namespace Schach
             return true;
         }
 
-        public static List<ushort> tolist(ushort[,] array)//konvertiert ein Feld Array in eine entsprechende liste
+        public static List<byte> tolist(byte[,] array)//konvertiert ein Feld Array in eine entsprechende liste
         {
-            List<ushort> Liste = new List<ushort>();
+            List<byte> Liste = new List<byte>();
             for (int u = 0; u < array.GetLength(1); u++)
             {
                 for (int i = 0; i < array.GetLength(0); i++)
@@ -103,11 +103,11 @@ namespace Schach
 
         static void botzug()
         {
-            ushort[,] temp = new ushort[8, 8]; //Das zu untersuchende Feld
-            ushort[,] tempa = new ushort[8, 8]; //Der erste Zug (Wird auch untersucht)
+            byte[,] temp = new byte[8, 8]; //Das zu untersuchende Feld
+            byte[,] tempa = new byte[8, 8]; //Der erste Zug (Wird auch untersucht)
             int bew = 0; //Der Zug
-            ushort[,,] eins;
-            ushort[,,,] zwei, drei;
+            byte[,,] eins;
+            byte[,,,] zwei, drei;
             possibilities(out eins, out zwei, out drei); //Die Möglichkeiten(Nach dem dritten Zug)
             int besterzug = 0; //Der beste Zug
             int q = 0; //Nur da, um i zu speichern
@@ -123,15 +123,15 @@ namespace Schach
                         temp[s, a] = eins[i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
-                List<ushort> liste = tolist(temp); //Und zur Liste konvertiert
+                List<byte> liste = tolist(temp); //Und zur Liste konvertiert
                 bool erlaubt = false;
-                for (ushort t = 1; t < liste.LastIndexOf(liste.Last()); t++)
+                for (byte t = 1; t < liste.LastIndexOf(liste.Last()); t++)
                 {
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
                 bew = bewerte(temp); //Wenn alles erlaubt ist, wird bew damit definiert
-                if (bew > besterzug || welcherzug <= 0 || welcherzug > 3)
+                if (bew > besterzug || welcherzug <= 0 || welcherzug > 3 || besterzug == 0)
                 {
                     besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
                     q = i; //Und i in q gespeichert
@@ -155,15 +155,15 @@ namespace Schach
                         tempa[s, a] = zwei[1, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
-                List<ushort> liste = tolist(temp); //Und zur Liste konvertiert
+                List<byte> liste = tolist(temp); //Und zur Liste konvertiert
                 bool erlaubt = false;
-                for (ushort t = 1; t < liste.LastIndexOf(liste.Last()); t++)
+                for (byte t = 1; t < liste.LastIndexOf(liste.Last()); t++)
                 {
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
                 bew = (bewerte(temp) + bewerte(tempa)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
-                if (bew > besterzug)
+                if (bew > besterzug || besterzug == 0)
                 {
                     besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
                     q = i; //Und i in q gespeichert
@@ -187,15 +187,15 @@ namespace Schach
                         tempa[s, a] = drei[1, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
-                List<ushort> liste = tolist(temp); //Und zur Liste konvertiert
+                List<byte> liste = tolist(temp); //Und zur Liste konvertiert
                 bool erlaubt = false;
-                for (ushort t = 1; t < liste.LastIndexOf(liste.Last()); t++)
+                for (byte t = 1; t < liste.LastIndexOf(liste.Last()); t++)
                 {
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
                 bew = (bewerte(temp) + bewerte(tempa)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
-                if (bew > besterzug)
+                if (bew > besterzug || besterzug == 0)
                 {
                     besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
                     q = i; //Und i in q gespeichert
@@ -270,9 +270,9 @@ namespace Schach
             Console.ReadLine();
         }
 
-        public static void possibilities(out ushort[,,] eins, out ushort[,,,] zwei, out ushort[,,,] drei)
+        public static void possibilities(out byte[,,] eins, out byte[,,,] zwei, out byte[,,,] drei)
         {
-            ushort[,] now = new ushort[8, 8];
+            byte[,] now = new byte[8, 8];
             for (int i = 0; i < Feld.GetLength(0); i++)
             {
                 for (int j = 0; j < Feld.GetLength(1); j++)
@@ -280,10 +280,10 @@ namespace Schach
                     now[i, j] = Feld[i, j];
                 }
             }
-            eins = new ushort[150, 8, 8]; //Nach dem ersten Zug
-            zwei = new ushort[2, 20000, 8, 8]; //Nach dem zweiten Zug
-            drei = new ushort[2, 1500000, 8, 8]; //Nach dem dritten Zug
-            ushort[,,] temp = null; //Ein Temporäres Feld - nur zur Vereinfachung
+            eins = new byte[150, 8, 8]; //Nach dem ersten Zug
+            zwei = new byte[2, 20000, 8, 8]; //Nach dem zweiten Zug
+            drei = new byte[2, 2000000, 8, 8]; //Nach dem dritten Zug
+            byte[,,] temp = null; //Ein Temporäres Feld - nur zur Vereinfachung
             int pos = 0; //Die Position im derzeitigen Array
             for (int x = 0; x < 8; x++)//erster zug
             {
@@ -405,9 +405,9 @@ namespace Schach
             }
         }
 
-        public static ushort[,,] getpossisofthis(ushort pre, int x, int y)
+        public static byte[,,] getpossisofthis(byte pre, int x, int y)
         {
-            ushort[,,] dat = new ushort[100, 8, 8]; //DatPossis
+            byte[,,] dat = new byte[100, 8, 8]; //DatPossis
             int pos = 0; //Wie immer die Position im Array
             for (int i = 0; i < 8; i++)
             {
@@ -428,7 +428,7 @@ namespace Schach
                     }
                 }
             }
-            ushort[,,] temp = new ushort[pos, 8, 8];
+            byte[,,] temp = new byte[pos, 8, 8];
             for (int i = 0; i < pos; i++)
             {
                 for (int u = 0; u < 8; u++)
@@ -573,7 +573,7 @@ namespace Schach
         {
             try
             {
-                ushort rochade = 0; //weiß klein, weiß groß, schwarz klein, schwarz groß
+                byte rochade = 0; //weiß klein, weiß groß, schwarz klein, schwarz groß
                 bool schlagen = false;
                 if (input.ToUpper().Contains("X"))
                 {
@@ -609,7 +609,7 @@ namespace Schach
                     char[] zwei = splitted[1].ToCharArray();
                     int[] peins = new int[2] { convertToInt(eins[0]) - 1, Convert.ToInt32(eins[1] - '0') - 1 }; //Und der Buchstabe wird in eine equivalente Zahl umgewandelt
                     int[] pzwei = new int[2] { convertToInt(zwei[0]) - 1, Convert.ToInt32(zwei[1] - '0') - 1 };
-                    ushort previous; //Das ist die Figur, die bewegt wird
+                    byte previous; //Das ist die Figur, die bewegt wird
                     previous = Feld[peins[1], peins[0]];
 
                     if ((Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
@@ -710,7 +710,7 @@ namespace Schach
         {
             if (pre == 1 && yn == 0) //Bauer erreicht das Ende des Felds
             {
-            a:
+                a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13); //Der Spieler wählt eine neue Figur
                 Console.Write("Neue Figur: ");
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
@@ -719,7 +719,7 @@ namespace Schach
                 check = Convert.ToString(a[0]);
                 if (check.Contains("K")) goto king;
                 char finput = a[0];
-                for (ushort i = 1; i < 12; i++)
+                for (byte i = 1; i < 12; i++)
                 {
                     if (symbols[i] == finput)
                     {
@@ -730,7 +730,7 @@ namespace Schach
                         break;
                     }
                 }
-            king:
+                king:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
                 if (!ersetzt)
@@ -741,7 +741,7 @@ namespace Schach
             }
             if (pre == 7 && yn == 7)//Das gleiche nochmal für schwarz
             {
-            a:
+                a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("Neue Figur: ");
                 bool ersetzt = false;
@@ -750,11 +750,11 @@ namespace Schach
                 check = Convert.ToString(a[0]);
                 if (check.Contains("K")) goto king;
                 char finput = a[0];
-                for (ushort i = 1; i < 12; i++)
+                for (byte i = 1; i < 12; i++)
                 {
                     if (symbols[i] == finput)
                     {
-                        Feld[yn, xn] = Convert.ToUInt16(i + 6);
+                        Feld[yn, xn] = Convert.ToByte(i + 6);
                         zeichneSpieler();
                         Console.ForegroundColor = ConsoleColor.Black;
                         break;
@@ -762,7 +762,7 @@ namespace Schach
                 }
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
-            king:
+                king:
                 if (!ersetzt)
                 {
                     Error();
@@ -908,11 +908,11 @@ namespace Schach
         }
 
 
-        public static int bewerte(ushort[,] dasFeld)
+        public static int bewerte(byte[,] dasFeld)
         {
             int Bewertung = 0;
             if (checkWon(dasFeld)) Bewertung += 1000;//gewonnen
-            Bewertung += myScore(dasFeld); //Der Score (Bauern -> 1,...)
+            //Bewertung += myScore(dasFeld); //Der Score (Bauern -> 1,...)
             Bewertung -= enScore(dasFeld) * 3; //Auch für den Gegner
             Bewertung += Safety(dasFeld); //Wie sicher ist der König?
             Bewertung += Bauern(dasFeld) / 2; //Wie weit sind die Bauern?
@@ -920,7 +920,7 @@ namespace Schach
             return Bewertung;
         }
 
-        public static int Gegnerpossis(ushort[,] dasFeld)
+        public static int Gegnerpossis(byte[,] dasFeld)
         {
             int Wert = 0;
             for (int x = 0; x < 8; x++)
@@ -951,7 +951,7 @@ namespace Schach
             return Wert;
         }
 
-        public static bool checkWon(ushort[,] dasFeld)
+        public static bool checkWon(byte[,] dasFeld)
         {
             for (int x = 0; x < 8; x++)
             {
@@ -963,7 +963,7 @@ namespace Schach
             return true;
         }
 
-        public static int myScore(ushort[,] dasFeld)
+        public static int myScore(byte[,] dasFeld)
         {
             int Score = 0;
             for (int x = 0; x < 8; x++)
@@ -979,7 +979,7 @@ namespace Schach
             return Score;
         }
 
-        public static int enScore(ushort[,] dasFeld)
+        public static int enScore(byte[,] dasFeld)
         {
             int Score = 0;
             for (int x = 0; x < 8; x++)
@@ -995,7 +995,7 @@ namespace Schach
             return Score;
         }
 
-        public static int Safety(ushort[,] dasFeld)
+        public static int Safety(byte[,] dasFeld)
         {
             int[] kingpos = getKingpos(dasFeld, true);
             int safety = 0;
@@ -1020,7 +1020,7 @@ namespace Schach
             return safety;
         }
 
-        public static int[] getKingpos(ushort[,] dasFeld, bool schwarz)
+        public static int[] getKingpos(byte[,] dasFeld, bool schwarz)
         {
             int[] pos = new int[2] { 10, 10 };
             for (int x = 0; x < 8; x++)
@@ -1037,7 +1037,7 @@ namespace Schach
             return pos;
         }
 
-        public static int Bauern(ushort[,] dasFeld)
+        public static int Bauern(byte[,] dasFeld)
         {
             int[,] bauernpos = getBauernpos(dasFeld, true);
             int bauernscore = 0;
@@ -1052,7 +1052,7 @@ namespace Schach
             return bauernscore;
         }
 
-        public static int[,] getBauernpos(ushort[,] dasFeld, bool schwarz) //Die Positionen der Bauern
+        public static int[,] getBauernpos(byte[,] dasFeld, bool schwarz) //Die Positionen der Bauern
         {
             int[,] pos = new int[8, 2]
             {
