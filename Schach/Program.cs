@@ -33,10 +33,10 @@ namespace Schach
         public static byte[,] Feld = new byte[8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
             {8 ,9 ,10,11,12,10,9 ,8 },
-            {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
+            {7 ,7 ,7 ,0 ,7 ,7 ,7 ,7 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+            {5 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
@@ -230,7 +230,13 @@ namespace Schach
                 for (int u = 0; u < 8; u++)
                 {
                     Console.SetCursorPosition(2 * i + 15, u);
-                    Console.Write(drei[1, 1, u, i]);
+                    if (welcherzug == 1)
+                        Console.Write(eins[q, u, i]);
+                    else if (welcherzug == 2)
+                        Console.Write(zwei[0, q, u, i]);
+                    else if (welcherzug == 3)
+                        Console.Write(drei[0, q, u, i]);
+                    else Error();
                 }
             }
             Console.Write(" " + welcherzug + " " + q);
@@ -922,6 +928,15 @@ namespace Schach
 
         public static int Gegnerpossis(byte[,] dasFeld)
         {
+            byte[,] now = new byte[8, 8];
+            for (int i = 0; i < Feld.GetLength(0); i++)
+            {
+                for (int j = 0; j < Feld.GetLength(1); j++)
+                {
+                    now[i, j] = Feld[i, j];
+                }
+            }
+            Feld = dasFeld;
             int Wert = 0;
             for (int x = 0; x < 8; x++)
             {
@@ -937,10 +952,10 @@ namespace Schach
                                 if (allowed(Feld[y, x], x, x2, y, y2, true) && nichtdazwischen(Feld[y, x], x, x2, y, y2))
                                 {
                                     if (dasFeld[y2, x2] == 7) Wert++;
-                                    else if (dasFeld[y2, x2] == 8 || dasFeld[y, x] == 10) Wert += 4;
-                                    else if (dasFeld[y2, x2] == 9) Wert += 7;
-                                    else if (dasFeld[y2, x2] == 11) Wert += 15;
-                                    else if (dasFeld[y2, x2] == 12) Wert += 1000000;
+                                    if (dasFeld[y2, x2] == 8 || dasFeld[y, x] == 10) Wert += 4;
+                                    if (dasFeld[y2, x2] == 9) Wert += 7;
+                                    if (dasFeld[y2, x2] == 11) Wert += 15;
+                                    if (dasFeld[y2, x2] == 12) Wert += 1000000;
                                 }
                                 z = true;
                             }
@@ -948,6 +963,7 @@ namespace Schach
                     }
                 }
             }
+            Feld = now;
             return Wert;
         }
 
