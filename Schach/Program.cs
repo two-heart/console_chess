@@ -100,9 +100,9 @@ namespace Schach
             {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+            {0 ,0 ,0 ,0 ,0 ,10 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
+            {1 ,1 ,1 ,1 ,1 ,0 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
         //public static int[,,,] possis = new int[2, 1000000, 8, 8];
@@ -111,7 +111,7 @@ namespace Schach
         public static bool z;
         static void Main(string[] args)
         {
-            ConsoleHelper.SetConsoleFont(8);
+            ConsoleHelper.SetConsoleFont(10);
             Console.CursorSize = 1;
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
             Console.ForegroundColor = ConsoleColor.Black;
@@ -288,6 +288,7 @@ namespace Schach
                 }
             }
             Console.SetCursorPosition(20, 20); Console.Write(bewerte(Feld));
+            Console.SetCursorPosition(40, 40);Console.Write(Gegnerpossis(Feld));
             zeichneSpieler(); //und in gezeichnet
 
             Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());//Das ist nur zum Bugfixing
@@ -988,7 +989,7 @@ namespace Schach
             Bewertung -= enScore(dasFeld) * 3; //Auch für den Gegner
             Bewertung += Safety(dasFeld); //Wie sicher ist der König?
             Bewertung += Bauern(dasFeld) / 2; //Wie weit sind die Bauern?
-            Bewertung -= Gegnerpossis(dasFeld) * 4; //Was für Möglichkeiten hat der Gegner dann?
+            Bewertung -= Gegnerpossis(dasFeld) * 200; //Was für Möglichkeiten hat der Gegner dann?
             return Bewertung;
         }
 
@@ -1018,7 +1019,7 @@ namespace Schach
                                 if (allowed(Feld[y, x], x, x2, y, y2, true) && nichtdazwischen(Feld[y, x], x, x2, y, y2))
                                 {
                                     if (dasFeld[y2, x2] == 7) Wert++;
-                                    if (dasFeld[y2, x2] == 8 || dasFeld[y, x] == 10) Wert += 4;
+                                    if (dasFeld[y2, x2] == 8 || dasFeld[y2, x2] == 10) Wert += 4;
                                     if (dasFeld[y2, x2] == 9) Wert += 7;
                                     if (dasFeld[y2, x2] == 11) Wert += 15;
                                     if (dasFeld[y2, x2] == 12) Wert += 1000000;
