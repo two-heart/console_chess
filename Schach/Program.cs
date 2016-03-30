@@ -17,6 +17,7 @@ Verbesserte Auswahl
 
 namespace Schach
 {
+    #region Font
     [StructLayout(LayoutKind.Sequential, Pack = 1)] //Dieses struct ConsoleFont, die class ConsoleHelper und das structLayout dingens hab ich kopiert, ich hab es benutzt, um die Schriftart zu verändern, da es nur auf 8x8 richtig funktioniert
     public struct ConsoleFont
     {
@@ -71,12 +72,14 @@ namespace Schach
         }
 
     }
+    #endregion
     class Program
     {
         public static bool[] rochadem = new bool[4] { true, true, true, true }; //Kurze Rochade weiß, lange Rochade weiß, kurze Rochade schwarz, lange Rochade schwarz
         public static int züge;
         public static bool weiß; //Ist weiß am Zug?
         public static int[] verschiebung = new int[2] { 2, 2 }; //Um wie viel ist das Spielfeld nach rechts / unten verschoben?
+        public static Random rnd = new Random();
         /*
         Weiß:
         Bauern  -> 1
@@ -100,15 +103,17 @@ namespace Schach
             {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {0 ,0 ,0 ,0 ,0 ,10 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {1 ,1 ,1 ,1 ,1 ,0 ,1 ,1 },
+            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+            {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
         //public static int[,,,] possis = new int[2, 1000000, 8, 8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
         public static bool z;
+
+
         static void Main(string[] args)
         {
             ConsoleHelper.SetConsoleFont(10);
@@ -175,9 +180,8 @@ namespace Schach
             byte[,,] eins;
             byte[,,,] zwei, drei;
             possibilities(out eins, out zwei, out drei); //Die Möglichkeiten(Nach dem dritten Zug)
-            int besterzug = 0; //Der beste Zug
-            int q = 0; //Nur da, um i zu speichern
-            int welcherzug = 0;
+            int[,] besterzugqwelcherzug = new int[3,10]; //Der beste Zug
+            int pos = 1;
 
 
             for (int i = 0; i < eins.GetLength(1); i++)
@@ -197,11 +201,20 @@ namespace Schach
                 }
                 if (!erlaubt) break;
                 bew = bewerte(temp); //Wenn alles erlaubt ist, wird bew damit definiert
-                if (bew > besterzug || welcherzug <= 0 || welcherzug > 3 || besterzug == 0)
+                if (checkWon(temp)) bew = 1000000000;
+                if (bew > besterzugqwelcherzug[0,0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2,0] > 3 || besterzugqwelcherzug[0,0] == 0)
                 {
-                    besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
-                    q = i; //Und i in q gespeichert
-                    welcherzug = 1;
+                    besterzugqwelcherzug[0,0] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
+                    besterzugqwelcherzug[1,0] = i; //Und i in q gespeichert
+                    besterzugqwelcherzug[2,0] = 1;
+                    pos = 1;
+                }
+                else if(bew == besterzugqwelcherzug[0,0] && pos < 9)
+                {
+                    besterzugqwelcherzug[0, pos] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
+                    besterzugqwelcherzug[1, pos] = i; //Und i in q gespeichert
+                    besterzugqwelcherzug[2, pos] = 1;
+                    pos++;
                 }
             }
 
@@ -229,11 +242,20 @@ namespace Schach
                 }
                 if (!erlaubt) break;
                 bew = (bewerte(temp) + bewerte(tempa)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
-                if (bew > besterzug || besterzug == 0)
+                if (checkWon(tempa)) bew = 1000000000;
+                if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0)
                 {
-                    besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
-                    q = i; //Und i in q gespeichert
-                    welcherzug = 2;
+                    besterzugqwelcherzug[0, 0] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
+                    besterzugqwelcherzug[1, 0] = i; //Und i in q gespeichert
+                    besterzugqwelcherzug[2, 0] = 2;
+                    pos = 1;
+                }
+                else if (bew == besterzugqwelcherzug[0, 0] && pos < 9)
+                {
+                    besterzugqwelcherzug[0, pos] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
+                    besterzugqwelcherzug[1, pos] = i; //Und i in q gespeichert
+                    besterzugqwelcherzug[2, pos] = 2;
+                    pos++;
                 }
             }
 
@@ -261,52 +283,62 @@ namespace Schach
                 }
                 if (!erlaubt) break;
                 bew = (bewerte(temp) + bewerte(tempa)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
-                if (bew > besterzug || besterzug == 0)
+                if (checkWon(tempa)) bew = 1000000000;
+                if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0)
                 {
-                    besterzug = bew; //Und gegebenenfalls wird der bestezug aktualisiert
-                    q = i; //Und i in q gespeichert
-                    welcherzug = 3;
+                    besterzugqwelcherzug[0, 0] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
+                    besterzugqwelcherzug[1, 0] = i; //Und i in q gespeichert
+                    besterzugqwelcherzug[2, 0] = 1;
+                    pos = 3;
+                }
+                else if (bew == besterzugqwelcherzug[0, 0] && pos < 9)
+                {
+                    besterzugqwelcherzug[0, pos] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
+                    besterzugqwelcherzug[1, pos] = i; //Und i in q gespeichert
+                    besterzugqwelcherzug[2, pos] = 3;
+                    pos++;
                 }
             }
+            int r = rnd.Next(0, pos);
             for (int x = 0; x < 8; x++)
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    if (welcherzug == 1)
+                    if (besterzugqwelcherzug[2,r] == 1)
                     {
-                        Feld[y, x] = eins[q, y, x]; //Wenn alle Möglichkeiten überprüft wurden, wird das Feld mit dem besten Zug aktualisiert
+                        Feld[y, x] = eins[besterzugqwelcherzug[1,r], y, x]; //Wenn alle Möglichkeiten überprüft wurden, wird das Feld mit dem besten Zug aktualisiert
                     }
-                    else if (welcherzug == 2)
+                    else if (besterzugqwelcherzug[2, r] == 2)
                     {
-                        Feld[y, x] = zwei[1, q, y, x];
+                        Feld[y, x] = zwei[1, besterzugqwelcherzug[1, r], y, x];
                     }
-                    else if (welcherzug == 3)
+                    else if (besterzugqwelcherzug[2, r] == 3)
                     {
-                        Feld[y, x] = drei[1, q, y, x];
+                        Feld[y, x] = drei[1, besterzugqwelcherzug[1, r], y, x];
                     }
                     else Error();
                 }
-            }
-            Console.SetCursorPosition(20, 20); Console.Write(bewerte(Feld));
-            Console.SetCursorPosition(40, 40);Console.Write(Gegnerpossis(Feld));
+            };
             zeichneSpieler(); //und in gezeichnet
 
-            Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());//Das ist nur zum Bugfixing
+            /*Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());//Das ist nur zum Bugfixing
+            Console.SetCursorPosition(20, 20); Console.Write(bewerte(Feld));
+            Console.SetCursorPosition(40, 40);Console.Write(Gegnerpossis(Feld))
             for (int i = 0; i < 8; i++)
             {
                 for (int u = 0; u < 8; u++)
                 {
                     Console.SetCursorPosition(2 * i + 15, u);
-                    if (welcherzug == 1)
-                        Console.Write(eins[q, u, i]);
-                    else if (welcherzug == 2)
-                        Console.Write(zwei[0, q, u, i]);
-                    else if (welcherzug == 3)
-                        Console.Write(drei[0, q, u, i]);
+                    if (besterzugqwelcherzug[2, r] == 1)
+                        Console.Write(eins[besterzugqwelcherzug[1, r], u, i]);
+                    else if (besterzugqwelcherzug[2, r] == 2)
+                        Console.Write(zwei[0, besterzugqwelcherzug[1, r], u, i]);
+                    else if (besterzugqwelcherzug[2, r] == 3)
+                        Console.Write(drei[0, besterzugqwelcherzug[1, r], u, i]);
                     else Error();
                 }
             }
-            Console.Write(" " + welcherzug + " " + q);
+            Console.Write(" " + besterzugqwelcherzug[2, r] + " " + besterzugqwelcherzug[1, r]);*/
         }
 
         public static void testfeld(int[,,] possis) //nur zu Testzwecken - zeichnet alle Felder des Arrays
@@ -761,6 +793,7 @@ namespace Schach
         }
         static void gewonnen()
         {
+            Console.ReadKey();
             Console.Clear();
             bool schwarz = false;
             for (int i = 0; i < 8; i++)
@@ -987,7 +1020,7 @@ namespace Schach
             if (checkWon(dasFeld)) Bewertung += 1000;//gewonnen
             //Bewertung += myScore(dasFeld); //Der Score (Bauern -> 1,...)
             Bewertung -= enScore(dasFeld) * 3; //Auch für den Gegner
-            Bewertung += Safety(dasFeld); //Wie sicher ist der König?
+            //Bewertung += Safety(dasFeld); //Wie sicher ist der König?
             Bewertung += Bauern(dasFeld) / 2; //Wie weit sind die Bauern?
             Bewertung -= Gegnerpossis(dasFeld) * 200; //Was für Möglichkeiten hat der Gegner dann?
             return Bewertung;
