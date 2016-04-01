@@ -112,10 +112,12 @@ namespace Schach
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
         public static bool z;
+        public static List<int> Figuren = new List<int>();
 
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
+            Figurenliste();
             ConsoleHelper.SetConsoleFont(10);
             Console.CursorSize = 1;
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
@@ -127,9 +129,11 @@ namespace Schach
             Console.ForegroundColor = ConsoleColor.Black;
             string input;
             z = zug();
+            z = zug();
             do
             {
                 Console.ForegroundColor = ConsoleColor.Black;
+                zeichnegeschlageneFiguren();
                 if (!z)
                 {
                     Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 11); //Der Spieler macht seine Eingabe
@@ -143,7 +147,57 @@ namespace Schach
                 }
             } while (!won());
         }
-        static bool won()//checks if so
+
+        public static void Figurenliste()
+        {
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    if (Feld[y, x] != 0) Figuren.Add(Feld[y, x]);
+                }
+            }
+        }
+
+        public static void zeichnegeschlageneFiguren()
+        {
+            int[] geschlageneFiguren = getgeschlageneFiguren();
+            int poss = 0, posw = 0;
+            for (int i = 0; i < geschlageneFiguren.Length; i++)
+            {
+                if (geschlageneFiguren[i] == 0) break;
+                else if (geschlageneFiguren[i] < 7)
+                {
+                    Console.SetCursorPosition(11 + posw, 9);
+                    posw += 2;
+                }
+                else if (geschlageneFiguren[i] > 6)
+                {
+                    Console.SetCursorPosition(11 + poss, 2);
+                    poss += 2;
+                }
+                else break;
+                Console.Write(symbols[geschlageneFiguren[i]]);
+            }
+        }
+
+        public static int[] getgeschlageneFiguren()
+        {
+            int[] geschlageneFiguren;
+            List<int> fehlendeFiguren = Figuren.ToArray().ToList();
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    if (fehlendeFiguren.Contains(Feld[y, x]))
+                        fehlendeFiguren.Remove(Feld[y, x]);
+                }
+            }
+            geschlageneFiguren = fehlendeFiguren.ToArray();
+            return geschlageneFiguren;
+        }
+
+        public static bool won()//checks if so
         {
             byte könige = 0;
             for (int i = 0; i < 8; i++)
@@ -172,7 +226,7 @@ namespace Schach
             return Liste;
         }
 
-        static void botzug()
+        public static void botzug()
         {
             byte[,] temp = new byte[8, 8]; //Das zu untersuchende Feld
             byte[,] tempa = new byte[8, 8]; //Der erste Zug (Wird auch untersucht)
@@ -791,7 +845,7 @@ namespace Schach
                 return false;
             }
         }
-        static void gewonnen()
+        public static void gewonnen()
         {
             Console.ReadKey();
             Console.Clear();
@@ -812,7 +866,7 @@ namespace Schach
             Console.Write("gewinnt");
             Console.ReadKey();
         }
-        static void ereignisse(int pre, int xv, int xn, int yv, int yn) //Besondere Ereignisse im Spiel
+        public static void ereignisse(int pre, int xv, int xn, int yv, int yn) //Besondere Ereignisse im Spiel
         {
             if (pre == 1 && yn == 0) //Bauer erreicht das Ende des Felds
             {
