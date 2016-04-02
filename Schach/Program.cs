@@ -168,12 +168,12 @@ namespace Schach
                 if (geschlageneFiguren[i] == 0) break;
                 else if (geschlageneFiguren[i] < 7)
                 {
-                    Console.SetCursorPosition(11 + posw, 9);
+                    Console.SetCursorPosition(9 + posw + verschiebung[0], 7 + verschiebung[1]);
                     posw += 2;
                 }
                 else if (geschlageneFiguren[i] > 6)
                 {
-                    Console.SetCursorPosition(11 + poss, 2);
+                    Console.SetCursorPosition(9 + poss + verschiebung[0], verschiebung[1]);
                     poss += 2;
                 }
                 else break;
@@ -354,26 +354,46 @@ namespace Schach
                 }
             }
             int r = rnd.Next(0, pos);
+            byte[,] next = new byte[8, 8];
             for (int x = 0; x < 8; x++)
             {
                 for (int y = 0; y < 8; y++)
                 {
                     if (besterzugqwelcherzug[2,r] == 1)
                     {
-                        Feld[y, x] = eins[besterzugqwelcherzug[1,r], y, x]; //Wenn alle Möglichkeiten überprüft wurden, wird das Feld mit dem besten Zug aktualisiert
+                        next[y, x] = eins[besterzugqwelcherzug[1,r], y, x]; //Wenn alle Möglichkeiten überprüft wurden, wird das Feld mit dem besten Zug aktualisiert
                     }
                     else if (besterzugqwelcherzug[2, r] == 2)
                     {
-                        Feld[y, x] = zwei[1, besterzugqwelcherzug[1, r], y, x];
+                        next[y, x] = zwei[1, besterzugqwelcherzug[1, r], y, x];
                     }
                     else if (besterzugqwelcherzug[2, r] == 3)
                     {
-                        Feld[y, x] = drei[1, besterzugqwelcherzug[1, r], y, x];
+                        next[y, x] = drei[1, besterzugqwelcherzug[1, r], y, x];
                     }
                     else Error();
                 }
             };
+
+            int[,] differences = getdifferences(Feld, next);
+            
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    Feld[y, x] = next[y, x];
+                }
+            };
             zeichneSpieler(); //und in gezeichnet
+            Console.BackgroundColor = ConsoleColor.Blue;
+            for (int i = 0; i < differences.GetLength(0) && differences[i,0] != -1; i++)
+            {
+                Console.SetCursorPosition(differences[i, 0] + verschiebung[0], differences[i, 1] + verschiebung[1]);
+                if (Feld[differences[i, 1], differences[i, 0]] > 6) Console.ForegroundColor = ConsoleColor.Black;
+                else Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(symbols[Feld[differences[i, 1], differences[i, 0]]]);
+            }
+            Console.BackgroundColor = ConsoleColor.White;
 
             /*Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());//Das ist nur zum Bugfixing
             Console.SetCursorPosition(20, 20); Console.Write(bewerte(Feld));
@@ -393,6 +413,27 @@ namespace Schach
                 }
             }
             Console.Write(" " + besterzugqwelcherzug[2, r] + " " + besterzugqwelcherzug[1, r]);*/
+        }
+
+        public static int[,] getdifferences(byte[,] Feld1, byte[,] Feld2)
+        {
+            int[,] differences = new int[4, 2] { { -1,-1},{ -1,-1},{ -1,-1},{ -1,-1} };
+            int pos = 0;
+
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    if (Feld1[y, x] != Feld2[y, x] && pos <= differences.GetLength(0))
+                    {
+                        differences[pos, 0] = x;
+                        differences[pos, 1] = y;
+                        pos++;
+                    }
+                }
+            }
+
+            return differences;
         }
 
         public static void testfeld(int[,,] possis) //nur zu Testzwecken - zeichnet alle Felder des Arrays
