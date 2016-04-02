@@ -1071,6 +1071,10 @@ namespace Schach
                 Console.SetCursorPosition(verschiebung[1] + i - 1, verschiebung[0] - 1);
                 char buch = convertToChar(i);
                 Console.Write(buch); //Die Buchstaben am Spielfeldrand
+                Console.SetCursorPosition(verschiebung[1]+8, verschiebung[0] + i-1);//Zahl links
+                Console.Write(i);
+                Console.SetCursorPosition(verschiebung[1]-1+i,verschiebung[0]+8);//Buchstaben unten
+                Console.Write(buch);
             }
         }
 
