@@ -104,15 +104,16 @@ namespace Schach
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {0 ,0 ,10 ,0 ,0 ,0 ,0 ,0 },
-            {1 ,1 ,1 ,6 ,1 ,1 ,1 ,1 },
-            {2 ,3 ,4 ,5 ,0 ,4 ,3 ,2 },
+            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+            {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
+            {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
         //public static int[,,,] possis = new int[2, 1000000, 8, 8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
         public static bool z;
         public static List<int> Figuren = new List<int>();
+        public static bool spielende = false;
 
 
         public static void Main(string[] args)
@@ -147,7 +148,8 @@ namespace Schach
                     botzug();
                     z = zug();
                 }
-            } while (!won());
+            } while (!won() && !spielende);
+            Console.ReadKey();
         }
 
         public static void checkschachgedöns()
@@ -168,9 +170,11 @@ namespace Schach
                     break;
                 case 3:
                     Console.Write("Schwarz ist Schachmatt!");
+                    spielende = true;
                     break;
                 case 4:
                     Console.Write("Weiß ist Schachmatt!");
+                    spielende = true;
                     break;
                 default:
                     Console.Write("                           ");
@@ -547,7 +551,7 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
-                bew = (bewerte(temp, false) + bewerte(tempa, false)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = (bewerte(temp, true) + bewerte(tempa, true)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
                 if (checkWon(tempa)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0)
                 {
