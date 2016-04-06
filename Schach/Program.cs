@@ -11,8 +11,6 @@ TODO:
 KI Rochade
 KI Austausch
 Oberfläche
-KI nicht lebensmüde
-Verbesserte Auswahl
 */
 
 namespace Schach
@@ -79,6 +77,8 @@ namespace Schach
         public static int züge;
         public static bool weiß; //Ist weiß am Zug?
         public static int[] verschiebung = new int[2] { 2, 2 }; //Um wie viel ist das Spielfeld nach rechts / unten verschoben?
+        public static int[] kingposw = new int[2];
+        public static int[] kingposb = new int[2];
         public static Random rnd = new Random();
         /*
         Weiß:
@@ -104,8 +104,8 @@ namespace Schach
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
+            {1 ,7 ,10 ,0 ,0 ,0 ,0 ,0 },
+            {0 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
         //public static int[,,,] possis = new int[2, 1000000, 8, 8];
@@ -127,18 +127,20 @@ namespace Schach
             zeichneFeld();
             zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
-            string input;
             z = zug();
             z = zug();
+            kingposw = getKingpos(Feld, false);
+            kingposb = getKingpos(Feld, true);
             do
             {
+                checkschachgedöns();
+                kingposw = getKingpos(Feld, false);
+                kingposb = getKingpos(Feld, true);
                 Console.ForegroundColor = ConsoleColor.Black;
                 zeichnegeschlageneFiguren();
                 if (!z)
                 {
-                    Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 11); //Der Spieler macht seine Eingabe
-                    input = Console.ReadLine();
-                    if (verarbeite(input)) z = zug();   //Die wiederum verarbeitet wird
+                    neueeingabe();
                 }
                 else
                 {
@@ -148,11 +150,248 @@ namespace Schach
             } while (!won());
         }
 
+        public static void checkschachgedöns()
+        {
+            byte possi = 0; //nix, schwarz Schach, weiß Schach, schwarz Schachmatt, weiß Schachmatt
+            if (isschach(true, Feld)) possi = 1;
+            if (isschach(false, Feld)) possi = 2;
+            if (isschachmatt(true, Feld)) possi = 3;
+            if (isschachmatt(false, Feld)) possi = 4;
+            Console.SetCursorPosition(verschiebung[0], verschiebung[1] + 20);
+            switch (possi)
+            {
+                case 1:
+                    Console.Write("Schwarz ist Schach!");
+                    break;
+                case 2:
+                    Console.Write("Weiß ist Schach!");
+                    break;
+                case 3:
+                    Console.Write("Schwarz ist Schachmatt!");
+                    break;
+                case 4:
+                    Console.Write("Weiß ist Schachmatt!");
+                    break;
+                default:
+                    Console.Write("                           ");
+                    break;
+            }
+        }
+
+        public static bool isschach(bool schwarz, byte[,] dasFeld)
+        {
+            bool alt = z;
+            z = !schwarz;
+            int x2, y2;
+            bool isschach = false;
+            for (byte x = 0; x < 8; x++)
+            {
+                for (byte y = 0; y < 8; y++)
+                {
+                    if (dasFeld[y, x] != 0 && (dasFeld[y, x] < 7 && schwarz || dasFeld[y, x] > 6 && !schwarz))
+                    {
+                        if (schwarz)
+                        {
+                            x2 = kingposb[0];
+                            y2 = kingposb[1];
+                        }
+                        else
+                        {
+                            x2 = kingposw[0];
+                            y2 = kingposw[1];
+                        }
+                        if ((dasFeld[y2, x2] == 6 && !schwarz || dasFeld[y2, x2] == 12 && schwarz) && allowed(dasFeld[y, x], x, x2, y, y2, true) && nichtdazwischen(dasFeld[y, x], x, x2, y, y2))
+                        {
+                            isschach = true;
+                            z = alt;
+                            return isschach;
+                        }
+                    }
+                }
+            }
+            z = alt;
+            return isschach;
+        }
+
+        public static bool isschachmatt(bool schwarz, byte[,] dasFeld)
+        {
+            byte[,] alt = new byte[8, 8];
+            byte[,] temp = new byte[8, 8];
+            for (byte i = 0; i < 8; i++)
+            {
+                for (byte u = 0; u < 8; u++)
+                {
+                    temp[u, i] = dasFeld[u, i];
+                    alt[u, i] = Feld[u, i];
+                }
+            }
+            Feld = temp;
+            bool alt2 = z;
+            z = schwarz;
+            bool isschachmatt = true;
+            if (!isschach(schwarz, dasFeld))
+            {
+                z = alt2;
+                Feld = alt;
+                return false; ;
+            }
+            z = schwarz;
+            for (byte x = 0; x < 8; x++)
+            {
+                for (byte y = 0; y < 8; y++)
+                {
+                    if (schwarz && dasFeld[y, x] > 6 || !schwarz && dasFeld[y, x] < 7 && dasFeld[y, x] != 0)
+                    {
+                        for (byte x2 = 0; x2 < 8; x2++)
+                        {
+                            for (byte y2 = 0; y2 < 8; y2++)
+                            {
+                                if ((allowed(dasFeld[y, x], x, x2, y, y2, false) || allowed(dasFeld[y, x], x, x2, y, y2, true) && nichtdazwischen(dasFeld[y, x], x, x2, y, y2)))
+                                {
+                                    int[] altkingposb = new int[2], altkingposw = new int[2];
+                                    for (byte i = 0; i < 2; i++)
+                                    {
+                                        altkingposb[i] = kingposb[i];
+                                        altkingposw[i] = kingposw[i];
+                                    }
+                                    if (dasFeld[y, x] == 6)
+                                    {
+                                        kingposw[0] = x2;
+                                        kingposw[1] = y2;
+                                    }
+                                    else if (dasFeld[y, x] == 12)
+                                    {
+                                        kingposb[0] = x2;
+                                        kingposb[1] = y2;
+                                    }
+                                    temp[y, x] = 0;
+                                    temp[y2, x2] = dasFeld[y, x];
+                                    if (!isschach(schwarz, temp))
+                                    {
+                                        kingposb = altkingposb;
+                                        kingposw = altkingposw;
+                                        z = alt2;
+                                        Feld = alt;
+                                        return false;
+                                    }
+                                    kingposb = altkingposb;
+                                    kingposw = altkingposw;
+                                    for (byte i = 0; i < 8; i++)
+                                    {
+                                        for (byte u = 0; u < 8; u++)
+                                        {
+                                            temp[u, i] = dasFeld[u, i];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Feld = alt;
+            z = alt2;
+            return isschachmatt;
+        }
+
+        public static void alteeingabe()
+        {
+            string input;
+            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 11); //Der Spieler macht seine Eingabe
+            input = Console.ReadLine();
+            if (verarbeite(input)) z = zug();   //Die wiederum verarbeitet wird
+        }
+
+        public static void neueeingabe()
+        {
+            ConsoleKey cki = new ConsoleKey();
+            byte posx = 3;
+            byte posy = 3;
+            byte startx = 0, starty = 0, endx = 0, endy = 0;
+            bool fertig = false;
+            bool ausgewählt = false;
+            Console.BackgroundColor = ConsoleColor.Blue;
+            Console.SetCursorPosition(verschiebung[0] + posx, verschiebung[1] + posy);
+            if (Feld[posy, posx] > 6) Console.ForegroundColor = ConsoleColor.Black;
+            else Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(symbols[Feld[posy, posx]]);
+            while (!fertig)
+            {
+                cki = Console.ReadKey(true).Key;
+                if (Feld[posy, posx] > 6) Console.ForegroundColor = ConsoleColor.Black;
+                else Console.ForegroundColor = ConsoleColor.White;
+                zeichnesymbol(symbols[Feld[posy, posx]], Convert.ToInt32(posx), Convert.ToInt32(posy));
+                Console.BackgroundColor = ConsoleColor.Blue;
+                if (cki == ConsoleKey.RightArrow && posx < 7) posx++;
+                else if (cki == ConsoleKey.LeftArrow && posx > 0) posx--;
+                else if (cki == ConsoleKey.UpArrow && posy > 0) posy--;
+                else if (cki == ConsoleKey.DownArrow && posy < 7) posy++;
+                else if (cki == ConsoleKey.Enter || cki == ConsoleKey.Spacebar)
+                {
+                    if (!ausgewählt)
+                    {
+                        startx = posx;
+                        starty = posy;
+                        startx++;
+                        starty++;
+                        ausgewählt = true;
+                        Console.BackgroundColor = ConsoleColor.Red;
+                        Console.SetCursorPosition(verschiebung[0] + posx, verschiebung[1] + posy);
+                        if (Feld[posy, posx] > 6) Console.ForegroundColor = ConsoleColor.Black;
+                        else Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write(symbols[Feld[posy, posx]]);
+                        Console.BackgroundColor = ConsoleColor.Blue;
+                        posx = 4;
+                        posy = 4;
+                    }
+                    else if (ausgewählt)
+                    {
+                        endx = posx;
+                        endy = posy;
+                        endx++;
+                        endy++;
+                        fertig = true;
+                    }
+                }
+                else if (cki == ConsoleKey.Escape || cki == ConsoleKey.Delete)
+                {
+                    startx = 0;
+                    starty = 0;
+                    ausgewählt = false;
+                    zeichneSpieler();
+                }
+                Console.BackgroundColor = ConsoleColor.Blue;
+                Console.SetCursorPosition(verschiebung[0] + posx, verschiebung[1] + posy);
+                if (Feld[posy, posx] > 6) Console.ForegroundColor = ConsoleColor.Black;
+                else Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(symbols[Feld[posy, posx]]);
+                if (ausgewählt)
+                {
+                    Console.BackgroundColor = ConsoleColor.Red;
+                    Console.SetCursorPosition(verschiebung[0] + startx - 1, verschiebung[1] + starty - 1);
+                    if (Feld[starty - 1, startx - 1] > 6) Console.ForegroundColor = ConsoleColor.Black;
+                    else Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(symbols[Feld[starty - 1, startx - 1]]);
+                    Console.BackgroundColor = ConsoleColor.Blue;
+                }
+            }
+            Console.BackgroundColor = ConsoleColor.White;
+            string input = Convert.ToString(convertToChar(startx)) + starty + " " + convertToChar(endx) + endy;
+            if (Feld[endy - 1, endx - 1] != 0) input += "x";
+            if (Feld[starty - 1, startx - 1] == 6 && Feld[endy - 1, endx - 1] == 2)
+            {
+                input = "0-0";
+                if (endx < 6) input += "-0";
+            }
+            if (verarbeite(input)) z = zug();
+            else zeichneSpieler();
+        }
+
         public static void Figurenliste()
         {
-            for (int x = 0; x < 8; x++)
+            for (byte x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
                     if (Feld[y, x] != 0) Figuren.Add(Feld[y, x]);
                 }
@@ -163,7 +402,7 @@ namespace Schach
         {
             int[] geschlageneFiguren = getgeschlageneFiguren();
             int poss = 0, posw = 0;
-            for (int i = 0; i < geschlageneFiguren.Length; i++)
+            for (byte i = 0; i < geschlageneFiguren.Length; i++)
             {
                 if (geschlageneFiguren[i] == 0) break;
                 else if (geschlageneFiguren[i] < 7)
@@ -185,9 +424,9 @@ namespace Schach
         {
             int[] geschlageneFiguren;
             List<int> fehlendeFiguren = Figuren.ToArray().ToList();
-            for (int x = 0; x < 8; x++)
+            for (byte x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
                     if (fehlendeFiguren.Contains(Feld[y, x]))
                         fehlendeFiguren.Remove(Feld[y, x]);
@@ -200,9 +439,9 @@ namespace Schach
         public static bool won()//checks if so
         {
             byte könige = 0;
-            for (int i = 0; i < 8; i++)
+            for (byte i = 0; i < 8; i++)
             {
-                for (int j = 0; j < 8; j++)
+                for (byte j = 0; j < 8; j++)
                 {
                     if (Feld[i, j] == 6 || Feld[i, j] == 12)
                         könige++;
@@ -216,9 +455,9 @@ namespace Schach
         public static List<byte> tolist(byte[,] array)//konvertiert ein Feld Array in eine entsprechende liste
         {
             List<byte> Liste = new List<byte>();
-            for (int u = 0; u < array.GetLength(1); u++)
+            for (byte u = 0; u < array.GetLength(1); u++)
             {
-                for (int i = 0; i < array.GetLength(0); i++)
+                for (byte i = 0; i < array.GetLength(0); i++)
                 {
                     Liste.Add(array[i, u]);
                 }
@@ -234,15 +473,15 @@ namespace Schach
             byte[,,] eins;
             byte[,,,] zwei, drei;
             possibilities(out eins, out zwei, out drei); //Die Möglichkeiten(Nach dem dritten Zug)
-            int[,] besterzugqwelcherzug = new int[3,10]; //Der beste Zug
+            int[,] besterzugqwelcherzug = new int[3, 10]; //Der beste Zug
             int pos = 1;
 
 
-            for (int i = 0; i < eins.GetLength(1); i++)
+            for (int i = 0; i < eins.GetLength(0); i++)
             {
-                for (int a = 0; a < 8; a++)
+                for (byte a = 0; a < 8; a++)
                 {
-                    for (int s = 0; s < 8; s++)
+                    for (byte s = 0; s < 8; s++)
                     {
                         temp[s, a] = eins[i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
@@ -254,16 +493,16 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
-                bew = bewerte(temp); //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = bewerte(temp, true); //Wenn alles erlaubt ist, wird bew damit definiert
                 if (checkWon(temp)) bew = 1000000000;
-                if (bew > besterzugqwelcherzug[0,0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2,0] > 3 || besterzugqwelcherzug[0,0] == 0)
+                if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0)
                 {
-                    besterzugqwelcherzug[0,0] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
-                    besterzugqwelcherzug[1,0] = i; //Und i in q gespeichert
-                    besterzugqwelcherzug[2,0] = 1;
+                    besterzugqwelcherzug[0, 0] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
+                    besterzugqwelcherzug[1, 0] = i; //Und i in q gespeichert
+                    besterzugqwelcherzug[2, 0] = 1;
                     pos = 1;
                 }
-                else if(bew == besterzugqwelcherzug[0,0] && pos < 9)
+                else if (bew == besterzugqwelcherzug[0, 0] && pos < 9)
                 {
                     besterzugqwelcherzug[0, pos] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
                     besterzugqwelcherzug[1, pos] = i; //Und i in q gespeichert
@@ -274,16 +513,16 @@ namespace Schach
 
             for (int i = 0; i < zwei.GetLength(1); i++)
             {
-                for (int a = 0; a < 8; a++)
+                for (byte a = 0; a < 8; a++)
                 {
-                    for (int s = 0; s < 8; s++)
+                    for (byte s = 0; s < 8; s++)
                     {
                         temp[s, a] = zwei[0, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
-                for (int a = 0; a < 8; a++)
+                for (byte a = 0; a < 8; a++)
                 {
-                    for (int s = 0; s < 8; s++)
+                    for (byte s = 0; s < 8; s++)
                     {
                         tempa[s, a] = zwei[1, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
@@ -295,7 +534,7 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
-                bew = (bewerte(temp) + bewerte(tempa)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = (bewerte(temp, false) + bewerte(tempa, false)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
                 if (checkWon(tempa)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0)
                 {
@@ -315,16 +554,16 @@ namespace Schach
 
             for (int i = 0; i < drei.GetLength(1); i++)
             {
-                for (int a = 0; a < 8; a++)
+                for (byte a = 0; a < 8; a++)
                 {
-                    for (int s = 0; s < 8; s++)
+                    for (byte s = 0; s < 8; s++)
                     {
                         temp[s, a] = drei[0, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
-                for (int a = 0; a < 8; a++)
+                for (byte a = 0; a < 8; a++)
                 {
-                    for (int s = 0; s < 8; s++)
+                    for (byte s = 0; s < 8; s++)
                     {
                         tempa[s, a] = drei[1, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
@@ -336,7 +575,7 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
-                bew = (bewerte(temp) + bewerte(tempa)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = (bewerte(temp, false) + bewerte(tempa, false)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
                 if (checkWon(tempa)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0)
                 {
@@ -355,13 +594,13 @@ namespace Schach
             }
             int r = rnd.Next(0, pos);
             byte[,] next = new byte[8, 8];
-            for (int x = 0; x < 8; x++)
+            for (byte x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
-                    if (besterzugqwelcherzug[2,r] == 1)
+                    if (besterzugqwelcherzug[2, r] == 1)
                     {
-                        next[y, x] = eins[besterzugqwelcherzug[1,r], y, x]; //Wenn alle Möglichkeiten überprüft wurden, wird das Feld mit dem besten Zug aktualisiert
+                        next[y, x] = eins[besterzugqwelcherzug[1, r], y, x]; //Wenn alle Möglichkeiten überprüft wurden, wird das Feld mit dem besten Zug aktualisiert
                     }
                     else if (besterzugqwelcherzug[2, r] == 2)
                     {
@@ -376,17 +615,17 @@ namespace Schach
             };
 
             int[,] differences = getdifferences(Feld, next);
-            
-            for (int x = 0; x < 8; x++)
+
+            for (byte x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
                     Feld[y, x] = next[y, x];
                 }
             };
             zeichneSpieler(); //und in gezeichnet
-            Console.BackgroundColor = ConsoleColor.Blue;
-            for (int i = 0; i < differences.GetLength(0) && differences[i,0] != -1; i++)
+            Console.BackgroundColor = ConsoleColor.Green;
+            for (int i = 0; i < differences.GetLength(0) && differences[i, 0] != -1; i++)
             {
                 Console.SetCursorPosition(differences[i, 0] + verschiebung[0], differences[i, 1] + verschiebung[1]);
                 if (Feld[differences[i, 1], differences[i, 0]] > 6) Console.ForegroundColor = ConsoleColor.Black;
@@ -417,12 +656,12 @@ namespace Schach
 
         public static int[,] getdifferences(byte[,] Feld1, byte[,] Feld2)
         {
-            int[,] differences = new int[4, 2] { { -1,-1},{ -1,-1},{ -1,-1},{ -1,-1} };
+            int[,] differences = new int[4, 2] { { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 } };
             int pos = 0;
 
-            for (int x = 0; x < 8; x++)
+            for (byte x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
                     if (Feld1[y, x] != Feld2[y, x] && pos <= differences.GetLength(0))
                     {
@@ -442,9 +681,9 @@ namespace Schach
             int line = 0;
             for (int i = 0; i < 1000000; i++)
             {
-                for (int u = 0; u < 8; u++)
+                for (byte u = 0; u < 8; u++)
                 {
-                    for (int z = 0; z < 8; z++)
+                    for (byte z = 0; z < 8; z++)
                     {
                         int x = 0;
                         int y = 0;
@@ -485,9 +724,9 @@ namespace Schach
             drei = new byte[2, 2000000, 8, 8]; //Nach dem dritten Zug
             byte[,,] temp = null; //Ein Temporäres Feld - nur zur Vereinfachung
             int pos = 0; //Die Position im derzeitigen Array
-            for (int x = 0; x < 8; x++)//erster zug
+            for (byte x = 0; x < 8; x++)//erster zug
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
                     if (Feld[y, x] > 6)
                     {
@@ -496,9 +735,9 @@ namespace Schach
                         {
                             for (int i = 0; i < temp.GetLength(0) && i + pos < eins.GetLength(0); i++)
                             {
-                                for (int u = 0; u < 8; u++)
+                                for (byte u = 0; u < 8; u++)
                                 {
-                                    for (int s = 0; s < 8; s++)
+                                    for (byte s = 0; s < 8; s++)
                                     {
                                         eins[i + pos, s, u] = temp[i, s, u]; //Und ab ins ARRAY
                                     }
@@ -512,16 +751,16 @@ namespace Schach
             pos = 0;//zweiter Zug -> gleich wie bei eins
             for (int h = 0; h < eins.GetLength(0); h++)
             {
-                for (int i = 0; i < 8; i++)
+                for (byte i = 0; i < 8; i++)
                 {
-                    for (int u = 0; u < 8; u++)
+                    for (byte u = 0; u < 8; u++)
                     {
                         Feld[u, i] = eins[h, u, i];
                     }
                 }
-                for (int x = 0; x < 8; x++)
+                for (byte x = 0; x < 8; x++)
                 {
-                    for (int y = 0; y < 8; y++)
+                    for (byte y = 0; y < 8; y++)
                     {
                         if (Feld[y, x] > 6)
                         {
@@ -530,14 +769,14 @@ namespace Schach
                             {
                                 for (int i = 0; i < temp.GetLength(0) && i + pos < zwei.GetLength(1); i++)
                                 {
-                                    for (int u = 0; u < 8; u++)
+                                    for (byte u = 0; u < 8; u++)
                                     {
-                                        for (int s = 0; s < 8; s++)
+                                        for (byte s = 0; s < 8; s++)
                                         {
                                             zwei[0, i + pos, s, u] = temp[i, s, u];
-                                            for (int b = 0; b < 8; b++)
+                                            for (byte b = 0; b < 8; b++)
                                             {
-                                                for (int n = 0; n < 8; n++)
+                                                for (byte n = 0; n < 8; n++)
                                                 {
                                                     zwei[1, i + pos, n, b] = eins[h, n, b];
                                                 }
@@ -554,16 +793,16 @@ namespace Schach
             pos = 0;//Dritter zug
             for (int h = 0; h < zwei.GetLength(0); h++)
             {
-                for (int i = 0; i < 8; i++)
+                for (byte i = 0; i < 8; i++)
                 {
-                    for (int u = 0; u < 8; u++)
+                    for (byte u = 0; u < 8; u++)
                     {
                         Feld[u, i] = zwei[0, h, u, i];
                     }
                 }
-                for (int x = 0; x < 8; x++)
+                for (byte x = 0; x < 8; x++)
                 {
-                    for (int y = 0; y < 8; y++)
+                    for (byte y = 0; y < 8; y++)
                     {
                         if (Feld[y, x] > 6)
                         {
@@ -572,14 +811,14 @@ namespace Schach
                             {
                                 for (int i = 0; i < temp.GetLength(0); i++)
                                 {
-                                    for (int u = 0; u < 8; u++)
+                                    for (byte u = 0; u < 8; u++)
                                     {
-                                        for (int s = 0; s < 8; s++)
+                                        for (byte s = 0; s < 8; s++)
                                         {
                                             drei[0, i + pos, s, u] = temp[i, s, u];
-                                            for (int b = 0; b < 8; b++)
+                                            for (byte b = 0; b < 8; b++)
                                             {
-                                                for (int n = 0; n < 8; n++)
+                                                for (byte n = 0; n < 8; n++)
                                                 {
                                                     drei[1, i + pos, n, b] = eins[h, n, b];
                                                 }
@@ -609,15 +848,15 @@ namespace Schach
         {
             byte[,,] dat = new byte[100, 8, 8]; //DatPossis
             int pos = 0; //Wie immer die Position im Array
-            for (int i = 0; i < 8; i++)
+            for (byte i = 0; i < 8; i++)
             {
-                for (int u = 0; u < 8; u++)
+                for (byte u = 0; u < 8; u++)
                 {
                     if ((allowed(pre, x, i, y, u, false) || allowed(pre, x, i, y, u, true)) && nichtdazwischen(pre, x, i, y, u)) //Ist diese Möglichkeit erlaubt
                     {
-                        for (int q = 0; q < 8; q++)
+                        for (byte q = 0; q < 8; q++)
                         {
-                            for (int w = 0; w < 8; w++)
+                            for (byte w = 0; w < 8; w++)
                             {
                                 dat[pos, w, q] = Feld[w, q]; //Ich hoffe des untre hier ist selbsterklärend
                             }
@@ -631,9 +870,9 @@ namespace Schach
             byte[,,] temp = new byte[pos, 8, 8];
             for (int i = 0; i < pos; i++)
             {
-                for (int u = 0; u < 8; u++)
+                for (byte u = 0; u < 8; u++)
                 {
-                    for (int s = 0; s < 8; s++)
+                    for (byte s = 0; s < 8; s++)
                     {
                         temp[i, s, u] = dat[i, s, u];
                     }
@@ -710,7 +949,7 @@ namespace Schach
 
         public static bool allowed(int pre, int xv, int xn, int yv, int yn, bool schlagen) //Überprüfung ob Zug erlaubt ist
         {
-            if (schlagen && Feld[yn, xn] == 0 || !schlagen && Feld[yn, xn] != 0) return false;
+            if ((schlagen && Feld[yn, xn] == 0)/*keine Figur zum Schlagen*/ && !((schlagen && pre == 1 && Feld[xn - 1, yn - 1] == 7) || (schlagen && pre == 7 && Feld[xn + 1, yn + 1] == 1))/*und kein en passent*/ || (!schlagen && Feld[yn, xn] != 0)) return false;
             if (!z && Feld[yn, xn] < 7 && Feld[yn, xn] > 0 || z && Feld[yn, xn] > 6) return false;
             int dy = delta(yv, yn);
             int dx = delta(xv, xn);
@@ -812,7 +1051,25 @@ namespace Schach
                     byte previous; //Das ist die Figur, die bewegt wird
                     previous = Feld[peins[1], peins[0]];
 
-                    if ((Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
+                    bool schacherlaubt = true;
+                    int xv, xn, yv, yn;
+                    xv = peins[0]; xn = pzwei[0]; yv = peins[1]; yn = pzwei[1];
+                    byte[,] temp = new byte[8, 8];
+                    for (int i = 0; i < 8; i++)
+                    {
+                        for (int u = 0; u < 8; u++)
+                        {
+                            temp[u, i] = Feld[u, i];
+                        }
+                    }
+                    temp[yv, xv] = 0;
+                    temp[yn, xn] = Feld[yv, xv];
+                    if (isschach(false, temp))
+                    {
+                        Error();
+                        schacherlaubt = false;
+                    }
+                    if (schacherlaubt && (Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
                     {
                         rochadeaktualisieren(previous, peins[0]);
                         Feld[peins[1], peins[0]] = 0; //Die vorige Position wird gelöscht
@@ -891,9 +1148,9 @@ namespace Schach
             Console.ReadKey();
             Console.Clear();
             bool schwarz = false;
-            for (int i = 0; i < 8; i++)
+            for (byte i = 0; i < 8; i++)
             {
-                for (int j = 0; j < 8; j++)
+                for (byte j = 0; j < 8; j++)
                 {
                     if (Feld[i, j] == 12)
                     {
@@ -911,7 +1168,7 @@ namespace Schach
         {
             if (pre == 1 && yn == 0) //Bauer erreicht das Ende des Felds
             {
-                a:
+            a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13); //Der Spieler wählt eine neue Figur
                 Console.Write("Neue Figur: ");
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
@@ -931,7 +1188,7 @@ namespace Schach
                         break;
                     }
                 }
-                king:
+            king:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
                 if (!ersetzt)
@@ -942,7 +1199,7 @@ namespace Schach
             }
             if (pre == 7 && yn == 7)//Das gleiche nochmal für schwarz
             {
-                a:
+            a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("Neue Figur: ");
                 bool ersetzt = false;
@@ -963,7 +1220,7 @@ namespace Schach
                 }
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
-                king:
+            king:
                 if (!ersetzt)
                 {
                     Error();
@@ -1010,6 +1267,7 @@ namespace Schach
 
         public static void Error() //Oh nein
         {
+            zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
             Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
             Console.Write("Error");
@@ -1044,45 +1302,39 @@ namespace Schach
         public static char convertToChar(int zahl)
         { //Jeder Zahl wird ein Buchstabe zugeordnet
             char character;
-            if (zahl == 1) character = 'A';
-            else if (zahl == 2) character = 'B';
-            else if (zahl == 3) character = 'C';
-            else if (zahl == 4) character = 'D';
-            else if (zahl == 5) character = 'E';
-            else if (zahl == 6) character = 'F';
-            else if (zahl == 7) character = 'G';
-            else character = 'H';
+            char[] characters = new char[9] { ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
+            character = characters[zahl];
             return character;
         }
 
         public static void zeichneFeld()
         {
-            for (int i = 0; i < 8; i++)
+            for (byte i = 0; i < 8; i++)
             {
-                for (int u = 0; u < 8; u++)
+                for (byte u = 0; u < 8; u++)
                 {
                     zeichnesymbol(' ', i, u); //Es werden einfach Leerzeichen geschrieben, die von dem zeichnesymbol void automatisch mit der richtigen Hintergrundfarbe ausgestattet werden
                 }
             }
-            for (int i = 1; i < 9; i++)
+            for (byte i = 1; i < 9; i++)
             {
                 Console.SetCursorPosition(verschiebung[1] - 1, verschiebung[0] + i - 1);
                 Console.Write(i); //Die Zahlen am Spielfeldrand
                 Console.SetCursorPosition(verschiebung[1] + i - 1, verschiebung[0] - 1);
                 char buch = convertToChar(i);
                 Console.Write(buch); //Die Buchstaben am Spielfeldrand
-                Console.SetCursorPosition(verschiebung[1]+8, verschiebung[0] + i-1);//Zahl links
+                Console.SetCursorPosition(verschiebung[1] + 8, verschiebung[0] + i - 1);//Zahl links
                 Console.Write(i);
-                Console.SetCursorPosition(verschiebung[1]-1+i,verschiebung[0]+8);//Buchstaben unten
+                Console.SetCursorPosition(verschiebung[1] - 1 + i, verschiebung[0] + 8);//Buchstaben unten
                 Console.Write(buch);
             }
         }
 
         public static void zeichneSpieler()
         {
-            for (int i = 0; i < 8; i++)
+            for (byte i = 0; i < 8; i++)
             {
-                for (int u = 0; u < 8; u++)
+                for (byte u = 0; u < 8; u++)
                 {
                     Console.ForegroundColor = ConsoleColor.Black;
                     if (Feld[u, i] < 7) Console.ForegroundColor = ConsoleColor.White; //Die passende Farbe
@@ -1113,7 +1365,7 @@ namespace Schach
         }
 
 
-        public static int bewerte(byte[,] dasFeld)
+        public static int bewerte(byte[,] dasFeld, bool ersterzug)
         {
             int Bewertung = 0;
             if (checkWon(dasFeld)) Bewertung += 1000;//gewonnen
@@ -1122,6 +1374,9 @@ namespace Schach
             //Bewertung += Safety(dasFeld); //Wie sicher ist der König?
             Bewertung += Bauern(dasFeld) / 2; //Wie weit sind die Bauern?
             Bewertung -= Gegnerpossis(dasFeld) * 200; //Was für Möglichkeiten hat der Gegner dann?
+            if (ersterzug)
+                if (isschachmatt(false, dasFeld))
+                    Bewertung += 1000000;
             return Bewertung;
         }
 
@@ -1137,15 +1392,15 @@ namespace Schach
             }
             Feld = dasFeld;
             int Wert = 0;
-            for (int x = 0; x < 8; x++)
+            for (byte x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
                     if (Feld[y, x] < 7 && Feld[y, x] > 0)
                     {
-                        for (int x2 = 0; x2 < 8; x2++)
+                        for (byte x2 = 0; x2 < 8; x2++)
                         {
-                            for (int y2 = 0; y2 < 8; y2++)
+                            for (byte y2 = 0; y2 < 8; y2++)
                             {
                                 z = false;
                                 if (allowed(Feld[y, x], x, x2, y, y2, true) && nichtdazwischen(Feld[y, x], x, x2, y, y2))
@@ -1168,9 +1423,9 @@ namespace Schach
 
         public static bool checkWon(byte[,] dasFeld)
         {
-            for (int x = 0; x < 8; x++)
+            for (byte x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
                     if (!z && dasFeld[y, x] == 12 || z && dasFeld[y, x] == 6) return false;
                 }
@@ -1181,9 +1436,9 @@ namespace Schach
         public static int myScore(byte[,] dasFeld)
         {
             int Score = 0;
-            for (int x = 0; x < 8; x++)
+            for (byte x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
                     if (dasFeld[y, x] == 7) Score++;
                     else if (dasFeld[y, x] == 8 || dasFeld[y, x] == 10) Score += 4;
@@ -1197,9 +1452,9 @@ namespace Schach
         public static int enScore(byte[,] dasFeld)
         {
             int Score = 0;
-            for (int x = 0; x < 8; x++)
+            for (byte x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
                     if (dasFeld[y, x] == 1) Score++;
                     else if (dasFeld[y, x] == 2 || dasFeld[y, x] == 4) Score += 4;
@@ -1216,7 +1471,7 @@ namespace Schach
             int safety = 0;
             if (!kingpos.Contains(10))
             {
-                for (int i = 0; i < 3; i++)
+                for (byte i = 0; i < 3; i++)
                 {
                     try
                     {
@@ -1238,9 +1493,9 @@ namespace Schach
         public static int[] getKingpos(byte[,] dasFeld, bool schwarz)
         {
             int[] pos = new int[2] { 10, 10 };
-            for (int x = 0; x < 8; x++)
+            for (byte x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
                     if (schwarz && dasFeld[y, x] == 12 || !schwarz && dasFeld[y, x] == 6)
                     {
@@ -1256,7 +1511,7 @@ namespace Schach
         {
             int[,] bauernpos = getBauernpos(dasFeld, true);
             int bauernscore = 0;
-            for (int i = 0; i < 8; i++)
+            for (byte i = 0; i < 8; i++)
             {
                 if (bauernpos[i, 0] != 10)
                 {
@@ -1281,9 +1536,9 @@ namespace Schach
                 { 10, 10 },
             };
             int apos = 0;
-            for (int x = 0; x < 8; x++)
+            for (byte x = 0; x < 8; x++)
             {
-                for (int y = 0; y < 8; y++)
+                for (byte y = 0; y < 8; y++)
                 {
                     if (schwarz && dasFeld[y, x] == 7 || !schwarz && dasFeld[y, x] == 1)
                     {
