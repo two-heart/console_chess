@@ -104,9 +104,9 @@ namespace Schach
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {1 ,7 ,10 ,0 ,0 ,0 ,0 ,0 },
-            {0 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
-            {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
+            {0 ,0 ,10 ,0 ,0 ,0 ,0 ,0 },
+            {1 ,1 ,1 ,6 ,1 ,1 ,1 ,1 },
+            {2 ,3 ,4 ,5 ,0 ,4 ,3 ,2 },
         };
         //public static int[,,,] possis = new int[2, 1000000, 8, 8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
@@ -180,7 +180,18 @@ namespace Schach
 
         public static bool isschach(bool schwarz, byte[,] dasFeld)
         {
-            bool alt = z;
+            byte[,] alt = new byte[8, 8];
+            byte[,] temp = new byte[8, 8];
+            for (byte i = 0; i < 8; i++)
+            {
+                for (byte u = 0; u < 8; u++)
+                {
+                    temp[u, i] = dasFeld[u, i];
+                    alt[u, i] = Feld[u, i];
+                }
+            }
+            Feld = temp;
+            bool alt2 = z;
             z = !schwarz;
             int x2, y2;
             bool isschach = false;
@@ -203,13 +214,15 @@ namespace Schach
                         if ((dasFeld[y2, x2] == 6 && !schwarz || dasFeld[y2, x2] == 12 && schwarz) && allowed(dasFeld[y, x], x, x2, y, y2, true) && nichtdazwischen(dasFeld[y, x], x, x2, y, y2))
                         {
                             isschach = true;
-                            z = alt;
+                            Feld = alt;
+                            z = alt2;
                             return isschach;
                         }
                     }
                 }
             }
-            z = alt;
+            Feld = alt;
+            z = alt2;
             return isschach;
         }
 
@@ -949,7 +962,7 @@ namespace Schach
 
         public static bool allowed(int pre, int xv, int xn, int yv, int yn, bool schlagen) //Überprüfung ob Zug erlaubt ist
         {
-            if ((schlagen && Feld[yn, xn] == 0)/*keine Figur zum Schlagen*/ && !((schlagen && pre == 1 && Feld[xn - 1, yn - 1] == 7) || (schlagen && pre == 7 && Feld[xn + 1, yn + 1] == 1))/*und kein en passent*/ || (!schlagen && Feld[yn, xn] != 0)) return false;
+            if (schlagen && Feld[yn, xn] == 0 || !schlagen && Feld[yn, xn] != 0) return false;
             if (!z && Feld[yn, xn] < 7 && Feld[yn, xn] > 0 || z && Feld[yn, xn] > 6) return false;
             int dy = delta(yv, yn);
             int dx = delta(xv, xn);
@@ -1064,11 +1077,19 @@ namespace Schach
                     }
                     temp[yv, xv] = 0;
                     temp[yn, xn] = Feld[yv, xv];
-                    if (isschach(false, temp))
+                    int[] altkingpos = kingposw;
+                    if (Feld[yv, xv] == 6)
                     {
-                        Error();
-                        schacherlaubt = false;
+                        kingposw[0] = xn;
+                        kingposw[1] = yn;
                     }
+
+                    if (isschach(false, temp))
+                        {
+                            Error();
+                            schacherlaubt = false;
+                        }
+                    kingposw = altkingpos;
                     if (schacherlaubt && (Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
                     {
                         rochadeaktualisieren(previous, peins[0]);
@@ -1168,7 +1189,7 @@ namespace Schach
         {
             if (pre == 1 && yn == 0) //Bauer erreicht das Ende des Felds
             {
-            a:
+                a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13); //Der Spieler wählt eine neue Figur
                 Console.Write("Neue Figur: ");
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
@@ -1188,7 +1209,7 @@ namespace Schach
                         break;
                     }
                 }
-            king:
+                king:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
                 if (!ersetzt)
@@ -1199,7 +1220,7 @@ namespace Schach
             }
             if (pre == 7 && yn == 7)//Das gleiche nochmal für schwarz
             {
-            a:
+                a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("Neue Figur: ");
                 bool ersetzt = false;
@@ -1220,7 +1241,7 @@ namespace Schach
                 }
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
-            king:
+                king:
                 if (!ersetzt)
                 {
                     Error();
@@ -1552,3 +1573,4 @@ namespace Schach
         }
     }
 }
+
