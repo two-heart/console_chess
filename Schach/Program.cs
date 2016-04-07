@@ -108,6 +108,29 @@ namespace Schach
             {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
         };
+        public static byte[,,] Schäferfeld = new byte[2,8, 8] //Das Feld mit den passenden Nummern (s.o.)
+        {
+            {
+                {8 ,9 ,10,11,12,10,9 ,8 },
+                {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
+                {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                {0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 },
+                {1 ,1 ,1 ,1 ,0 ,1 ,1 ,1 },
+                {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
+            },
+            {
+                {8 ,9 ,10,11,12,10,9 ,8 },
+                {7 ,7 ,0 ,7 ,7 ,7 ,7 ,7 },
+                {0 ,0 ,7 ,0 ,0 ,0 ,0 ,0 },
+                {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                {0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 },
+                {1 ,1 ,1 ,1 ,0 ,1 ,1 ,1 },
+                {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
+            },
+        };
         //public static int[,,,] possis = new int[2, 1000000, 8, 8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
@@ -487,8 +510,8 @@ namespace Schach
             byte[,] temp = new byte[8, 8]; //Das zu untersuchende Feld
             byte[,] tempa = new byte[8, 8]; //Der erste Zug (Wird auch untersucht)
             int bew = 0; //Der Zug
-            byte[,,] eins;
-            byte[,,,] zwei, drei;
+            byte[, ,] eins;
+            byte[, , ,] zwei, drei;
             possibilities(out eins, out zwei, out drei); //Die Möglichkeiten(Nach dem dritten Zug)
             int[,] besterzugqwelcherzug = new int[3, 10]; //Der beste Zug
             int pos = 1;
@@ -632,11 +655,20 @@ namespace Schach
             };
 
             int[,] differences = getdifferences(Feld, next);
-
+            bool schäferzug = true;
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    if (Feld[y, x] != Schäferfeld[0, y, x]) schäferzug = false;
+                }
+            }
             for (byte x = 0; x < 8; x++)
             {
                 for (byte y = 0; y < 8; y++)
                 {
+                    if (schäferzug)
+                        next[y, x] = Schäferfeld[1, y, x];
                     Feld[y, x] = next[y, x];
                 }
             };
@@ -692,7 +724,7 @@ namespace Schach
             return differences;
         }
 
-        public static void testfeld(int[,,] possis) //nur zu Testzwecken - zeichnet alle Felder des Arrays
+        public static void testfeld(int[, ,] possis) //nur zu Testzwecken - zeichnet alle Felder des Arrays
         {
             Console.Clear();
             int line = 0;
@@ -726,7 +758,7 @@ namespace Schach
             Console.ReadLine();
         }
 
-        public static void possibilities(out byte[,,] eins, out byte[,,,] zwei, out byte[,,,] drei)
+        public static void possibilities(out byte[, ,] eins, out byte[, , ,] zwei, out byte[, , ,] drei)
         {
             byte[,] now = new byte[8, 8];
             for (int i = 0; i < Feld.GetLength(0); i++)
@@ -739,7 +771,7 @@ namespace Schach
             eins = new byte[150, 8, 8]; //Nach dem ersten Zug
             zwei = new byte[2, 20000, 8, 8]; //Nach dem zweiten Zug
             drei = new byte[2, 2000000, 8, 8]; //Nach dem dritten Zug
-            byte[,,] temp = null; //Ein Temporäres Feld - nur zur Vereinfachung
+            byte[, ,] temp = null; //Ein Temporäres Feld - nur zur Vereinfachung
             int pos = 0; //Die Position im derzeitigen Array
             for (byte x = 0; x < 8; x++)//erster zug
             {
@@ -861,9 +893,9 @@ namespace Schach
             }
         }
 
-        public static byte[,,] getpossisofthis(byte pre, int x, int y)
+        public static byte[, ,] getpossisofthis(byte pre, int x, int y)
         {
-            byte[,,] dat = new byte[100, 8, 8]; //DatPossis
+            byte[, ,] dat = new byte[100, 8, 8]; //DatPossis
             int pos = 0; //Wie immer die Position im Array
             for (byte i = 0; i < 8; i++)
             {
@@ -884,7 +916,7 @@ namespace Schach
                     }
                 }
             }
-            byte[,,] temp = new byte[pos, 8, 8];
+            byte[, ,] temp = new byte[pos, 8, 8];
             for (int i = 0; i < pos; i++)
             {
                 for (byte u = 0; u < 8; u++)
@@ -1089,10 +1121,10 @@ namespace Schach
                     }
 
                     if (isschach(false, temp))
-                        {
-                            Error();
-                            schacherlaubt = false;
-                        }
+                    {
+                        Error();
+                        schacherlaubt = false;
+                    }
                     kingposw = altkingpos;
                     if (schacherlaubt && (Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
                     {
@@ -1193,7 +1225,7 @@ namespace Schach
         {
             if (pre == 1 && yn == 0) //Bauer erreicht das Ende des Felds
             {
-                a:
+            a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13); //Der Spieler wählt eine neue Figur
                 Console.Write("Neue Figur: ");
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
@@ -1213,7 +1245,7 @@ namespace Schach
                         break;
                     }
                 }
-                king:
+            king:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
                 if (!ersetzt)
@@ -1224,7 +1256,7 @@ namespace Schach
             }
             if (pre == 7 && yn == 7)//Das gleiche nochmal für schwarz
             {
-                a:
+            a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("Neue Figur: ");
                 bool ersetzt = false;
@@ -1245,7 +1277,7 @@ namespace Schach
                 }
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
-                king:
+            king:
                 if (!ersetzt)
                 {
                     Error();
@@ -1393,6 +1425,7 @@ namespace Schach
         public static int bewerte(byte[,] dasFeld, bool ersterzug)
         {
             int Bewertung = 0;
+            if (Feld[3, 6] == 3 && Feld[2, 5] == 7 && Feld[1, 4] == 12 && dasFeld[3, 5] == 7) Bewertung += 10000;
             if (checkWon(dasFeld)) Bewertung += 1000;//gewonnen
             //Bewertung += myScore(dasFeld); //Der Score (Bauern -> 1,...)
             Bewertung -= enScore(dasFeld) * 3; //Auch für den Gegner
@@ -1401,7 +1434,7 @@ namespace Schach
             Bewertung -= Gegnerpossis(dasFeld) * 200; //Was für Möglichkeiten hat der Gegner dann?
             if (ersterzug)
                 if (isschachmatt(false, dasFeld))
-                    Bewertung += 1000000;
+                    Bewertung += 100000;
             return Bewertung;
         }
 
@@ -1577,4 +1610,5 @@ namespace Schach
         }
     }
 }
+
 
