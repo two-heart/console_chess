@@ -639,7 +639,7 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
-                bew = (bewerte(temp, false) + bewerte(tempa, false)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = (bewerte(temp, true) + bewerte(tempa, true)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
                 if (checkWon(tempa)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0)
                 {
@@ -701,7 +701,7 @@ namespace Schach
                 {
                     if (schäferzug)
                     {
-                        next[y, x] = specialfelder[1, 1, y, x];
+                        next[y, x] = specialfelder[0, 1, y, x];
                         differences = getdifferences(Feld, next);
                     }
                     else if (schäferzug2)
@@ -1477,12 +1477,56 @@ namespace Schach
             //Bewertung += myScore(dasFeld); //Der Score (Bauern -> 1,...)
             Bewertung -= enScore(dasFeld) * 3; //Auch für den Gegner
             //Bewertung += Safety(dasFeld); //Wie sicher ist der König?
-            Bewertung += Bauern(dasFeld) / 8; //Wie weit sind die Bauern?
+            Bewertung += Bauern(dasFeld) / 20; //Wie weit sind die Bauern?
             Bewertung -= Gegnerpossis(dasFeld) * 200; //Was für Möglichkeiten hat der Gegner dann?
+            Bewertung += Deckung(dasFeld) / 10;
             if (ersterzug)
                 if (isschachmatt(false, dasFeld))
                     Bewertung += 100000;
             return Bewertung;
+        }
+
+        public static int Deckung(byte[,] dasFeld)
+        {
+            int Wert = 0;
+            byte pseudo = 0;
+            byte[,] alt = new byte[8,8];
+            for (int i = 0; i < 8; i++)
+            {
+                for (int u = 0; u < 8; u++)
+                {
+                    alt[u, i] = Feld[u, i];
+                }
+            }
+            Feld = dasFeld;
+            z = false;
+
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    if(Feld[y,x] > 6)
+                    {
+                        for (int x2 = 0; x2 < 8; x2++)
+                        {
+                            for (int y2 = 0; y2 < 8; y2++)
+                            {
+                                if(Feld[y2,x2] > 6)
+                                {
+                                    pseudo = Convert.ToByte(Feld[y, x] - 6);
+                                    if(allowed(pseudo, x, x2, y, y2, true) && nichtdazwischen(pseudo, x, x2, y, y2))
+                                    {
+                                        Wert += Feld[y2, x2];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Feld = alt;
+            z = true;
+            return Wert;
         }
 
         public static int Gegnerpossis(byte[,] dasFeld)
