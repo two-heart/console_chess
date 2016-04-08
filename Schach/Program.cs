@@ -99,37 +99,61 @@ namespace Schach
         */
         public static byte[,] Feld = new byte[8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
-            {0 ,0 ,0,0,12,0,0 ,0 },
-            {0 ,0 ,0 ,0 ,7 ,7 ,7 ,7 },
-            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-            {0 ,7 ,0 ,1 ,1 ,1 ,1 ,1 },
-            {0 ,0 ,0 ,5 ,6 ,4 ,3 ,2 },
+            {8 ,9 ,10,11,12,10,9 ,8 },
+            {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7},
+            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
+            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
+            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
+            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
+            {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+            {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2},
         };
-        public static byte[,,] Schäferfeld = new byte[2, 8, 8] //Das Feld mit den passenden Nummern (s.o.)
+        public static byte[,,,] specialfelder = new byte[2, 2, 8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
             {
-                {8 ,9 ,10,11,12,10,9 ,8 },
-                {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
-                {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-                {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-                {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-                {0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 },
-                {1 ,1 ,1 ,1 ,0 ,1 ,1 ,1 },
-                {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
+                {
+                    {8 ,9 ,10,11,12,10,9 ,8 },
+                    {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 },
+                    {1 ,1 ,1 ,1 ,0 ,1 ,1 ,1 },
+                    {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
+                },
+                {
+                    {8 ,9 ,10,11,12,10,9 ,8 },
+                    {7 ,7 ,7 ,0 ,7 ,7 ,7 ,7 },
+                    {0 ,0 ,0 ,7 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 },
+                    {1 ,1 ,1 ,1 ,0 ,1 ,1 ,1 },
+                    {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
+                }
             },
             {
-                {8 ,9 ,10,11,12,10,9 ,8 },
-                {7 ,7 ,0 ,7 ,7 ,7 ,7 ,7 },
-                {0 ,0 ,7 ,0 ,0 ,0 ,0 ,0 },
-                {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-                {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
-                {0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 },
-                {1 ,1 ,1 ,1 ,0 ,1 ,1 ,1 },
-                {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
-            },
+                {
+                    {8 ,9 ,10,11,12,10,9 ,8 },
+                    {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {1 ,1 ,1 ,1 ,0 ,1 ,1 ,1 },
+                    {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
+                },
+                {
+                    {8 ,9 ,10,11,12,10,9 ,8 },
+                    {7 ,7 ,7 ,0 ,7 ,7 ,7 ,7 },
+                    {0 ,0 ,0 ,7 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {1 ,1 ,1 ,1 ,0 ,1 ,1 ,1 },
+                    {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
+                }
+            }
         };
         //public static int[,,,] possis = new int[2, 1000000, 8, 8];
         public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
@@ -654,29 +678,45 @@ namespace Schach
                 }
             };
 
-            int[,] differences = getdifferences(Feld, next);
             bool schäferzug = true;
             for (int x = 0; x < 8; x++)
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    if (Feld[y, x] != Schäferfeld[0, y, x]) schäferzug = false;
+                    if (Feld[y, x] != specialfelder[0, 0, y, x]) schäferzug = false;
                 }
             }
+            bool schäferzug2 = true;
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    if (Feld[y, x] != specialfelder[1, 0, y, x]) schäferzug2 = false;
+                }
+            }
+            int[,] differences = getdifferences(Feld, next);
             for (byte x = 0; x < 8; x++)
             {
                 for (byte y = 0; y < 8; y++)
                 {
                     if (schäferzug)
-                        next[y, x] = Schäferfeld[1, y, x];
+                    {
+                        next[y, x] = specialfelder[1, 1, y, x];
+                        differences = getdifferences(Feld, next);
+                    }
+                    else if (schäferzug2)
+                    {
+                        next[y, x] = specialfelder[1, 1, y, x];
+                        differences = getdifferences(Feld, next);
+                    }
                     Feld[y, x] = next[y, x];
                 }
             };
             for (byte i = 0; i < 8; i++)
             {
-                if (Feld[i, 7] == 7)
+                if (Feld[7, i] == 7)
                 {
-                    Feld[i, 7] = 11;
+                    Feld[7, i] = 11;
                 }
             }
             zeichneSpieler(); //und in gezeichnet
@@ -1232,7 +1272,7 @@ namespace Schach
         {
             if (pre == 1 && yn == 0) //Bauer erreicht das Ende des Felds
             {
-            a:
+                a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13); //Der Spieler wählt eine neue Figur
                 Console.Write("Neue Figur: ");
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
@@ -1252,7 +1292,7 @@ namespace Schach
                         break;
                     }
                 }
-            king:
+                king:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
                 if (!ersetzt)
@@ -1263,7 +1303,7 @@ namespace Schach
             }
             if (pre == 7 && yn == 7)//Das gleiche nochmal für schwarz
             {
-            a:
+                a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("Neue Figur: ");
                 bool ersetzt = false;
@@ -1284,7 +1324,7 @@ namespace Schach
                 }
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
-            king:
+                king:
                 if (!ersetzt)
                 {
                     Error();
@@ -1437,7 +1477,7 @@ namespace Schach
             //Bewertung += myScore(dasFeld); //Der Score (Bauern -> 1,...)
             Bewertung -= enScore(dasFeld) * 3; //Auch für den Gegner
             //Bewertung += Safety(dasFeld); //Wie sicher ist der König?
-            Bewertung += Bauern(dasFeld) / 2; //Wie weit sind die Bauern?
+            Bewertung += Bauern(dasFeld) / 8; //Wie weit sind die Bauern?
             Bewertung -= Gegnerpossis(dasFeld) * 200; //Was für Möglichkeiten hat der Gegner dann?
             if (ersterzug)
                 if (isschachmatt(false, dasFeld))
@@ -1580,7 +1620,7 @@ namespace Schach
             {
                 if (bauernpos[i, 0] != 10)
                 {
-                    bauernscore += bauernpos[i, 1];
+                    bauernscore += bauernpos[i, 1] * bauernpos[i, 1] * bauernpos[i, 1];
                 }
                 else break;
             }
