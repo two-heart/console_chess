@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 /*
 TODO:
 KI Rochade
-KI Austausch
 Oberfläche
 */
 
@@ -1479,7 +1478,7 @@ namespace Schach
             //Bewertung += Safety(dasFeld); //Wie sicher ist der König?
             Bewertung += Bauern(dasFeld) / 20; //Wie weit sind die Bauern?
             Bewertung -= Gegnerpossis(dasFeld) * 200; //Was für Möglichkeiten hat der Gegner dann?
-            Bewertung += Deckung(dasFeld) / 10;
+            Bewertung += Deckung(dasFeld) / 20;
             if (ersterzug)
                 if (isschachmatt(false, dasFeld))
                     Bewertung += 100000;
@@ -1511,7 +1510,7 @@ namespace Schach
                         {
                             for (int y2 = 0; y2 < 8; y2++)
                             {
-                                if(Feld[y2,x2] > 6)
+                                if(Feld[y2,x2] > 7 && Feld[y2, x2] < 12)
                                 {
                                     pseudo = Convert.ToByte(Feld[y, x] - 6);
                                     if(allowed(pseudo, x, x2, y, y2, true) && nichtdazwischen(pseudo, x, x2, y, y2))
