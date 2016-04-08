@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 /*
 TODO:
 KI Rochade
+KI Austausch
 Oberfläche
 */
 
@@ -165,7 +166,10 @@ namespace Schach
         public static void Main(string[] args)
         {
             Figurenliste();
-            ConsoleHelper.SetConsoleFont(10);
+            var os = Environment.OSVersion;
+            if (os.Version.Minor == 1)
+                ConsoleHelper.SetConsoleFont(8);
+            else ConsoleHelper.SetConsoleFont(10);
             Console.CursorSize = 1;
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
             Console.ForegroundColor = ConsoleColor.Black;
