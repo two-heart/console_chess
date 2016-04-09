@@ -100,8 +100,8 @@ namespace Schach
         */
         public static byte[,] Feld = new byte[8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
-            {8 ,9 ,10,11,12,10,9 ,8 },
-            {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7},
+            {0 ,0 ,10,11,12,10,9 ,8 },
+            {7 ,1 ,7 ,7 ,7 ,7 ,7 ,7},
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
@@ -1300,6 +1300,8 @@ namespace Schach
                     if (symbols[i] == finput)
                     {
                         ersetzt = true;
+                        Figuren.Remove(Feld[yn, xn]);
+                        Figuren.Add(i);
                         Feld[yn, xn] = i;
                         zeichneSpieler();
                         Console.ForegroundColor = ConsoleColor.Black;
@@ -1307,7 +1309,7 @@ namespace Schach
                     }
                 }
                 king:
-                Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
+                Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
                 Console.Write("                                ");
                 if (!ersetzt)
                 {
