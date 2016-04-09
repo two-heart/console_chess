@@ -73,6 +73,7 @@ namespace Schach
     #endregion
     class Program
     {
+        public static byte schriftgröße = 0;
         public static bool[] rochadem = new bool[4] { true, true, true, true }; //Kurze Rochade weiß, lange Rochade weiß, kurze Rochade schwarz, lange Rochade schwarz
         public static int züge;
         public static bool weiß; //Ist weiß am Zug?
@@ -167,9 +168,9 @@ namespace Schach
         {
             Figurenliste();
             var os = Environment.OSVersion;
-            if (os.Version.Minor == 1)
-                ConsoleHelper.SetConsoleFont(8);
-            else ConsoleHelper.SetConsoleFont(10);
+            if (os.Version.Minor == 1) schriftgröße = 8;
+            else schriftgröße = 10;
+            ConsoleHelper.SetConsoleFont(schriftgröße);
             Console.CursorSize = 1;
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
             Console.ForegroundColor = ConsoleColor.Black;
@@ -393,6 +394,16 @@ namespace Schach
                 else if (cki == ConsoleKey.LeftArrow && posx > 0) posx--;
                 else if (cki == ConsoleKey.UpArrow && posy > 0) posy--;
                 else if (cki == ConsoleKey.DownArrow && posy < 7) posy++;
+                else if(cki == ConsoleKey.W && schriftgröße < 10)
+                {
+                    schriftgröße++;
+                    ConsoleHelper.SetConsoleFont(schriftgröße);
+                }
+                else if(cki == ConsoleKey.S && schriftgröße > 0)
+                {
+                    schriftgröße--;
+                    ConsoleHelper.SetConsoleFont(schriftgröße);
+                }
                 else if (cki == ConsoleKey.Enter || cki == ConsoleKey.Spacebar)
                 {
                     if (!ausgewählt)
