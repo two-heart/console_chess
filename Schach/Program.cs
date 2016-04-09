@@ -100,8 +100,8 @@ namespace Schach
         */
         public static byte[,] Feld = new byte[8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
-            {0 ,0 ,10,11,12,10,9 ,8 },
-            {7 ,1 ,7 ,7 ,7 ,7 ,7 ,7},
+            {8 ,9 ,10,11,12,10,9 ,8 },
+            {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7},
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
@@ -1216,37 +1216,41 @@ namespace Schach
                     {
                         if (rochade == 1) //4,7 -> 7,7
                         {
-                            Feld[7, 4] = 2;
-                            Feld[7, 7] = 6;
+                            Feld[7, 7] = 0;
+                            Feld[7, 6] = 6;
+                            Feld[7, 5] = 2;
+                            Feld[7, 4] = 0;
                             Console.ForegroundColor = ConsoleColor.White;
-                            zeichnesymbol('T', 4, 7);
-                            zeichnesymbol('K', 7, 7);
+                            zeichneSpieler();
                             Console.ForegroundColor = ConsoleColor.Black;
                         }
                         else if (rochade == 2) //4,7 -> 0,7
                         {
-                            Feld[7, 4] = 2;
-                            Feld[7, 0] = 6;
+                            Feld[7, 0] = 0;
+                            Feld[7, 2] = 6;
+                            Feld[7, 3] = 2;
+                            Feld[7, 4] = 0;
                             Console.ForegroundColor = ConsoleColor.White;
-                            zeichnesymbol('T', 4, 7);
-                            zeichnesymbol('K', 0, 7);
+                            zeichneSpieler();
                             Console.ForegroundColor = ConsoleColor.Black;
                         }
                         else if (rochade == 3) //4,0 -> 7,0
                         {
-                            Feld[0, 4] = 8;
-                            Feld[0, 7] = 12;
+                            Feld[0, 7] = 0;
+                            Feld[0, 6] = 12;
+                            Feld[0, 5] = 8;
+                            Feld[0, 4] = 0;
                             Console.ForegroundColor = ConsoleColor.Black;
-                            zeichnesymbol('T', 4, 0);
-                            zeichnesymbol('K', 7, 0);
+                            zeichneSpieler();
                         }
                         else if (rochade == 4) //4,0 -> 0,0
                         {
-                            Feld[0, 4] = 8;
-                            Feld[0, 0] = 12;
+                            Feld[0, 0] = 0;
+                            Feld[0, 2] = 12;
+                            Feld[0, 3] = 8;
+                            Feld[0, 4] = 0;
                             Console.ForegroundColor = ConsoleColor.Black;
-                            zeichnesymbol('T', 4, 0);
-                            zeichnesymbol('K', 0, 0);
+                            zeichneSpieler();
                         }
                         rochadem[rochade - 1] = false;
                     }
