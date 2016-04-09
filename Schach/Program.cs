@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 /*
 TODO:
 KI Rochade
-KI Austausch
 Oberfläche
 */
 
@@ -109,7 +108,7 @@ namespace Schach
             {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2},
         };
-        public static byte[,,,] specialfelder = new byte[2, 2, 8, 8] //Das Feld mit den passenden Nummern (s.o.)
+        public static byte[,,,] specialfelder = new byte[4, 2, 8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
             {
                 {
@@ -153,6 +152,50 @@ namespace Schach
                     {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
                     {1 ,1 ,1 ,1 ,0 ,1 ,1 ,1 },
                     {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2 },
+                }
+            },
+            {
+                {
+                    {8 ,9 ,10,11,12,10,9 ,8 },
+                    {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,3 },
+                    {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
+                    {2 ,3 ,4 ,5 ,6 ,4 ,0 ,2 },
+                },
+                {
+                    {8 ,9 ,10,11,12,10,9 ,8 },
+                    {7 ,7 ,7 ,0 ,7 ,7 ,7 ,7 },
+                    {0 ,0 ,0 ,7 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,3 },
+                    {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
+                    {2 ,3 ,4 ,5 ,6 ,4 ,0 ,2 },
+                }
+            },
+            {
+                {
+                    {8 ,9 ,10,11,12,10,9 ,8 },
+                    {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,3 ,0 ,0 },
+                    {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
+                    {2 ,3 ,4 ,5 ,6 ,4 ,0 ,2 },
+                },
+                {
+                    {8 ,9 ,10,11,12,10,9 ,8 },
+                    {7 ,7 ,7 ,0 ,7 ,7 ,7 ,7 },
+                    {0 ,0 ,0 ,7 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 },
+                    {0 ,0 ,0 ,0 ,0 ,3 ,0 ,0 },
+                    {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 },
+                    {2 ,3 ,4 ,5 ,6 ,4 ,0 ,2 },
                 }
             }
         };
@@ -573,7 +616,7 @@ namespace Schach
                 if (!erlaubt) break;
                 bew = bewerte(temp, true); //Wenn alles erlaubt ist, wird bew damit definiert
                 if (checkWon(temp)) bew = 1000000000;
-                if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0)
+                if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0 || besterzugqwelcherzug[2,0] == 0)
                 {
                     besterzugqwelcherzug[0, 0] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
                     besterzugqwelcherzug[1, 0] = i; //Und i in q gespeichert
@@ -672,6 +715,8 @@ namespace Schach
             }
             int r = rnd.Next(0, pos);
             byte[,] next = new byte[8, 8];
+            bool catchederror = false;
+            errorcatcher:
             for (byte x = 0; x < 8; x++)
             {
                 for (byte y = 0; y < 8; y++)
@@ -688,7 +733,16 @@ namespace Schach
                     {
                         next[y, x] = drei[1, besterzugqwelcherzug[1, r], y, x];
                     }
-                    else Error();
+                    else if(!catchederror)
+                    {
+                        r = 0;
+                        catchederror = true;
+                        goto errorcatcher;
+                    }
+                    else
+                    {
+                        Error();
+                    }
                 }
             };
 
@@ -708,6 +762,23 @@ namespace Schach
                     if (Feld[y, x] != specialfelder[1, 0, y, x]) schäferzug2 = false;
                 }
             }
+            bool schäferzug3 = true;
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    if (Feld[y, x] != specialfelder[2, 0, y, x]) schäferzug3 = false;
+                }
+            }
+            bool schäferzug4 = true;
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    if (Feld[y, x] != specialfelder[3, 0, y, x]) schäferzug4 = false;
+                }
+            }
+
             int[,] differences = getdifferences(Feld, next);
             for (byte x = 0; x < 8; x++)
             {
@@ -721,6 +792,16 @@ namespace Schach
                     else if (schäferzug2)
                     {
                         next[y, x] = specialfelder[1, 1, y, x];
+                        differences = getdifferences(Feld, next);
+                    }
+                    else if (schäferzug3)
+                    {
+                        next[y, x] = specialfelder[2, 1, y, x];
+                        differences = getdifferences(Feld, next);
+                    }
+                    else if (schäferzug4)
+                    {
+                        next[y, x] = specialfelder[3, 1, y, x];
                         differences = getdifferences(Feld, next);
                     }
                     Feld[y, x] = next[y, x];
