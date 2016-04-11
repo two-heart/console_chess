@@ -213,6 +213,7 @@ namespace Schach
 #region voids
         public static void Main(string[] args)
         {
+            Console.CursorVisible = false;
             Figurenliste();
             var os = Environment.OSVersion;
             if (os.Version.Minor == 1) schriftgröße = 8;
@@ -222,7 +223,6 @@ namespace Schach
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
             Console.ForegroundColor = ConsoleColor.Black;
             Console.Clear();
-            Console.CursorVisible = true;
             zeichneFeld();
             zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
@@ -644,7 +644,7 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
-                bew = bewerte(temp, true); //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = bewerte(temp, 1); //Wenn alles erlaubt ist, wird bew damit definiert
                 if (checkWon(temp)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0 || besterzugqwelcherzug[2,0] == 0)
                 {
@@ -685,7 +685,7 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
-                bew = (bewerte(temp, true) + bewerte(tempa, true)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = (bewerte(temp, 2) + bewerte(tempa, 2)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
                 if (checkWon(tempa)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0)
                 {
@@ -726,7 +726,7 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
-                bew = (bewerte(temp, true) + bewerte(tempa, true)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = (bewerte(temp, 3) + bewerte(tempa, 3)) / 2; //Wenn alles erlaubt ist, wird bew damit definiert
                 if (checkWon(tempa)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0)
                 {
@@ -1600,7 +1600,7 @@ namespace Schach
         }
 
 
-        public static int bewerte(byte[,] dasFeld, bool ersterzug)
+        public static int bewerte(byte[,] dasFeld, byte welcherzug)
         {
             int Bewertung = 0;
             if (Feld[3, 6] == 3 && Feld[2, 5] == 7 && Feld[1, 4] == 12 && dasFeld[3, 5] == 7) Bewertung += 10000;
@@ -1612,9 +1612,15 @@ namespace Schach
             Bewertung -= Gegnerpossis(dasFeld) * 200; //Was für Möglichkeiten hat der Gegner dann?
             Bewertung += Deckung(dasFeld) / 20;
             Bewertung -= kingposb[1];
-            if (ersterzug)
-                if (isschachmatt(false, dasFeld))
+            if (isschachmatt(false, dasFeld))
+            {
+                if (welcherzug == 1)
                     Bewertung += 100000;
+                else if (welcherzug == 2)
+                    Bewertung += 1000;
+                else
+                    Bewertung += 100;
+            }
             return Bewertung;
         }
 
