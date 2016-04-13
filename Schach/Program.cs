@@ -884,7 +884,7 @@ namespace Schach
             {
                 for (byte y = 0; y < 8; y++)
                 {
-                    if (Feld1[y, x] != Feld2[y, x] && pos <= differences.GetLength(0))
+                    if (Feld1[y, x] != Feld2[y, x] && pos < differences.GetLength(0))
                     {
                         differences[pos, 0] = x;
                         differences[pos, 1] = y;
