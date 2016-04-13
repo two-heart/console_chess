@@ -210,7 +210,7 @@ namespace Schach
         public static bool spielende = false;
         #endregion
 
-#region voids
+        #region voids
         public static void Main(string[] args)
         {
             Console.CursorVisible = false;
@@ -223,6 +223,7 @@ namespace Schach
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
             Console.ForegroundColor = ConsoleColor.Black;
             Console.Clear();
+            zeichneHowto();
             zeichneFeld();
             zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
@@ -277,6 +278,31 @@ namespace Schach
                 default:
                     Console.Write("                           ");
                     break;
+            }
+        }
+
+        public static void zeichneHowto()
+        {
+            Console.SetCursorPosition(verschiebung[0] + 10, 1);
+            int cw = Console.BufferWidth;
+            string text = "CONSOLE CHESS: this game is basicly quite simple to play. Just select the figure you want to move with the arrow keys and enter. Once you selectet your figure, navigate to the destination field and press enter agin. Have fun!";
+            string[] words;
+            words = text.Split(' ');
+            int l = 0;
+            int lines = 1;
+            for (int i = 0; i < words.Length; i++)
+            {
+                l = l + words[i].Length;
+                if (l < cw - verschiebung[0] - 12)
+                {
+                    Console.Write(words[i] + " ");
+                }
+                else
+                {
+                    lines++;
+                     Console.SetCursorPosition(verschiebung[0] + 10, lines);
+                    l = 0;
+                }
             }
         }
 
@@ -441,12 +467,12 @@ namespace Schach
                 else if (cki == ConsoleKey.LeftArrow && posx > 0) posx--;
                 else if (cki == ConsoleKey.UpArrow && posy > 0) posy--;
                 else if (cki == ConsoleKey.DownArrow && posy < 7) posy++;
-                else if(cki == ConsoleKey.W && schriftgröße < 10)
+                else if (cki == ConsoleKey.W && schriftgröße < 10)
                 {
                     schriftgröße++;
                     ConsoleHelper.SetConsoleFont(schriftgröße);
                 }
-                else if(cki == ConsoleKey.S && schriftgröße > 0)
+                else if (cki == ConsoleKey.S && schriftgröße > 0)
                 {
                     schriftgröße--;
                     ConsoleHelper.SetConsoleFont(schriftgröße);
@@ -509,30 +535,31 @@ namespace Schach
             }
             if (verarbeite(input)) z = zug();
             else zeichneSpieler();
+            while (Console.KeyAvailable) Console.ReadKey(true);
         }
 
         public static void getnewcursorposition(byte x, byte y, out byte x2, out byte y2)
         {
             if (Feld[y, x] == 1 && y > 0) y--;
-            else if (Feld[y, x] == 2 || Feld[y,x] == 5 || Feld[y,x] == 6)
+            else if (Feld[y, x] == 2 || Feld[y, x] == 5 || Feld[y, x] == 6)
             {
                 if (x > 0) x--;
                 else if (y > 0) y--;
                 else x++;
             }
-            else if(Feld[y,x] == 3)
+            else if (Feld[y, x] == 3)
             {
                 if (x > 0) x--;
                 else x++;
                 if (y - 1 > 0) y -= 2;
                 else y += 2;
             }
-            else if(Feld[y,x] == 4)
+            else if (Feld[y, x] == 4)
             {
-                if(y > 0) y--;
+                if (y > 0) y--;
                 else y++;
                 if (x > 0) x--;
-                else x++;            
+                else x++;
             }
             x2 = x;
             y2 = y;
@@ -646,7 +673,7 @@ namespace Schach
                 if (!erlaubt) break;
                 bew = bewerte(temp, 1); //Wenn alles erlaubt ist, wird bew damit definiert
                 if (checkWon(temp)) bew = 1000000000;
-                if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0 || besterzugqwelcherzug[2,0] == 0)
+                if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[0, 0] == 0 || besterzugqwelcherzug[2, 0] == 0)
                 {
                     besterzugqwelcherzug[0, 0] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
                     besterzugqwelcherzug[1, 0] = i; //Und i in q gespeichert
@@ -746,7 +773,7 @@ namespace Schach
             int r = rnd.Next(0, pos);
             byte[,] next = new byte[8, 8];
             bool catchederror = false;
-            errorcatcher:
+        errorcatcher:
             for (byte x = 0; x < 8; x++)
             {
                 for (byte y = 0; y < 8; y++)
@@ -763,7 +790,7 @@ namespace Schach
                     {
                         next[y, x] = drei[1, besterzugqwelcherzug[1, r], y, x];
                     }
-                    else if(!catchederror)
+                    else if (!catchederror)
                     {
                         r = 0;
                         catchederror = true;
@@ -1401,7 +1428,7 @@ namespace Schach
         {
             if (pre == 1 && yn == 0) //Bauer erreicht das Ende des Felds
             {
-                a:
+            a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13); //Der Spieler wählt eine neue Figur
                 Console.Write("Neue Figur: ");
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
@@ -1423,7 +1450,7 @@ namespace Schach
                         break;
                     }
                 }
-                king:
+            king:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
                 Console.Write("                                ");
                 if (!ersetzt)
@@ -1434,7 +1461,7 @@ namespace Schach
             }
             if (pre == 7 && yn == 7)//Das gleiche nochmal für schwarz
             {
-                a:
+            a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("Neue Figur: ");
                 bool ersetzt = false;
@@ -1455,7 +1482,7 @@ namespace Schach
                 }
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
                 Console.Write("                                ");
-                king:
+            king:
                 if (!ersetzt)
                 {
                     Error();
@@ -1628,7 +1655,7 @@ namespace Schach
         {
             int Wert = 0;
             byte pseudo = 0;
-            byte[,] alt = new byte[8,8];
+            byte[,] alt = new byte[8, 8];
             for (int i = 0; i < 8; i++)
             {
                 for (int u = 0; u < 8; u++)
@@ -1643,16 +1670,16 @@ namespace Schach
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    if(Feld[y,x] > 6)
+                    if (Feld[y, x] > 6)
                     {
                         for (int x2 = 0; x2 < 8; x2++)
                         {
                             for (int y2 = 0; y2 < 8; y2++)
                             {
-                                if(Feld[y2,x2] > 7 && Feld[y2, x2] < 12)
+                                if (Feld[y2, x2] > 7 && Feld[y2, x2] < 12)
                                 {
                                     pseudo = Convert.ToByte(Feld[y, x] - 6);
-                                    if(allowed(pseudo, x, x2, y, y2, true) && nichtdazwischen(pseudo, x, x2, y, y2))
+                                    if (allowed(pseudo, x, x2, y, y2, true) && nichtdazwischen(pseudo, x, x2, y, y2))
                                     {
                                         Wert += Feld[y2, x2];
                                         if (ingefahr(x2, y2))
@@ -1676,7 +1703,7 @@ namespace Schach
             {
                 for (int y1 = 0; y1 < 8; y1++)
                 {
-                    if(allowed(Feld[y1, x1], x1, x2, y1, y2, true) && nichtdazwischen(Feld[y1, x1], x1, x2, y1, y2))
+                    if (allowed(Feld[y1, x1], x1, x2, y1, y2, true) && nichtdazwischen(Feld[y1, x1], x1, x2, y1, y2))
                     {
                         ingefahr = true;
                         return ingefahr;
@@ -1859,4 +1886,3 @@ namespace Schach
         #endregion
     }
 }
-
