@@ -1655,6 +1655,8 @@ namespace Schach
                                     if(allowed(pseudo, x, x2, y, y2, true) && nichtdazwischen(pseudo, x, x2, y, y2))
                                     {
                                         Wert += Feld[y2, x2];
+                                        if (ingefahr(x2, y2))
+                                            Wert += Feld[y2, x2] * 3;
                                     }
                                 }
                             }
@@ -1665,6 +1667,23 @@ namespace Schach
             Feld = alt;
             z = true;
             return Wert;
+        }
+
+        public static bool ingefahr(int x2, int y2)
+        {
+            bool ingefahr = false;
+            for (int x1 = 0; x1 < 8; x1++)
+            {
+                for (int y1 = 0; y1 < 8; y1++)
+                {
+                    if(allowed(Feld[y1, x1], x1, x2, y1, y2, true) && nichtdazwischen(Feld[y1, x1], x1, x2, y1, y2))
+                    {
+                        ingefahr = true;
+                        return ingefahr;
+                    }
+                }
+            }
+            return ingefahr;
         }
 
         public static int Gegnerpossis(byte[,] dasFeld)
