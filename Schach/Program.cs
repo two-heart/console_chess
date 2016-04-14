@@ -100,9 +100,9 @@ namespace Schach
         */
         public static byte[,] Feld = new byte[8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
-            {8 ,9 ,10,11,12,10,9 ,8},
+            {8 ,9 ,10,11,12,10,9 ,8 },
             {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7},
-            {0 ,0 ,0 ,7 ,0 ,0 ,0 ,0},
+            {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
             {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
@@ -309,6 +309,7 @@ namespace Schach
             if (isschachmatt(true, Feld)) possi = 3;
             if (isschachmatt(false, Feld)) possi = 4;
             Console.SetCursorPosition(verschiebung[0], verschiebung[1] + 20);
+            Console.ForegroundColor = ConsoleColor.Red;
             switch (possi)
             {
                 case 1:
@@ -329,6 +330,7 @@ namespace Schach
                     Console.Write("                           ");
                     break;
             }
+            Console.ForegroundColor = ConsoleColor.Black;
         }
 
         public static void zeichneHowto()
@@ -1660,13 +1662,14 @@ namespace Schach
         {
             zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 14);
+            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
             Console.Write("Error");
             Console.ReadKey();
             Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 11);
             Console.Write("          ");
-            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 14);
+            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
             Console.Write("                        ");
+            checkschachgedöns();
         }
         public static void zeichnesymbol(char Symbol, int x, int y)
         {
