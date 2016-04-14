@@ -1660,12 +1660,12 @@ namespace Schach
         {
             zeichneSpieler();
             Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
+            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 14);
             Console.Write("Error");
             Console.ReadKey();
             Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 11);
             Console.Write("          ");
-            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
+            Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 14);
             Console.Write("                        ");
         }
         public static void zeichnesymbol(char Symbol, int x, int y)
