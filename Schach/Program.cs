@@ -7,8 +7,6 @@ using System.IO;
 /*
 TODO:
 KI Rochade
-KI Austausch
-Oberfläche
 */
 
 namespace Schach
@@ -308,7 +306,7 @@ namespace Schach
             if (isschach(false, Feld)) possi = 2;
             if (isschachmatt(true, Feld)) possi = 3;
             if (isschachmatt(false, Feld)) possi = 4;
-            Console.SetCursorPosition(verschiebung[0], verschiebung[1] + 20);
+            Console.SetCursorPosition(verschiebung[0], verschiebung[1] + 21);
             Console.ForegroundColor = ConsoleColor.Red;
             switch (possi)
             {
@@ -337,7 +335,7 @@ namespace Schach
         {
             Console.SetCursorPosition(verschiebung[0], 16);
             int cw = Console.BufferWidth;
-            string text = "CONSOLE CHESS: this game is basically quite simple to play. Just select the figure you want to move with the arrow keys and enter/space. Once you selected your figure, navigate to the destination field and press enter/space again. You can change the Font with W/S Have fun! by Timo/Liam";
+            string text = "CONSOLE CHESS: this game is basically quite simple to play. Just select the figure you want to move with the arrow keys and enter/space. Once you selected your figure, navigate to the destination field and press enter/space again. You can change the Font with W/S and cancel your Input with Esc/entf. Have fun! by Timo/Liam";
             string[] words;
             words = text.Split(' ');
             int l = 0;
