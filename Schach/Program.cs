@@ -7,6 +7,8 @@ using System.IO;
 /*
 TODO:
 KI Rochade
+KI Austausch
+Oberfläche
 */
 
 namespace Schach
@@ -390,7 +392,7 @@ namespace Schach
                             x2 = kingposw[0];
                             y2 = kingposw[1];
                         }
-                        if ((dasFeld[y2, x2] == 6 && !schwarz || dasFeld[y2, x2] == 12 && schwarz) && allowed(dasFeld[y, x], x, x2, y, y2, true) && nichtdazwischen(dasFeld[y, x], x, x2, y, y2))
+                        if ((dasFeld[y2, x2] == 6 && !schwarz || dasFeld[y2, x2] == 12 && schwarz) && allowed1(dasFeld[y, x], x, x2, y, y2, true) && nichtdazwischen(dasFeld[y, x], x, x2, y, y2))
                         {
                             isschach = true;
                             Feld = alt;
@@ -438,7 +440,7 @@ namespace Schach
                         {
                             for (byte y2 = 0; y2 < 8; y2++)
                             {
-                                if ((allowed(dasFeld[y, x], x, x2, y, y2, false) || allowed(dasFeld[y, x], x, x2, y, y2, true) && nichtdazwischen(dasFeld[y, x], x, x2, y, y2)))
+                                if ((allowed1(dasFeld[y, x], x, x2, y, y2, false) || allowed1(dasFeld[y, x], x, x2, y, y2, true) && nichtdazwischen(dasFeld[y, x], x, x2, y, y2)))
                                 {
                                     int[] altkingposb = new int[2], altkingposw = new int[2];
                                     for (byte i = 0; i < 2; i++)
@@ -603,29 +605,10 @@ namespace Schach
                     for (int k = 0; k < 2; k++)
                     {
                         bool schlagen = k == 0;
-                        byte[,] temp = new byte[8, 8];
-                        for (int l = 0; l < 8; l++)
-                        {
-                            for (int u = 0; u < 8; u++)
-                            {
-                                temp[u, l] = Feld[u, l];
-                            }
-                        }
-                        temp[posy, posx] = 0;
-                        temp[j, i] = Feld[posy, posx];
-                        int[] altkingpos = new int[2];
-                        altkingpos[0] = kingposw[0];
-                        altkingpos[1] = kingposw[1];
-                        if (Feld[posy, posx] == 6)
-                        {
-                            kingposw[0] = i;
-                            kingposw[1] = j;
-                        }
-                        if (allowed(Feld[posy, posx], posx, i, posy, j, schlagen) && nichtdazwischen(Feld[posy, posx], posx, i, posy, j) && !isschach(false, temp))
+                        if (allowed(Feld[posy, posx], posx, i, posy, j, schlagen))
                         {
                             feldmöglich[j, i] = true;
                         }
-                        kingposw = altkingpos;
                     }
                 }
             }
@@ -1226,7 +1209,7 @@ namespace Schach
             {
                 for (byte u = 0; u < 8; u++)
                 {
-                    if ((allowed(pre, x, i, y, u, false) || allowed(pre, x, i, y, u, true)) && nichtdazwischen(pre, x, i, y, u)) //Ist diese Möglichkeit erlaubt
+                    if ((allowed(pre, x, i, y, u, false) || allowed(pre, x, i, y, u, true))) //Ist diese Möglichkeit erlaubt
                     {
                         for (byte q = 0; q < 8; q++)
                         {
@@ -1322,6 +1305,55 @@ namespace Schach
 
 
         public static bool allowed(int pre, int xv, int xn, int yv, int yn, bool schlagen) //Überprüfung ob Zug erlaubt ist
+        {
+            if (!allowed1(pre, xv, xn, yv, yn, schlagen) || !nichtdazwischen(pre, xv, xn, yv, yn)) return false;
+            else
+            {
+                byte[,] temp = new byte[8, 8];
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int u = 0; u < 8; u++)
+                    {
+                        temp[u, i] = Feld[u, i];
+                    }
+                }
+                temp[yv, xv] = 0;
+                temp[yn, xn] = Feld[yv, xv];
+                int[] altkingpos = new int[2];
+                if (!z)
+                {
+                    altkingpos[0] = kingposw[0];
+                    altkingpos[1] = kingposw[1];
+                    if (Feld[yv, xv] == 6)
+                    {
+                        kingposw[0] = xn;
+                        kingposw[1] = yn;
+                    }
+                }
+                else
+                {
+                    altkingpos[0] = kingposb[0];
+                    altkingpos[1] = kingposb[1];
+                    if (Feld[yv, xv] == 12)
+                    {
+                        kingposb[0] = xn;
+                        kingposb[1] = yn;
+                    }
+                }
+
+                if (isschach(z, temp))
+                {
+                    if (z) kingposb = altkingpos;
+                    else kingposw = altkingpos;
+                    return false;
+                }
+                if (z) kingposb = altkingpos;
+                else kingposw = altkingpos;
+            }
+            return true;
+        }
+
+        public static bool allowed1(int pre, int xv, int xn, int yv, int yn, bool schlagen)
         {
             if (schlagen && Feld[yn, xn] == 0 || !schlagen && Feld[yn, xn] != 0) return false;
             if (!z && Feld[yn, xn] < 7 && Feld[yn, xn] > 0 || z && Feld[yn, xn] > 6) return false;
@@ -1425,34 +1457,7 @@ namespace Schach
                     byte previous; //Das ist die Figur, die bewegt wird
                     previous = Feld[peins[1], peins[0]];
 
-                    bool schacherlaubt = true;
-                    int xv, xn, yv, yn;
-                    xv = peins[0]; xn = pzwei[0]; yv = peins[1]; yn = pzwei[1];
-                    byte[,] temp = new byte[8, 8];
-                    for (int i = 0; i < 8; i++)
-                    {
-                        for (int u = 0; u < 8; u++)
-                        {
-                            temp[u, i] = Feld[u, i];
-                        }
-                    }
-                    temp[yv, xv] = 0;
-                    temp[yn, xn] = Feld[yv, xv];
-                    int[] altkingpos = new int[2];
-                    altkingpos[0] = kingposw[0];
-                    altkingpos[1] = kingposw[1];
-                    if (Feld[yv, xv] == 6)
-                    {
-                        kingposw[0] = xn;
-                        kingposw[1] = yn;
-                    }
-
-                    if (isschach(false, temp))
-                    {
-                        Error();
-                        schacherlaubt = false;
-                    }
-                    if (schacherlaubt && (Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen) /*Ist der Zug (auf einem leeren Feld) erlaubt*/ && nichtdazwischen(previous, peins[0], pzwei[0], peins[1], pzwei[1])/*Ist keine Figur dazwischen*/)
+                    if ((Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen))
                     {
                         rochadeaktualisieren(previous, peins[0]);
                         Feld[peins[1], peins[0]] = 0; //Die vorige Position wird gelöscht
@@ -1463,12 +1468,10 @@ namespace Schach
                         zeichnesymbol(symbols[previous], pzwei[0], pzwei[1]);
                         Console.ForegroundColor = ConsoleColor.Black;
                         ereignisse(previous, peins[0], pzwei[0], peins[1], pzwei[1]);
-                        kingposw = altkingpos;
                     }
                     else
                     {
                         Error();
-                        kingposw = altkingpos;
                         return false;
                     }
                 }
@@ -1832,7 +1835,7 @@ namespace Schach
                         if (Feld[y2, x2] > 7 && Feld[y2, x2] < 12)
                         {
                             pseudo = Convert.ToByte(Feld[y, x] - 6);
-                            if (allowed(pseudo, x, x2, y, y2, true) && nichtdazwischen(pseudo, x, x2, y, y2))
+                            if (allowed(pseudo, x, x2, y, y2, true))
                             {
                                 gedeckt = true;
                                 Feld = alt;
@@ -1855,7 +1858,7 @@ namespace Schach
             {
                 for (int y1 = 0; y1 < 8; y1++)
                 {
-                    if (allowed(Feld[y1, x1], x1, x2, y1, y2, true) && nichtdazwischen(Feld[y1, x1], x1, x2, y1, y2))
+                    if (allowed(Feld[y1, x1], x1, x2, y1, y2, true))
                     {
                         ingefahr = true;
                         return ingefahr;
@@ -1888,7 +1891,7 @@ namespace Schach
                             for (byte y2 = 0; y2 < 8; y2++)
                             {
                                 z = false;
-                                if (allowed(Feld[y, x], x, x2, y, y2, true) && nichtdazwischen(Feld[y, x], x, x2, y, y2))
+                                if (allowed(Feld[y, x], x, x2, y, y2, true))
                                 {
                                     int add = 0;
                                     if (dasFeld[y2, x2] == 7) add++;
@@ -1901,7 +1904,7 @@ namespace Schach
                                     Wert += add;
                                     z = false;
                                 }
-                                if ((allowed(Feld[y, x], x, x2, y, y2, false) || allowed(Feld[y, x], x, x2, y, y2, true)) && nichtdazwischen(Feld[y, x], x, x2, y, y2))
+                                if ((allowed(Feld[y, x], x, x2, y, y2, false) || allowed(Feld[y, x], x, x2, y, y2, true)))
                                 {
                                     byte[,] temp = new byte[8, 8];
                                     for (int x3 = 0; x3 < 8; x3++)
