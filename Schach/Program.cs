@@ -206,7 +206,7 @@ namespace Schach
         public static bool z;
         public static List<int> Figuren = new List<int>();
         public static bool spielende = false;
-        public static int sizex = Console.LargestWindowWidth, sizey = Console.LargestWindowHeight - 11;
+        public static int sizex = Console.LargestWindowWidth, sizey = Console.LargestWindowHeight;
         public static int[] Werte = new int[6] { 1, 5, 3, 3, 9, 10000 };
         #endregion
 
@@ -234,6 +234,7 @@ namespace Schach
             z = zug();
             kingposw = getKingpos(Feld, false);
             kingposb = getKingpos(Feld, true);
+            byte[,] a = Feld;
             do
             {
                 debugfiles();
@@ -293,9 +294,10 @@ namespace Schach
             {
                 for (int u = 0; u < dasFeld.GetLength(1); u++)
                 {
-                    derstring[i] += symbols[dasFeld[i, u]];
-                    if (dasFeld[i, u] < 7) derstring[i] += "   ";
-                    else derstring[i] += "2 ";
+                    if (dasFeld[i, u] != 0) derstring[i] += symbols[dasFeld[i, u]];
+                    else derstring[i] += "█▄";
+                    if (dasFeld[i, u] < 7 && dasFeld[i,u] > 0) derstring[i] += "1";
+                    else if(dasFeld[i,u] > 0) derstring[i] += "2";
                 }
             }
             return derstring;
@@ -765,6 +767,7 @@ namespace Schach
                 }
                 if (!erlaubt) break;
                 bew = bewerte(temp, 1); //Wenn alles erlaubt ist, wird bew damit definiert
+                z = true;
                 if (checkWon(temp)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 && bew > 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[2, 0] == 0 || besterzugqwelcherzug[2,0] == 0)
                 {
@@ -805,7 +808,15 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
+                List<byte> liste2 = tolist(tempa); //Und zur Liste konvertiert
+                bool erlaubt2 = false;
+                for (byte t = 1; t < liste2.LastIndexOf(liste.Last()); t++)
+                {
+                    if (liste2.Contains(t)) erlaubt2 = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
+                }
+                if (!erlaubt2) break;
                 bew = (bewerte(temp, 2) + bewerte(tempa, 1)) / 2 - 100; //Wenn alles erlaubt ist, wird bew damit definiert
+                z = true;
                 if (checkWon(tempa)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 && bew > 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[2, 0] == 0)
                 {
@@ -846,7 +857,15 @@ namespace Schach
                     if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt) break;
+                List<byte> liste2 = tolist(tempa); //Und zur Liste konvertiert
+                bool erlaubt2 = false;
+                for (byte t = 1; t < liste2.LastIndexOf(liste.Last()); t++)
+                {
+                    if (liste2.Contains(t)) erlaubt2 = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
+                }
+                if (!erlaubt2) break;
                 bew = (bewerte(temp, 3) + bewerte(tempa, 1)) / 2 - 1000; //Wenn alles erlaubt ist, wird bew damit definiert
+                z = true;
                 if (checkWon(tempa)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 && bew > 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[2, 0] == 0)
                 {
@@ -1537,7 +1556,6 @@ namespace Schach
         }
         public static void gewonnen()
         {
-            Console.ReadKey();
             Console.Clear();
             bool schwarz = false;
             for (byte i = 0; i < 8; i++)
