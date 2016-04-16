@@ -2018,7 +2018,8 @@ namespace Schach
                     }
                 }
             }
-            //if (welcherzug != 1 && Score < Werte[6]) Score += Werte[6] * 2 / 3;
+            if (welcherzug != 1 && Score < Werte[6]) Score += Werte[6] * 2 / 3;
+            Score += ((welcherzug - 1) / 2) * Score;
             return Score;
         }
 
