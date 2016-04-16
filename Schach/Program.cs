@@ -1790,7 +1790,7 @@ namespace Schach
             Bewertung -= Bauern(dasFeld, false) / 40; //Wie weit sind die Bauern?
             try
             {
-                Bewertung -= Convert.ToInt32(Convert.ToUInt32(Gegnerpossis(dasFeld, welcherzug) * 20)); //Was für Möglichkeiten hat der Gegner dann?
+                Bewertung -= Convert.ToInt32(Convert.ToUInt32(Gegnerpossis(dasFeld, welcherzug) * 30)); //Was für Möglichkeiten hat der Gegner dann?
             }
             catch { long a = Gegnerpossis(dasFeld, welcherzug) * 20; };
             Bewertung += Deckung(dasFeld) / 40;
@@ -2018,7 +2018,7 @@ namespace Schach
                     }
                 }
             }
-            if (welcherzug != 1 && Score < Werte[6]) Score += Werte[6] * 2 / 3;
+            if (welcherzug != 1 && Score < Werte[6]) Score += Werte[6] * 3 / 4;
             Score += ((welcherzug - 1) / 2) * Score;
             return Score;
         }
