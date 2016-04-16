@@ -815,7 +815,7 @@ namespace Schach
                     if (liste2.Contains(t)) erlaubt2 = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt2) break;
-                bew = (bewerte(temp, 2) + bewerte(tempa, 1)) / 2 - 100; //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = (bewerte(temp, 2) + bewerte(tempa, 1)) / 2 - 10; //Wenn alles erlaubt ist, wird bew damit definiert
                 z = true;
                 if (checkWon(tempa)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 && bew > 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[2, 0] == 0)
@@ -864,7 +864,7 @@ namespace Schach
                     if (liste2.Contains(t)) erlaubt2 = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
                 }
                 if (!erlaubt2) break;
-                bew = (bewerte(temp, 3) + bewerte(tempa, 1)) / 2 - 1000; //Wenn alles erlaubt ist, wird bew damit definiert
+                bew = (bewerte(temp, 3) + bewerte(tempa, 1)) / 2 - 100; //Wenn alles erlaubt ist, wird bew damit definiert
                 z = true;
                 if (checkWon(tempa)) bew = 1000000000;
                 if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 && bew > 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[2, 0] == 0)
@@ -2018,7 +2018,7 @@ namespace Schach
                     }
                 }
             }
-            if (welcherzug != 1 && Score < Werte[6]) Score += Werte[6] * 3 / 4;
+            if (welcherzug != 1 && Score < Werte[6]) Score += Werte[6] -5;
             Score += ((welcherzug - 1) / 2) * Score;
             return Score;
         }
