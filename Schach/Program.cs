@@ -207,21 +207,21 @@ namespace Schach
         public static List<int> Figuren = new List<int>();
         public static bool spielende = false;
         public static int sizex = Console.LargestWindowWidth, sizey = Console.LargestWindowHeight;
-        public static int[] Werte = new int[6] { 1, 5, 3, 3, 9, 10000 };
+        public static int[] Werte = new int[7] { 0, 1, 5, 3, 3, 9, 10000 };
         #endregion
 
         #region voids
         public static void Main(string[] args)
         {
+            var os = Environment.OSVersion;
+            if (os.Version.Minor == 1) schriftgröße = 8;
+            else schriftgröße = 10;
+            ConsoleHelper.SetConsoleFont(schriftgröße);
             if (File.Exists("debug.txt")) File.Delete("debug.txt");
             Console.SetWindowSize(sizex, sizey);
             Console.SetBufferSize(sizex, sizey);
             Console.CursorVisible = false;
             Figurenliste();
-            var os = Environment.OSVersion;
-            if (os.Version.Minor == 1) schriftgröße = 8;
-            else schriftgröße = 10;
-            ConsoleHelper.SetConsoleFont(schriftgröße);
             Console.CursorSize = 1;
             Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
             Console.ForegroundColor = ConsoleColor.Black;
@@ -296,8 +296,8 @@ namespace Schach
                 {
                     if (dasFeld[i, u] != 0) derstring[i] += symbols[dasFeld[i, u]];
                     else derstring[i] += "█▄";
-                    if (dasFeld[i, u] < 7 && dasFeld[i,u] > 0) derstring[i] += "1";
-                    else if(dasFeld[i,u] > 0) derstring[i] += "2";
+                    if (dasFeld[i, u] < 7 && dasFeld[i, u] > 0) derstring[i] += "1";
+                    else if (dasFeld[i, u] > 0) derstring[i] += "2";
                 }
             }
             return derstring;
@@ -541,8 +541,8 @@ namespace Schach
                         startx++;
                         starty++;
                         ausgewählt = true;
-                        
-                        zeichnepossis(Convert.ToByte(startx-1), Convert.ToByte(starty- 1));
+
+                        zeichnepossis(Convert.ToByte(startx - 1), Convert.ToByte(starty - 1));
                         Console.BackgroundColor = ConsoleColor.Red;
                         Console.SetCursorPosition(verschiebung[0] + posx, verschiebung[1] + posy);
                         if (Feld[posy, posx] > 6) Console.ForegroundColor = ConsoleColor.Black;
@@ -742,11 +742,11 @@ namespace Schach
             Console.Write("Thinking...");
             byte[,] temp = new byte[8, 8]; //Das zu untersuchende Feld
             byte[,] tempa = new byte[8, 8]; //Der erste Zug (Wird auch untersucht)
-            int bew = 0; //Der Zug
+            long bew = 0; //Der Zug
             byte[,,] eins;
             byte[,,,] zwei, drei;
             possibilities(out eins, out zwei, out drei); //Die Möglichkeiten(Nach dem dritten Zug)
-            int[,] besterzugqwelcherzug = new int[3, 10]; //Der beste Zug
+            long[,] besterzugqwelcherzug = new long[3, 10]; //Der beste Zug
             int pos = 1;
 
 
@@ -769,7 +769,7 @@ namespace Schach
                 bew = bewerte(temp, 1); //Wenn alles erlaubt ist, wird bew damit definiert
                 z = true;
                 if (checkWon(temp)) bew = 1000000000;
-                if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 && bew > 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[2, 0] == 0 || besterzugqwelcherzug[2,0] == 0)
+                if (bew > besterzugqwelcherzug[0, 0] || besterzugqwelcherzug[2, 0] <= 0 && bew > 0 || besterzugqwelcherzug[2, 0] > 3 || besterzugqwelcherzug[2, 0] == 0 || besterzugqwelcherzug[2, 0] == 0)
                 {
                     besterzugqwelcherzug[0, 0] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
                     besterzugqwelcherzug[1, 0] = i; //Und i in q gespeichert
@@ -988,7 +988,7 @@ namespace Schach
                 }
             }
             ;
-            int b = bewerte(Feld, 1);
+            long b = bewerte(Feld, 1);
             zeichneSpieler(); //und in gezeichnet
             Console.BackgroundColor = ConsoleColor.Green;
             for (int i = 0; i < differences.GetLength(0) && differences[i, 0] != -1; i++)
@@ -1778,20 +1778,22 @@ namespace Schach
         }
 
 
-        public static int bewerte(byte[,] dasFeld, byte welcherzug)
+        public static long bewerte(byte[,] dasFeld, byte welcherzug)
         {
-            int Bewertung = 0;
+            long Bewertung = 0;
             if (Feld[3, 7] == 5 && Feld[1, 6] == 7 && dasFeld[2, 6] == 7) Bewertung += 10000;
             if (checkWon(dasFeld)) Bewertung += 1000 / Convert.ToInt32(Math.Pow(welcherzug, welcherzug));//gewonnen
             //Bewertung += myScore(dasFeld); //Der Score (Bauern -> 1,...)
-            Bewertung -= enScore(dasFeld) * 3; //Auch für den Gegner
+            Bewertung -= enScore(dasFeld, welcherzug) * 10; //Auch für den Gegner
             //Bewertung += Safety(dasFeld); //Wie sicher ist der König?
-            Bewertung += Bauern(dasFeld, true) / 20; //Wie weit sind die Bauern?
-            Bewertung -= Bauern(dasFeld, false) / 20; //Wie weit sind die Bauern?
-            try { Bewertung -= Convert.ToInt32(Gegnerpossis(dasFeld, welcherzug) * 20); //Was für Möglichkeiten hat der Gegner dann?
+            Bewertung += Bauern(dasFeld, true) / 40; //Wie weit sind die Bauern?
+            Bewertung -= Bauern(dasFeld, false) / 40; //Wie weit sind die Bauern?
+            try
+            {
+                Bewertung -= Convert.ToInt32(Convert.ToUInt32(Gegnerpossis(dasFeld, welcherzug) * 20)); //Was für Möglichkeiten hat der Gegner dann?
             }
             catch { long a = Gegnerpossis(dasFeld, welcherzug) * 20; };
-            Bewertung += Deckung(dasFeld) / 20;
+            Bewertung += Deckung(dasFeld) / 40;
             Bewertung -= kingposb[1];
             if (getKingpos(dasFeld, true)[0] != kingposb[0] || getKingpos(dasFeld, true)[1] != kingposb[1])
                 Bewertung -= 1000;
@@ -1818,9 +1820,9 @@ namespace Schach
                     {
                         if (playergedeckt(dasFeld, x2, y2))
                         {
-                            Wert += Feld[y2, x2];
+                            Wert += dasFeld[y2, x2];
                             if (ingefahr(x2, y2))
-                                Wert += Feld[y2, x2] * 3;
+                                Wert += dasFeld[y2, x2] * 3;
                         }
                     }
                 }
@@ -1850,7 +1852,7 @@ namespace Schach
                     if (Feld[y, x] > 6)
                     {
 
-                        if (Feld[y2, x2] > 7 && Feld[y2, x2] < 12)
+                        if (Feld[y2, x2] < 12)
                         {
                             pseudo = Convert.ToByte(Feld[y, x] - 6);
                             if (allowed(pseudo, x, x2, y, y2, true))
@@ -1886,7 +1888,7 @@ namespace Schach
             return ingefahr;
         }
 
-        public static int Gegnerpossis(byte[,] dasFeld, byte welcherzug)
+        public static long Gegnerpossis(byte[,] dasFeld, byte welcherzug)
         {
             byte[,] now = new byte[8, 8];
             for (int i = 0; i < Feld.GetLength(0); i++)
@@ -1897,7 +1899,7 @@ namespace Schach
                 }
             }
             Feld = dasFeld;
-            int Wert = 0;
+            long Wert = 0;
             for (byte x = 0; x < 8; x++)
             {
                 for (byte y = 0; y < 8; y++)
@@ -1911,14 +1913,17 @@ namespace Schach
                                 z = false;
                                 if (allowed(Feld[y, x], x, x2, y, y2, true))
                                 {
-                                    int add = 0;
-                                    if (dasFeld[y2, x2] == 7) add++;
-                                    if (dasFeld[y2, x2] == 8 || dasFeld[y2, x2] == 10) add += 4;
-                                    if (dasFeld[y2, x2] == 9) add += 7;
-                                    if (dasFeld[y2, x2] == 11) add += 15;
+                                    long add = 0;
+                                    if (dasFeld[y2, x2] > 6)
+                                        add += Werte[dasFeld[y2, x2] - 6];
                                     if (dasFeld[y2, x2] == 12 && welcherzug == 1) add += 1000000;
-                                    if (playergedeckt(dasFeld, x2, y2))
-                                        add /= Feld[y,x];
+                                    try
+                                    {
+                                        if (playergedeckt(dasFeld, x2, y2))
+                                            add /= Feld[y, x];
+                                    }
+                                    catch { };
+                                    add = add * 100;
                                     Wert += add;
                                     z = false;
                                 }
@@ -1981,13 +1986,13 @@ namespace Schach
             {
                 for (byte y = 0; y < 8; y++)
                 {
-                    if(Feld[y,x] != 0)
+                    if (Feld[y, x] != 0)
                     {
                         figur = Feld[y, x];
                         if (Feld[y, x] > 6)
                         {
                             figur -= 7;
-                            Score += Werte[figur];
+                            Score += Werte[figur - 6];
                         }
                     }
                 }
@@ -1995,7 +2000,7 @@ namespace Schach
             return Score;
         }
 
-        public static int enScore(byte[,] dasFeld)
+        public static int enScore(byte[,] dasFeld, byte welcherzug)
         {
             int Score = 0;
             int figur = 0;
@@ -2003,17 +2008,17 @@ namespace Schach
             {
                 for (byte y = 0; y < 8; y++)
                 {
-                    if (Feld[y, x] != 0)
+                    if (dasFeld[y, x] != 0)
                     {
-                        figur = Feld[y, x];
-                        if (Feld[y, x] < 7)
+                        figur = dasFeld[y, x];
+                        if (dasFeld[y, x] < 7)
                         {
-                            figur -= 1;
                             Score += Werte[figur];
                         }
                     }
                 }
             }
+            //if (welcherzug != 1 && Score < Werte[6]) Score += Werte[6] * 2 / 3;
             return Score;
         }
 
