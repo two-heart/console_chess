@@ -872,7 +872,7 @@ namespace Schach
                     besterzugqwelcherzug[0, 0] = bew; //Und gegebenenfalls wird der bestezug aktualisiert
                     besterzugqwelcherzug[1, 0] = i; //Und i in q gespeichert
                     besterzugqwelcherzug[2, 0] = 1;
-                    pos = 3;
+                    pos = 1;
                 }
                 else if (bew == besterzugqwelcherzug[0, 0] && pos < 9)
                 {
@@ -1781,22 +1781,23 @@ namespace Schach
         public static long bewerte(byte[,] dasFeld, byte welcherzug)
         {
             long Bewertung = 0;
-            if (Feld[3, 7] == 5 && Feld[1, 6] == 7 && dasFeld[2, 6] == 7) Bewertung += 10000;
-            if (checkWon(dasFeld)) Bewertung += 1000 / Convert.ToInt32(Math.Pow(welcherzug, welcherzug));//gewonnen
+            if (Feld[3, 7] == 5 && Feld[1, 6] == 7 && dasFeld[2, 6] == 7)
+                Bewertung += 10000;
+            //if (checkWon(dasFeld)) Bewertung += 1000 / (welcherzug * welcherzug);//gewonnen
             //Bewertung += myScore(dasFeld); //Der Score (Bauern -> 1,...)
             Bewertung -= enScore(dasFeld, welcherzug) * 10; //Auch für den Gegner
             //Bewertung += Safety(dasFeld); //Wie sicher ist der König?
-            Bewertung += Bauern(dasFeld, true) / 40; //Wie weit sind die Bauern?
-            Bewertung -= Bauern(dasFeld, false) / 40; //Wie weit sind die Bauern?
+            Bewertung += Bauern(dasFeld, true); //Wie weit sind die Bauern?
+            Bewertung -= Bauern(dasFeld, false); //Wie weit sind die Bauern?
             try
             {
-                Bewertung -= Convert.ToInt32(Convert.ToUInt32(Gegnerpossis(dasFeld, welcherzug) * 30)); //Was für Möglichkeiten hat der Gegner dann?
+                Bewertung -= Convert.ToInt32(Convert.ToUInt32(Gegnerpossis(dasFeld, welcherzug))); //Was für Möglichkeiten hat der Gegner dann?
             }
-            catch { long a = Gegnerpossis(dasFeld, welcherzug) * 20; };
+            catch { ulong a = Gegnerpossis(dasFeld, welcherzug) * 20; };
             Bewertung += Deckung(dasFeld) / 40;
             Bewertung -= kingposb[1];
             if (getKingpos(dasFeld, true)[0] != kingposb[0] || getKingpos(dasFeld, true)[1] != kingposb[1])
-                Bewertung -= 1000;
+                Bewertung -= 100;
             if (isschachmatt(false, dasFeld))
             {
                 if (welcherzug == 1)
@@ -1822,7 +1823,7 @@ namespace Schach
                         {
                             Wert += dasFeld[y2, x2];
                             if (ingefahr(x2, y2))
-                                Wert += dasFeld[y2, x2] * 3;
+                                Wert += dasFeld[y2, x2] * 5;
                         }
                     }
                 }
@@ -1888,7 +1889,7 @@ namespace Schach
             return ingefahr;
         }
 
-        public static long Gegnerpossis(byte[,] dasFeld, byte welcherzug)
+        public static ulong Gegnerpossis(byte[,] dasFeld, byte welcherzug)
         {
             byte[,] now = new byte[8, 8];
             for (int i = 0; i < Feld.GetLength(0); i++)
@@ -1899,7 +1900,7 @@ namespace Schach
                 }
             }
             Feld = dasFeld;
-            long Wert = 0;
+            ulong Wert = 0;
             for (byte x = 0; x < 8; x++)
             {
                 for (byte y = 0; y < 8; y++)
@@ -1913,17 +1914,17 @@ namespace Schach
                                 z = false;
                                 if (allowed(Feld[y, x], x, x2, y, y2, true))
                                 {
-                                    long add = 0;
+                                    ulong add = 0;
                                     if (dasFeld[y2, x2] > 6)
-                                        add += Werte[dasFeld[y2, x2] - 6];
-                                    if (dasFeld[y2, x2] == 12 && welcherzug == 1) add += 1000000;
+                                        add += (ulong)Werte[dasFeld[y2, x2] - 6];
+                                    //if (dasFeld[y2, x2] == 12 && welcherzug == 1) add += 1000000;
                                     try
                                     {
                                         if (playergedeckt(dasFeld, x2, y2))
-                                            add /= Feld[y, x];
+                                            add -= (ulong)Werte[Feld[y, x]];
                                     }
                                     catch { };
-                                    add = add * 100;
+                                    add = add * 200;
                                     Wert += add;
                                     z = false;
                                 }
@@ -1950,7 +1951,7 @@ namespace Schach
                                     }
                                     else if (isschachmatt(true, temp))
                                     {
-                                        Wert += 10000;
+                                        Wert += 1000;
                                         z = true;
                                         Feld = now;
                                         return Wert;
@@ -2008,18 +2009,15 @@ namespace Schach
             {
                 for (byte y = 0; y < 8; y++)
                 {
-                    if (dasFeld[y, x] != 0)
+                    if (dasFeld[y, x] != 0 && dasFeld[y,x] < 6)
                     {
                         figur = dasFeld[y, x];
-                        if (dasFeld[y, x] < 7)
-                        {
                             Score += Werte[figur];
-                        }
                     }
                 }
             }
-            if (welcherzug != 1 && Score < Werte[6]) Score += Werte[6] -5;
-            Score += ((welcherzug - 1) / 2) * Score;
+            //if (welcherzug != 1 && Score < Werte[6]) Score += Werte[6] -5;
+            //Score += ((welcherzug - 1) / 4) * Score;
             return Score;
         }
 
@@ -2073,7 +2071,7 @@ namespace Schach
             {
                 if (bauernpos[i, 0] != 10)
                 {
-                    bauernscore += bauernpos[i, 1] * bauernpos[i, 1] * bauernpos[i, 1];
+                    bauernscore += bauernpos[i, 1] * bauernpos[i, 1];
                 }
                 else break;
             }
