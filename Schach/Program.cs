@@ -1791,9 +1791,11 @@ namespace Schach
             Bewertung -= Bauern(dasFeld, false); //Wie weit sind die Bauern?
             try
             {
-                Bewertung -= Convert.ToInt32(Convert.ToUInt32(Gegnerpossis(dasFeld, welcherzug))); //Was für Möglichkeiten hat der Gegner dann?
+                Bewertung -= Gegnerpossis(dasFeld, welcherzug); //Was für Möglichkeiten hat der Gegner dann?
             }
-            catch { ulong a = Gegnerpossis(dasFeld, welcherzug) * 20; };
+            catch {
+                long a = Gegnerpossis(dasFeld, welcherzug);
+            };
             Bewertung += Deckung(dasFeld) / 40;
             Bewertung -= kingposb[1];
             if (getKingpos(dasFeld, true)[0] != kingposb[0] || getKingpos(dasFeld, true)[1] != kingposb[1])
@@ -1889,7 +1891,7 @@ namespace Schach
             return ingefahr;
         }
 
-        public static ulong Gegnerpossis(byte[,] dasFeld, byte welcherzug)
+        public static long Gegnerpossis(byte[,] dasFeld, byte welcherzug)
         {
             byte[,] now = new byte[8, 8];
             for (int i = 0; i < Feld.GetLength(0); i++)
@@ -1900,7 +1902,7 @@ namespace Schach
                 }
             }
             Feld = dasFeld;
-            ulong Wert = 0;
+            long Wert = 0;
             for (byte x = 0; x < 8; x++)
             {
                 for (byte y = 0; y < 8; y++)
@@ -1914,16 +1916,12 @@ namespace Schach
                                 z = false;
                                 if (allowed(Feld[y, x], x, x2, y, y2, true))
                                 {
-                                    ulong add = 0;
+                                    long add = 0;
                                     if (dasFeld[y2, x2] > 6)
-                                        add += (ulong)Werte[dasFeld[y2, x2] - 6];
+                                        add += (long)Werte[dasFeld[y2, x2] - 6];
                                     //if (dasFeld[y2, x2] == 12 && welcherzug == 1) add += 1000000;
-                                    try
-                                    {
                                         if (playergedeckt(dasFeld, x2, y2))
-                                            add -= (ulong)Werte[Feld[y, x]];
-                                    }
-                                    catch { };
+                                            add -= (long)Werte[Feld[y, x]];
                                     add = add * 200;
                                     Wert += add;
                                     z = false;
