@@ -267,6 +267,8 @@ namespace Schach
                 kingposb = getKingpos(Feld, true);
                 Console.ForegroundColor = ConsoleColor.Black;
                 zeichnegeschlageneFiguren();
+                if (differences != null)
+                    paintdifferences();
                 if (!z)
                 {
                     neueeingabe();
@@ -310,7 +312,7 @@ namespace Schach
         {
             Console.Clear();
             Console.SetCursorPosition(10, 10);
-            Console.Write("Farbe: ");
+            Console.Write("Colour: ");
             int i = -1;
             int returner = 0;
             foreach(var color in colors)
@@ -483,17 +485,17 @@ namespace Schach
             switch (possi)
             {
                 case 1:
-                    Console.Write("Schwarz ist Schach!");
+                    Console.Write("Black is Check!");
                     break;
                 case 2:
-                    Console.Write("Weiß ist Schach!");
+                    Console.Write("White is Check!");
                     break;
                 case 3:
-                    Console.Write("Schwarz ist Schachmatt!");
+                    Console.Write("Black is Checkmate!");
                     spielende = true;
                     break;
                 case 4:
-                    Console.Write("Weiß ist Schachmatt!");
+                    Console.Write("White is Checkmate!");
                     spielende = true;
                     break;
                 default:
@@ -767,6 +769,8 @@ namespace Schach
             }
             if (verarbeite(input)) z = zug();
             else zeichneSpieler();
+            if (differences != null)
+                paintdifferences();
             while (Console.KeyAvailable) Console.ReadKey(true);
         }
 
@@ -1191,6 +1195,8 @@ namespace Schach
                 else Console.ForegroundColor = ConsoleColor.White;
                 Console.Write(symbols[Feld[differences[i, 1], differences[i, 0]]]);
             }
+            Console.BackgroundColor = background;
+            Console.ForegroundColor = ConsoleColor.Black;
         }
 
         public static bool feldnichtleer (byte[,] dasFeld)
@@ -1726,6 +1732,8 @@ namespace Schach
                         rochadem[rochade - 1] = false;
                     }
                 }
+                if (differences != null)
+                    paintdifferences();
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 11);
                 Console.Write("                        "); //Und die Eingabe gelöscht
                 return true;
@@ -1750,10 +1758,10 @@ namespace Schach
                     }
                 }
             }
-            Console.WriteLine("SCHACH MATT!");
-            if (schwarz) Console.Write("Schwarz ");
-            else Console.Write("Weiß ");
-            Console.Write("gewinnt");
+            Console.WriteLine("Checkmate!");
+            if (schwarz) Console.Write("Black ");
+            else Console.Write("White ");
+            Console.Write("wins");
             Console.ReadKey();
         }
         public static void ereignisse(int pre, int xv, int xn, int yv, int yn) //Besondere Ereignisse im Spiel
@@ -1762,7 +1770,7 @@ namespace Schach
             {
                 a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13); //Der Spieler wählt eine neue Figur
-                Console.Write("Neue Figur: ");
+                Console.Write("New Figure: ");
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
                 bool ersetzt = false;
                 string check;
@@ -1795,7 +1803,7 @@ namespace Schach
             {
                 a:
                 Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
-                Console.Write("Neue Figur: ");
+                Console.Write("New Figure: ");
                 bool ersetzt = false;
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
                 string check;
@@ -1948,14 +1956,14 @@ namespace Schach
             Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 9);
             if (züge % 2 == 0)
             {
-                Console.Write("Schwarz ist am " + züge + ". Zug       ");
+                Console.Write("It's Black's " + züge/2 + ". turn       ");
                 züge++;
                 weiß = false;
                 return true;
             }
             else
             {
-                Console.Write("Weiß ist am " + züge + ". Zug           ");
+                Console.Write("It's White's " + ((int)züge/(int)2 + (int)1).ToString() + ". turn           ");
                 züge++;
                 weiß = true;
                 return false;
