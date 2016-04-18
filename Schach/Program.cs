@@ -73,14 +73,14 @@ namespace Schach
     class Program
     {
         #region Variablen
-        public static byte schriftgröße = 0;
-        public static bool[] rochadem = new bool[4] { true, true, true, true }; //Kurze Rochade weiß, lange Rochade weiß, kurze Rochade schwarz, lange Rochade schwarz
+        public static byte schriftgröße;
+        public static bool[] rochadem; //Kurze Rochade weiß, lange Rochade weiß, kurze Rochade schwarz, lange Rochade schwarz
         public static int züge;
         public static bool weiß; //Ist weiß am Zug?
-        public static int[] verschiebung = new int[2] { 2, 2 }; //Um wie viel ist das Spielfeld nach rechts / unten verschoben?
-        public static int[] kingposw = new int[2];
-        public static int[] kingposb = new int[2];
-        public static Random rnd = new Random();
+        public static int[] verschiebung; //Um wie viel ist das Spielfeld nach rechts / unten verschoben?
+        public static int[] kingposw;
+        public static int[] kingposb;
+        public static Random rnd;
         /*
         Weiß:
         Bauern  -> 1
@@ -98,7 +98,28 @@ namespace Schach
         Dame    -> 11
         König   -> 12
         */
-        public static byte[,] Feld = new byte[8, 8] //Das Feld mit den passenden Nummern (s.o.)
+        public static byte[,] Feld;
+        public static byte[,,,] specialfelder;
+        //public static int[,,,] possis = new int[2, 1000000, 8, 8];
+        public static char[] symbols;
+        public static bool z;
+        public static List<int> Figuren;
+        public static bool spielende;
+        public static int sizex, sizey;
+        public static int[] Werte;
+        public static int[,] differences;
+        public static byte menupoint;
+        public static string[] menupoints;
+
+        public readonly static byte schriftgrößestart = 0;
+        public readonly static bool[] rochademstart = new bool[4] { true, true, true, true }; //Kurze Rochade weiß, lange Rochade weiß, kurze Rochade schwarz, lange Rochade schwarz
+        public readonly static int zügestart = 0;
+        public readonly static bool weißstart; //Ist weiß am Zug?
+        public readonly static int[] verschiebungstart = new int[2] { 2, 2 }; //Um wie viel ist das Spielfeld nach rechts / unten verschoben?
+        public readonly static int[] kingposwstart = new int[2];
+        public readonly static int[] kingposbstart = new int[2];
+        public readonly static Random rndstart = new Random();
+        public readonly static byte[,] Feldstart = new byte[8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
             {8 ,9 ,10,11,12,10,9 ,8 },
             {7 ,7 ,7 ,7 ,7 ,7 ,7 ,7},
@@ -109,7 +130,7 @@ namespace Schach
             {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
             {2 ,3 ,4 ,5 ,6 ,4 ,3 ,2},
         };
-        public static byte[,,,] specialfelder = new byte[4, 2, 8, 8] //Das Feld mit den passenden Nummern (s.o.)
+        public readonly static byte[,,,] specialfelderstart = new byte[4, 2, 8, 8] //Das Feld mit den passenden Nummern (s.o.)
         {
             {
                 {
@@ -201,42 +222,45 @@ namespace Schach
             }
         };
         //public static int[,,,] possis = new int[2, 1000000, 8, 8];
-        public static char[] symbols = new char[13] //Die entsprechenden Symbole für die Figuren
+        public readonly static char[] symbolsstart = new char[13] //Die entsprechenden Symbole für die Figuren
             { ' ', 'B', 'T', 'S', 'L', 'D', 'K', 'B', 'T', 'S', 'L', 'D', 'K' };
-        public static bool z;
-        public static List<int> Figuren = new List<int>();
-        public static bool spielende = false;
-        public static int sizex = Console.LargestWindowWidth, sizey = Console.LargestWindowHeight;
-        public static int[] Werte = new int[7] { 0, 1, 5, 3, 3, 9, 10000 };
+        public readonly static bool zstart = true;
+        public readonly static List<int> Figurenstart = new List<int>();
+        public readonly static bool spielendestart = false;
+        public readonly static int sizexstart = Console.LargestWindowWidth, sizeystart = Console.LargestWindowHeight;
+        public readonly static int[] Wertestart = new int[7] { 0, 1, 5, 3, 3, 20, 10000 };
+        public readonly static int[,] differencesstart;
+        public readonly static byte menupointstart = 0;
+        public readonly static string[] menupointsstart = new string[3] { "Singleplayer", "Multiplayer", "Settings" };
+        public readonly static ConsoleColor[] colors = (ConsoleColor[])ConsoleColor.GetValues(typeof(ConsoleColor));
+
+        public static ConsoleColor background = ConsoleColor.White;
         #endregion
 
         #region voids
         public static void Main(string[] args)
         {
-            var os = Environment.OSVersion;
-            if (os.Version.Minor == 1) schriftgröße = 8;
-            else schriftgröße = 10;
-            ConsoleHelper.SetConsoleFont(schriftgröße);
-            if (File.Exists("debug.txt")) File.Delete("debug.txt");
-            Console.SetWindowSize(sizex, sizey);
-            Console.SetBufferSize(sizex, sizey);
-            Console.CursorVisible = false;
-            Figurenliste();
-            Console.CursorSize = 1;
-            Console.BackgroundColor = ConsoleColor.White; //Die Standardfarben
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.Clear();
-            zeichneHowto();
-            zeichneFeld();
-            zeichneSpieler();
-            Console.ForegroundColor = ConsoleColor.Black;
-            z = zug();
-            z = zug();
-            kingposw = getKingpos(Feld, false);
-            kingposb = getKingpos(Feld, true);
-            byte[,] a = Feld;
+            start:
+            preinit();
+            menu();
+            postinit();
+            if (menupoint != 3)
+            {
+                Spiel();
+                Console.ForegroundColor = background;
+                Console.ReadLine();
+                Console.ForegroundColor = ConsoleColor.Black;
+            }
+            else
+                Settings();
+            goto start;
+        }
+
+        public static void Spiel()
+        {
             do
             {
+                zeichneSpieler();
                 debugfiles();
                 checkschachgedöns();
                 kingposw = getKingpos(Feld, false);
@@ -249,11 +273,155 @@ namespace Schach
                 }
                 else
                 {
-                    botzug();
-                    z = zug();
+                    if (menupoint == 1)
+                    {
+                        botzug();
+                        z = zug();
+                    }
+                    else if (menupoint == 2) neueeingabe();
+                    else break;
                 }
             } while (!won() && !spielende);
-            Console.ReadLine();
+        }
+
+        public static void Settings()
+        {
+            int y = initSettings();
+            ConsoleKey input;
+            do
+            {
+                Console.BackgroundColor = background;
+                Console.ForegroundColor = ConsoleColor.Black;
+                input = Console.ReadKey(true).Key;
+                Console.SetCursorPosition(19, 10 + y);
+                Console.Write(colors[y + 1]);
+                if (input == ConsoleKey.UpArrow && y > 0) y--;
+                else if (input == ConsoleKey.DownArrow && y < colors.Length - 2) y++;
+                Console.SetCursorPosition(19, 10 + y);
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(colors[y + 1]);
+                
+            } while (input != ConsoleKey.Enter && input != ConsoleKey.Spacebar);
+            background = colors[y + 1];
+        }
+
+        public static int initSettings()
+        {
+            Console.Clear();
+            Console.SetCursorPosition(10, 10);
+            Console.Write("Farbe: ");
+            int i = -1;
+            int returner = 0;
+            foreach(var color in colors)
+            {
+                if (i != -1)
+                {
+                    Console.SetCursorPosition(19, 10 + i);
+                    if (color == Console.BackgroundColor)
+                    {
+                        Console.BackgroundColor = ConsoleColor.Black;
+                        Console.ForegroundColor = ConsoleColor.White;
+                        returner = i;
+                    }
+                    Console.Write(color);
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.BackgroundColor = background;
+                }
+                i++;
+            }
+            return returner;
+        }
+
+        public static void menu()
+        {
+            initmenu();
+            ConsoleKey input;
+            byte y = 0;
+            do
+            {
+                Console.BackgroundColor = background;
+                Console.ForegroundColor = ConsoleColor.Black;
+                input = Console.ReadKey(true).Key;
+                Console.SetCursorPosition(10, 10 + y);
+                Console.Write(menupoints[y]);
+                if (input == ConsoleKey.DownArrow && y < menupoints.Length - 1) y++;
+                else if (input == ConsoleKey.UpArrow && y > 0) y--;
+                Console.SetCursorPosition(10, 10 + y);
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(menupoints[y]);
+            } while(input != ConsoleKey.Enter && input != ConsoleKey.Spacebar);
+            menupoint = Convert.ToByte(y + 1);
+        }
+
+        public static void initmenu()
+        {
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = background;
+            Console.Clear();
+            for (int i = 0; i < menupoints.Length; i++)
+            {
+                Console.SetCursorPosition(10, 10 + i);
+                Console.Write(menupoints[i]);
+            }
+            Console.SetCursorPosition(10, 10);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(menupoints[0]);
+        }
+
+        public static void preinit()
+        {
+            schriftgröße = schriftgrößestart;
+            rochadem = rochademstart;
+            züge = zügestart;
+            weiß = weißstart;
+            verschiebung = verschiebungstart; 
+            kingposw = kingposwstart;
+            kingposb = kingposbstart;
+            rnd = rndstart;
+            Feld = Feldstart;
+            specialfelder = specialfelderstart;
+            symbols = symbolsstart;
+            z = zstart;
+            Figuren = Figurenstart;
+            spielende = spielendestart;
+            sizex = sizexstart;
+            sizey = sizeystart;
+            Werte = Wertestart;
+            differences = differencesstart;
+            menupoint = menupointstart;
+            menupoints = menupointsstart;
+            Figuren.Clear();
+
+            var os = Environment.OSVersion;
+            if (os.Version.Minor == 1) schriftgröße = 8;
+            else schriftgröße = 10;
+            ConsoleHelper.SetConsoleFont(schriftgröße);
+            if (File.Exists("debug.txt")) File.Delete("debug.txt");
+            sizex = Console.LargestWindowWidth;
+            sizey = Console.LargestWindowHeight;
+            Console.SetWindowSize(sizex, sizey);
+            Console.SetBufferSize(sizex, sizey);
+            Console.CursorVisible = false;
+            Console.CursorSize = 1;
+        }
+
+        public static void postinit()
+        {            
+            Figurenliste();
+            Console.BackgroundColor = background; //Die Standardfarben
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.Clear();
+            zeichneHowto();
+            zeichneFeld();
+            zeichneSpieler();
+            Console.ForegroundColor = ConsoleColor.Black;
+            z = zug();
+            z = zug();
+            kingposw = getKingpos(Feld, false);
+            kingposb = getKingpos(Feld, true);
         }
 
         public static void debugfiles()
@@ -500,6 +668,7 @@ namespace Schach
 
         public static void neueeingabe()
         {
+            if (spielende) return;
             ConsoleKey cki = new ConsoleKey();
             byte posx = 3;
             byte posy = 3;
@@ -511,7 +680,7 @@ namespace Schach
             if (Feld[posy, posx] > 6) Console.ForegroundColor = ConsoleColor.Black;
             else Console.ForegroundColor = ConsoleColor.White;
             Console.Write(symbols[Feld[posy, posx]]);
-            while (!fertig)
+            while (!fertig && !spielende)
             {
                 cki = Console.ReadKey(true).Key;
                 if (Feld[posy, posx] > 6) Console.ForegroundColor = ConsoleColor.Black;
@@ -534,7 +703,7 @@ namespace Schach
                 }
                 else if (cki == ConsoleKey.Enter || cki == ConsoleKey.Spacebar)
                 {
-                    if (!ausgewählt && Feld[posy, posx] > 0 && Feld[posy, posx] < 7)
+                    if (!ausgewählt && Feld[posy, posx] > 0 && (Feld[posy, posx] < 7 && !z || Feld[posy,posx] > 6 && z))
                     {
                         startx = posx;
                         starty = posy;
@@ -543,6 +712,8 @@ namespace Schach
                         ausgewählt = true;
 
                         zeichnepossis(Convert.ToByte(startx - 1), Convert.ToByte(starty - 1));
+                        if(differences != null)
+                            paintdifferences();
                         Console.BackgroundColor = ConsoleColor.Red;
                         Console.SetCursorPosition(verschiebung[0] + posx, verschiebung[1] + posy);
                         if (Feld[posy, posx] > 6) Console.ForegroundColor = ConsoleColor.Black;
@@ -569,6 +740,8 @@ namespace Schach
                 }
                 if (ausgewählt)
                     zeichnepossis(Convert.ToByte(startx - 1), Convert.ToByte(starty - 1));
+                if (differences != null)
+                    paintdifferences();
                 Console.BackgroundColor = ConsoleColor.Blue;
                 Console.SetCursorPosition(verschiebung[0] + posx, verschiebung[1] + posy);
                 if (Feld[posy, posx] > 6) Console.ForegroundColor = ConsoleColor.Black;
@@ -584,10 +757,10 @@ namespace Schach
                     Console.BackgroundColor = ConsoleColor.Blue;
                 }
             }
-            Console.BackgroundColor = ConsoleColor.White;
+            Console.BackgroundColor = background;
             string input = Convert.ToString(convertToChar(startx)) + starty + " " + convertToChar(endx) + endy;
             if (Feld[endy - 1, endx - 1] != 0) input += "x";
-            if (Feld[starty - 1, startx - 1] == 6 && Feld[endy - 1, endx - 1] == 2)
+            if ((Feld[starty - 1, startx - 1] == 6 || Feld[starty-1, startx-1] == 12) && (Feld[endy - 1, endx - 1] == 2 ||Feld[endy - 1, endx - 1] == 8))
             {
                 input = "0-0";
                 if (endx < 6) input += "-0";
@@ -648,6 +821,27 @@ namespace Schach
                 else y += 2;
             }
             else if (Feld[y, x] == 4)
+            {
+                if (y > 0) y--;
+                else y++;
+                if (x > 0) x--;
+                else x++;
+            }
+            else if (Feld[y, x] == 7 && y < 7) y++;
+            else if (Feld[y, x] == 8 || Feld[y, x] == 11 || Feld[y, x] == 12)
+            {
+                if (x > 0) x--;
+                else if (y > 0) y--;
+                else x++;
+            }
+            else if (Feld[y, x] == 9)
+            {
+                if (x > 0) x--;
+                else x++;
+                if (y - 1 > 0) y -= 2;
+                else y += 2;
+            }
+            else if (Feld[y, x] == 10)
             {
                 if (y > 0) y--;
                 else y++;
@@ -759,13 +953,7 @@ namespace Schach
                         temp[s, a] = eins[i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
-                List<byte> liste = tolist(temp); //Und zur Liste konvertiert
-                bool erlaubt = false;
-                for (byte t = 1; t < liste.LastIndexOf(liste.Last()); t++)
-                {
-                    if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
-                }
-                if (!erlaubt) break;
+                if (!feldnichtleer(temp)) break;
                 bew = bewerte(temp, 1); //Wenn alles erlaubt ist, wird bew damit definiert
                 z = true;
                 if (checkWon(temp)) bew = 1000000000;
@@ -801,20 +989,8 @@ namespace Schach
                         tempa[s, a] = zwei[1, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
-                List<byte> liste = tolist(temp); //Und zur Liste konvertiert
-                bool erlaubt = false;
-                for (byte t = 1; t < liste.LastIndexOf(liste.Last()); t++)
-                {
-                    if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
-                }
-                if (!erlaubt) break;
-                List<byte> liste2 = tolist(tempa); //Und zur Liste konvertiert
-                bool erlaubt2 = false;
-                for (byte t = 1; t < liste2.LastIndexOf(liste.Last()); t++)
-                {
-                    if (liste2.Contains(t)) erlaubt2 = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
-                }
-                if (!erlaubt2) break;
+                if (!feldnichtleer(temp)) break;
+                if (!feldnichtleer(tempa)) break;
                 bew = (bewerte(temp, 2) + bewerte(tempa, 1)) / 2 - 10; //Wenn alles erlaubt ist, wird bew damit definiert
                 z = true;
                 if (checkWon(tempa)) bew = 1000000000;
@@ -850,20 +1026,8 @@ namespace Schach
                         tempa[s, a] = drei[1, i, s, a]; //Das zu untersuchende Feld wird definiert
                     }
                 }
-                List<byte> liste = tolist(temp); //Und zur Liste konvertiert
-                bool erlaubt = false;
-                for (byte t = 1; t < liste.LastIndexOf(liste.Last()); t++)
-                {
-                    if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
-                }
-                if (!erlaubt) break;
-                List<byte> liste2 = tolist(tempa); //Und zur Liste konvertiert
-                bool erlaubt2 = false;
-                for (byte t = 1; t < liste2.LastIndexOf(liste.Last()); t++)
-                {
-                    if (liste2.Contains(t)) erlaubt2 = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
-                }
-                if (!erlaubt2) break;
+                if (!feldnichtleer(temp)) break;
+                if (!feldnichtleer(tempa)) break;
                 bew = (bewerte(temp, 3) + bewerte(tempa, 1)) / 2 - 100; //Wenn alles erlaubt ist, wird bew damit definiert
                 z = true;
                 if (checkWon(tempa)) bew = 1000000000;
@@ -882,7 +1046,7 @@ namespace Schach
                     pos++;
                 }
             }
-            int r = rnd.Next(0, pos);
+            int r = rnd.Next(0, pos-1);
             byte[,] next = new byte[8, 8];
             bool catchederror = false;
             errorcatcher:
@@ -952,7 +1116,7 @@ namespace Schach
                 }
             }
 
-            int[,] differences = getdifferences(Feld, next);
+            differences = getdifferences(Feld, next);
             for (byte x = 0; x < 8; x++)
             {
                 for (byte y = 0; y < 8; y++)
@@ -977,6 +1141,7 @@ namespace Schach
                         next[y, x] = specialfelder[3, 1, y, x];
                         differences = getdifferences(Feld, next);
                     }
+                    if (!feldnichtleer(next)) break;
                     Feld[y, x] = next[y, x];
                 }
             };
@@ -991,14 +1156,8 @@ namespace Schach
             long b = bewerte(Feld, 1);
             zeichneSpieler(); //und in gezeichnet
             Console.BackgroundColor = ConsoleColor.Green;
-            for (int i = 0; i < differences.GetLength(0) && differences[i, 0] != -1; i++)
-            {
-                Console.SetCursorPosition(differences[i, 0] + verschiebung[0], differences[i, 1] + verschiebung[1]);
-                if (Feld[differences[i, 1], differences[i, 0]] > 6) Console.ForegroundColor = ConsoleColor.Black;
-                else Console.ForegroundColor = ConsoleColor.White;
-                Console.Write(symbols[Feld[differences[i, 1], differences[i, 0]]]);
-            }
-            Console.BackgroundColor = ConsoleColor.White;
+            paintdifferences();
+            Console.BackgroundColor = background;
 
             /*Console.ForegroundColor = ConsoleColor.Black; Console.SetCursorPosition(10, 0); Console.Write(bew.ToString());//Das ist nur zum Bugfixing
             Console.SetCursorPosition(20, 20); Console.Write(bewerte(Feld));
@@ -1020,6 +1179,29 @@ namespace Schach
             Console.Write(" " + besterzugqwelcherzug[2, r] + " " + besterzugqwelcherzug[1, r]);*/
             Console.SetCursorPosition(20, 5);
             Console.Write("           ");
+        }
+
+        public static void paintdifferences()
+        {
+            Console.BackgroundColor = ConsoleColor.Green;
+            for (int i = 0; i < differences.GetLength(0) && differences[i, 0] != -1; i++)
+            {
+                Console.SetCursorPosition(differences[i, 0] + verschiebung[0], differences[i, 1] + verschiebung[1]);
+                if (Feld[differences[i, 1], differences[i, 0]] > 6) Console.ForegroundColor = ConsoleColor.Black;
+                else Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(symbols[Feld[differences[i, 1], differences[i, 0]]]);
+            }
+        }
+
+        public static bool feldnichtleer (byte[,] dasFeld)
+        {
+            List<byte> liste = tolist(dasFeld); //Und zur Liste konvertiert
+            bool erlaubt = false;
+            for (byte t = 1; t < liste.LastIndexOf(liste.Last()); t++)
+            {
+                if (liste.Contains(t)) erlaubt = true;//Überprüft nur die Felder, in denen nicht nur Nullen stehen
+            }
+            return erlaubt;
         }
 
         public static int[,] getdifferences(byte[,] Feld1, byte[,] Feld2)
@@ -1587,7 +1769,7 @@ namespace Schach
                 check = Convert.ToString(a[0]);
                 if (check.Contains("K")) goto king;
                 char finput = a[0];
-                for (byte i = 1; i < 12; i++)
+                for (byte i = 1; i < 6; i++)
                 {
                     if (symbols[i] == finput)
                     {
@@ -1612,7 +1794,7 @@ namespace Schach
             if (pre == 7 && yn == 7)//Das gleiche nochmal für schwarz
             {
                 a:
-                Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
+                Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
                 Console.Write("Neue Figur: ");
                 bool ersetzt = false;
                 char[] a = Console.ReadLine().ToString().ToUpper().ToCharArray();
@@ -1620,17 +1802,20 @@ namespace Schach
                 check = Convert.ToString(a[0]);
                 if (check.Contains("K")) goto king;
                 char finput = a[0];
-                for (byte i = 1; i < 12; i++)
+                for (byte i = 1; i < 6; i++)
                 {
                     if (symbols[i] == finput)
                     {
+                        ersetzt = true;
+                        Figuren.Remove(Feld[yn, xn]);
+                        Figuren.Add(i + 6);
                         Feld[yn, xn] = Convert.ToByte(i + 6);
                         zeichneSpieler();
                         Console.ForegroundColor = ConsoleColor.Black;
                         break;
                     }
                 }
-                Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 12);
+                Console.SetCursorPosition(verschiebung[1], verschiebung[0] + 13);
                 Console.Write("                                ");
                 king:
                 if (!ersetzt)
@@ -1696,7 +1881,7 @@ namespace Schach
             if (y % 2 == 0 && x % 2 != 0 || y % 2 != 0 && x % 2 == 0) Console.BackgroundColor = ConsoleColor.DarkGray; //Die passende Hintergrundfarbe
             else Console.BackgroundColor = ConsoleColor.Gray;
             Console.Write(Symbol); //und das passende Symbol
-            Console.BackgroundColor = ConsoleColor.White;
+            Console.BackgroundColor = background;
         }
 
         public static int convertToInt(char character)
@@ -1752,7 +1937,7 @@ namespace Schach
                     Console.ForegroundColor = ConsoleColor.Black;
                     if (Feld[u, i] < 7) Console.ForegroundColor = ConsoleColor.White; //Die passende Farbe
                     zeichnesymbol(symbols[Feld[u, i]], i, u); //Alle Spieler vom Feld werden gezeichnet
-                    Console.BackgroundColor = ConsoleColor.White;
+                    Console.BackgroundColor = background;
                 }
             }
         }
@@ -1785,7 +1970,7 @@ namespace Schach
                 Bewertung += 10000;
             //if (checkWon(dasFeld)) Bewertung += 1000 / (welcherzug * welcherzug);//gewonnen
             //Bewertung += myScore(dasFeld); //Der Score (Bauern -> 1,...)
-            Bewertung -= enScore(dasFeld, welcherzug) * 10; //Auch für den Gegner
+            Bewertung -= enScore(dasFeld, welcherzug) * 15; //Auch für den Gegner
             //Bewertung += Safety(dasFeld); //Wie sicher ist der König?
             Bewertung += Bauern(dasFeld, true); //Wie weit sind die Bauern?
             Bewertung -= Bauern(dasFeld, false); //Wie weit sind die Bauern?
@@ -1796,7 +1981,7 @@ namespace Schach
             catch {
                 long a = Gegnerpossis(dasFeld, welcherzug);
             };
-            Bewertung += Deckung(dasFeld) / 40;
+            Bewertung += Deckung(dasFeld) / 30;
             Bewertung -= kingposb[1];
             if (getKingpos(dasFeld, true)[0] != kingposb[0] || getKingpos(dasFeld, true)[1] != kingposb[1])
                 Bewertung -= 100;
@@ -1920,9 +2105,10 @@ namespace Schach
                                     if (dasFeld[y2, x2] > 6)
                                         add += (long)Werte[dasFeld[y2, x2] - 6];
                                     //if (dasFeld[y2, x2] == 12 && welcherzug == 1) add += 1000000;
-                                        if (playergedeckt(dasFeld, x2, y2))
-                                            add -= (long)Werte[Feld[y, x]];
-                                    add = add * 200;
+                                    add = add * 500;
+                                    if (playergedeckt(dasFeld, x2, y2))
+                                            add -= (long)Werte[Feld[y, x]] * 500;
+                                    if (add < 0) add = 0;
                                     Wert += add;
                                     z = false;
                                 }
