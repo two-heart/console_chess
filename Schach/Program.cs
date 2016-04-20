@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -70,6 +70,8 @@ namespace Schach
 
     }
     #endregion
+
+
     class Program
     {
         #region Variablen
@@ -233,6 +235,8 @@ namespace Schach
         public readonly static byte menupointstart = 0;
         public readonly static string[] menupointsstart = new string[3] { "Singleplayer", "Multiplayer", "Settings" };
         public readonly static ConsoleColor[] colors = (ConsoleColor[])ConsoleColor.GetValues(typeof(ConsoleColor));
+        public static byte[,,] differencefelder = new byte[2, 8, 8];
+        public static bool[,] enpassentpossible = new bool[2, 8];
 
         public static ConsoleColor background = ConsoleColor.White;
         #endregion
@@ -269,6 +273,13 @@ namespace Schach
                 zeichnegeschlageneFiguren();
                 if (differences != null)
                     paintdifferences();
+                for (int x = 0; x < 8; x++)
+                {
+                    for (int y = 0; y < 8; y++)
+                    {
+                        differencefelder[0, y, x] = Feld[y, x];
+                    }
+                }
                 if (!z)
                 {
                     neueeingabe();
@@ -283,7 +294,40 @@ namespace Schach
                     else if (menupoint == 2) neueeingabe();
                     else break;
                 }
+                for (int x = 0; x < 8; x++)
+                {
+                    for (int y = 0; y < 8; y++)
+                    {
+                        differencefelder[1, y, x] = Feld[y, x];
+                    }
+                }
+                enpassent();
             } while (!won() && !spielende);
+        }
+
+        public static void enpassent()
+        {
+            bool isdifferent = false;
+            for (int x = 0; x < 8 && !isdifferent; x++)
+            {
+                for (int y = 0; y < 8 && !isdifferent; y++)
+                {
+                    if(differencefelder[0,y,x] != differencefelder[1,y,x])
+                    {
+                        isdifferent = true;
+                        break;
+                    }
+                }
+            }
+            for (int x = 0; x < 8; x++)
+            {
+                if (differencefelder[0, 1, x] == 7 && differencefelder[1, 1, x] == 0 && differencefelder[0, 3, x] == 0 && differencefelder[1, 3, x] == 7)
+                    enpassentpossible[0, x] = true;
+                else enpassentpossible[0, x] = false;
+                if (differencefelder[0, 6, x] == 1 && differencefelder[1, 6, x] == 0 && differencefelder[0, 4, x] == 0 && differencefelder[1, 4, x] == 1)
+                    enpassentpossible[1, x] = true;
+                else enpassentpossible[1, x] = false;
+            }
         }
 
         public static void Settings()
@@ -367,6 +411,8 @@ namespace Schach
                 Console.SetCursorPosition(10, 10 + i);
                 Console.Write(menupoints[i]);
             }
+            Console.SetCursorPosition(10, 11 + menupoints.Length);
+            Console.Write("BTW: If it's too small, click on the icon in the left top corner, \n          select properties -> Font -> Lucida Console -> 36!");
             Console.SetCursorPosition(10, 10);
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
@@ -481,7 +527,10 @@ namespace Schach
             if (isschachmatt(true, Feld)) possi = 3;
             if (isschachmatt(false, Feld)) possi = 4;
             Console.SetCursorPosition(verschiebung[0], verschiebung[1] + 21);
-            Console.ForegroundColor = ConsoleColor.Red;
+            if (background != ConsoleColor.Red)
+                Console.ForegroundColor = ConsoleColor.Red;
+            else
+                Console.ForegroundColor = ConsoleColor.DarkRed;
             switch (possi)
             {
                 case 1:
@@ -784,10 +833,18 @@ namespace Schach
                     for (int k = 0; k < 2; k++)
                     {
                         bool schlagen = k == 0;
-                        if (allowed(Feld[posy, posx], posx, i, posy, j, schlagen))
+                        if (allowed(Feld[posy, posx], posx, i, posy, j, schlagen) || (enpassentpossible[0, i] && j == 2 && !z && Feld[posy, posx] == 1 && (i == posx + 1 || i == posx - 1) && posy == 3) || (enpassentpossible[1, i] && j == 5 && z && Feld[posy, posx] == 7 && (i == posx + 1 || i == posx - 1) && posy == 4))
                         {
                             feldmöglich[j, i] = true;
                         }
+                        if (rochadepossible(1) && Feld[posy, posx] == 6 && !z)
+                            feldmöglich[7, 7] = true;
+                        if (rochadepossible(2) && Feld[posy, posx] == 6 && !z)
+                            feldmöglich[7, 0] = true;
+                        if (rochadepossible(3) && Feld[posy, posx] == 12 && z)
+                            feldmöglich[0, 7] = true;
+                        if (rochadepossible(4) && Feld[posy, posx] == 12 && z)
+                            feldmöglich[0, 0] = true;
                     }
                 }
             }
@@ -1513,50 +1570,52 @@ namespace Schach
 
         public static bool allowed(int pre, int xv, int xn, int yv, int yn, bool schlagen) //Überprüfung ob Zug erlaubt ist
         {
-            if (!allowed1(pre, xv, xn, yv, yn, schlagen) || !nichtdazwischen(pre, xv, xn, yv, yn)) return false;
+            if (!allowed1(pre, xv, xn, yv, yn, schlagen) || !nichtdazwischen(pre, xv, xn, yv, yn) || !isschachpossible(pre, xv, xn, yv, yn)) return false;
+            return true;
+        }
+
+        public static bool isschachpossible(int pre, int xv, int xn, int yv, int yn)
+        {
+            byte[,] temp = new byte[8, 8];
+            for (int i = 0; i < 8; i++)
+            {
+                for (int u = 0; u < 8; u++)
+                {
+                    temp[u, i] = Feld[u, i];
+                }
+            }
+            temp[yv, xv] = 0;
+            temp[yn, xn] = Feld[yv, xv];
+            int[] altkingpos = new int[2];
+            if (!z)
+            {
+                altkingpos[0] = kingposw[0];
+                altkingpos[1] = kingposw[1];
+                if (Feld[yv, xv] == 6)
+                {
+                    kingposw[0] = xn;
+                    kingposw[1] = yn;
+                }
+            }
             else
             {
-                byte[,] temp = new byte[8, 8];
-                for (int i = 0; i < 8; i++)
+                altkingpos[0] = kingposb[0];
+                altkingpos[1] = kingposb[1];
+                if (Feld[yv, xv] == 12)
                 {
-                    for (int u = 0; u < 8; u++)
-                    {
-                        temp[u, i] = Feld[u, i];
-                    }
+                    kingposb[0] = xn;
+                    kingposb[1] = yn;
                 }
-                temp[yv, xv] = 0;
-                temp[yn, xn] = Feld[yv, xv];
-                int[] altkingpos = new int[2];
-                if (!z)
-                {
-                    altkingpos[0] = kingposw[0];
-                    altkingpos[1] = kingposw[1];
-                    if (Feld[yv, xv] == 6)
-                    {
-                        kingposw[0] = xn;
-                        kingposw[1] = yn;
-                    }
-                }
-                else
-                {
-                    altkingpos[0] = kingposb[0];
-                    altkingpos[1] = kingposb[1];
-                    if (Feld[yv, xv] == 12)
-                    {
-                        kingposb[0] = xn;
-                        kingposb[1] = yn;
-                    }
-                }
+            }
 
-                if (isschach(z, temp))
-                {
-                    if (z) kingposb = altkingpos;
-                    else kingposw = altkingpos;
-                    return false;
-                }
+            if (isschach(z, temp))
+            {
                 if (z) kingposb = altkingpos;
                 else kingposw = altkingpos;
+                return false;
             }
+            if (z) kingposb = altkingpos;
+            else kingposw = altkingpos;
             return true;
         }
 
@@ -1663,17 +1722,31 @@ namespace Schach
                     int[] pzwei = new int[2] { convertToInt(zwei[0]) - 1, Convert.ToInt32(zwei[1] - '0') - 1 };
                     byte previous; //Das ist die Figur, die bewegt wird
                     previous = Feld[peins[1], peins[0]];
+                    byte enpassentnow = 0;
+                    if (enpassentpossible[0, pzwei[0]] && pzwei[1] == 2 && !z && Feld[peins[1], peins[0]] == 1 && (pzwei[0] == peins[0] + 1 || pzwei[0] == peins[0] - 1) && peins[1] == 3)
+                        enpassentnow = 1;
+                    else if (enpassentpossible[1, pzwei[0]] && pzwei[1] == 5 && z && Feld[peins[1], peins[0]] == 7 && (pzwei[0] == peins[0] + 1 || pzwei[0] == peins[0] - 1) && peins[1] == 4)
+                        enpassentnow = 2;
+
 
                     if ((Feld[pzwei[1], pzwei[0]] == 0 && !schlagen || Feld[pzwei[1], pzwei[0]] != 0 && schlagen) && (weiß && previous < 7 || !weiß && previous >= 7)/*Ist auch die passende Farbe am Zug?*/ && allowed(previous, peins[0], pzwei[0], peins[1], pzwei[1], schlagen))
                     {
                         rochadeaktualisieren(previous, peins[0]);
                         Feld[peins[1], peins[0]] = 0; //Die vorige Position wird gelöscht
-                        zeichnesymbol(' ', peins[0], peins[1]);
-                        Console.ForegroundColor = ConsoleColor.Black;
-                        if (previous < 7) Console.ForegroundColor = ConsoleColor.White; //Und die neue in der passenden Farbe gezeichnet
                         Feld[pzwei[1], pzwei[0]] = previous;
-                        zeichnesymbol(symbols[previous], pzwei[0], pzwei[1]);
-                        Console.ForegroundColor = ConsoleColor.Black;
+                        zeichneSpieler();
+                        ereignisse(previous, peins[0], pzwei[0], peins[1], pzwei[1]);
+                    }
+                    else if(enpassentnow > 0)
+                    {
+                        rochadeaktualisieren(previous, peins[0]);
+                        Feld[peins[1], peins[0]] = 0;
+                        Feld[pzwei[1], pzwei[0]] = previous;
+                        if (enpassentnow == 1)
+                            Feld[pzwei[1] + 1, pzwei[0]] = 0;
+                        else
+                            Feld[pzwei[1] - 1, pzwei[0]] = 0;
+                        zeichneSpieler();
                         ereignisse(previous, peins[0], pzwei[0], peins[1], pzwei[1]);
                     }
                     else
@@ -1684,7 +1757,7 @@ namespace Schach
                 }
                 else
                 {
-                    if (!rochadem[rochade - 1] || rochade == 1 && (Feld[7, 5] != 0 || Feld[7, 6] != 0) || rochade == 3 && (Feld[0, 5] != 0 || Feld[0, 6] != 0) || rochade == 2 && (Feld[7, 1] != 0 || Feld[7, 2] != 0 || Feld[7, 3] != 0) || rochade == 4 && (Feld[0, 1] != 0 || Feld[0, 2] != 0 || Feld[0, 3] != 0))
+                    if (!rochadepossible(rochade))
                     {
                         Error();
                         return false;
@@ -1744,6 +1817,14 @@ namespace Schach
                 return false;
             }
         }
+
+        public static bool rochadepossible(int rochade)
+        {
+            if (!rochadem[rochade - 1] || rochade == 1 && (Feld[7, 5] != 0 || Feld[7, 6] != 0) || rochade == 3 && (Feld[0, 5] != 0 || Feld[0, 6] != 0) || rochade == 2 && (Feld[7, 1] != 0 || Feld[7, 2] != 0 || Feld[7, 3] != 0) || rochade == 4 && (Feld[0, 1] != 0 || Feld[0, 2] != 0 || Feld[0, 3] != 0))
+                return false;
+            else return true;
+        }
+
         public static void gewonnen()
         {
             Console.Clear();
