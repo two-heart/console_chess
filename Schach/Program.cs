@@ -244,20 +244,20 @@ namespace Schach
         #region voids
         public static void Main(string[] args)
         {
-            start:
-            preinit();
-            menu();
-            postinit();
-            if (menupoint != 3)
-            {
-                Spiel();
-                Console.ForegroundColor = background;
-                Console.ReadLine();
-                Console.ForegroundColor = ConsoleColor.Black;
-            }
+            while(true){
+                preinit();
+                menu();
+                postinit();
+                if (menupoint != 3)
+                {
+                    Spiel();
+                    Console.ForegroundColor = background;
+                    Console.ReadLine();
+                    Console.ForegroundColor = ConsoleColor.Black;
+                }
             else
                 Settings();
-            goto start;
+            }
         }
 
         public static void Spiel()
