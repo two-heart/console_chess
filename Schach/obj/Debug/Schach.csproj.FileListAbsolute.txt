@@ -4,3 +4,9 @@ h:\visual studio 2015\Projects\Schach\Schach\bin\Debug\Schach.pdb
 h:\visual studio 2015\Projects\Schach\Schach\obj\Debug\Schach.csprojResolveAssemblyReference.cache
 h:\visual studio 2015\Projects\Schach\Schach\obj\Debug\Schach.exe
 h:\visual studio 2015\Projects\Schach\Schach\obj\Debug\Schach.pdb
+C:\Users\Liam\Documents\Visual Studio 2015\Projects\console_chess\Schach\bin\Debug\Schach.exe.config
+C:\Users\Liam\Documents\Visual Studio 2015\Projects\console_chess\Schach\obj\Debug\Schach.exe
+C:\Users\Liam\Documents\Visual Studio 2015\Projects\console_chess\Schach\obj\Debug\Schach.pdb
+C:\Users\Liam\Documents\Visual Studio 2015\Projects\console_chess\Schach\bin\Debug\Schach.exe
+C:\Users\Liam\Documents\Visual Studio 2015\Projects\console_chess\Schach\bin\Debug\Schach.pdb
+C:\Users\Liam\Documents\Visual Studio 2015\Projects\console_chess\Schach\obj\Debug\Schach.csprojResolveAssemblyReference.cache
